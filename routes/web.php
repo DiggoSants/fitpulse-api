@@ -23,3 +23,17 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('students', StudentController::class);
 });
 require __DIR__ . '/auth.php';
+
+use App\Http\Controllers\DashboardController;
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth'])
+    ->name('dashboard');
+
+use App\Http\Controllers\ExerciseController;
+
+Route::resource('exercises', ExerciseController::class);
+
+use App\Http\Controllers\WorkoutController;
+
+Route::get('/workout/create', [WorkoutController::class,'create']);
+Route::post('/workout/store', [WorkoutController::class,'store']);

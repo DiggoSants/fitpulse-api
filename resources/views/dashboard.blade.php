@@ -25,4 +25,29 @@
         </div>
     </div>
 
+    <h2>Seu treino</h2>
+
+<table>
+<thead>
+<tr>
+<th>Exercício</th>
+<th>Séries</th>
+<th>Reps</th>
+<th>Carga</th>
+<th>Descanso</th>
+</tr>
+</thead>
+
+<tbody>
+@foreach($exercises as $item)
+<tr>
+<td>{{ $item->exercise->name }}</td>
+<td>{{ $item->sets }}</td>
+<td>{{ $item->reps }}</td>
+<td>{{ $item->load_kg }} kg</td>
+<td>{{ $item->rest_seconds }} s</td>
+</tr>
+@endforeach
+</tbody>
+</table>
 </x-app-layout>

@@ -1,35 +1,29 @@
-🏋️ FitPulse – Gym Management System
+🏋️ FitPulse — Gym Management System
 
-FitPulse is a gym management platform developed using Laravel to manage students, instructors, memberships, and gym operations in a centralized system.
+FitPulse is a gym management system built with Laravel to manage members, instructors, and gym operations in a centralized platform.
 
-The project was created in an academic context, focusing on database modeling, backend development, system architecture, and version control collaboration.
+This project was developed in an academic context, focusing on database modeling, backend development, system architecture, and collaborative version control.
 
-📖 Project Overview
+📚 Project Overview
 
-FitPulse is designed to centralize the administrative, financial, and operational processes of a fitness center into a single platform.
+FitPulse centralizes the administrative, financial, and operational processes of a gym into a single platform.
 
-The system allows gym managers to manage students, monitor attendance, control memberships, and organize workout and evaluation data efficiently.
+With this system it is possible to manage members, monitor attendance, control memberships, and organize training and evaluation data efficiently.
 
 🎯 Project Objectives
 
 The system aims to:
 
-Manage gym members and staff roles
+• Manage gym members and staff roles
+• Control memberships and monthly payments
+• Monitor student attendance
+• Manage personalized workout plans
+• Register physical evaluations
+• Control internal store sales
+• Maintain audit logs for system security
 
-Control memberships and monthly payments
-
-Monitor student attendance
-
-Manage personalized workout plans
-
-Register physical evaluations
-
-Control internal store sales
-
-Maintain audit logs for system security
-
-🛠 Technologies & Tools
-💻 Back-end
+🛠 Technologies
+Back-end
 
 PHP 8+
 
@@ -39,7 +33,7 @@ MySQL
 
 Eloquent ORM
 
-🎨 Front-end
+Front-end
 
 Blade
 
@@ -49,28 +43,26 @@ JavaScript
 
 Vite
 
-🗄 Database Modeling
-
-DBDiagram.io
-
-Draw.io / Diagrams.net
-
-🔄 Version Control
+Tools
 
 Git
 
 GitHub
 
-📋 Project Management
-
 Trello
+
+Figma
+
+DBDiagram.io
+
+Draw.io / Diagrams.net
 
 📂 Project Structure
 fitpulse-api
 │
-├── docs/          # Project documentation (DER, diagrams, PDFs)
+├── docs/           # Project documentation (DER, diagrams, PDFs)
 │
-└── src/           # Laravel application source code
+└── src/            # Laravel application
     ├── app/
     ├── routes/
     ├── resources/
@@ -87,20 +79,20 @@ Composer
 
 MySQL
 
-Git
-
 Node.js & NPM
 
-Recommended development environments:
+Git
+
+Recommended environments:
 
 XAMPP
 
 Laragon
 
-🚀 How to Run the Project
+🚀 Installation & Setup
 1️⃣ Clone the repository
 git clone https://github.com/gustavomrq/fitpulse-api.git
-2️⃣ Enter the project folder
+2️⃣ Enter the project directory
 cd fitpulse-api/src
 3️⃣ Install PHP dependencies
 composer install
@@ -113,7 +105,7 @@ Copy the example file:
 cp .env.example .env
 6️⃣ Configure the database
 
-Open the .env file and configure:
+Open .env and update:
 
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
@@ -123,9 +115,9 @@ DB_USERNAME=root
 DB_PASSWORD=
 7️⃣ Generate the application key
 php artisan key:generate
-8️⃣ Run database migrations
+8️⃣ Run the migrations
 php artisan migrate
-9️⃣ Run the development servers
+▶️ Running the Project
 
 Start the Laravel server:
 
@@ -134,26 +126,22 @@ php artisan serve
 Start the Vite development server:
 
 npm run dev
-🌐 Access the system
+🌐 Access the Application
 
-After running the servers, open:
+Open in your browser:
 
 http://127.0.0.1:8000
 🔐 Authentication
 
-The system uses Laravel Breeze for authentication.
+The project uses Laravel Breeze for authentication.
 
 Features include:
 
-User registration
-
-Login
-
-Logout
-
-Route protection
-
-Dashboard access
+• User registration
+• Login
+• Logout
+• Route protection
+• Dashboard access
 
 Main routes:
 
@@ -176,20 +164,20 @@ Internal Store Sales
 
 Audit Logs & Security Monitoring
 
-👥 Team Members
+👥 Team
 Diego Santos - Manager
 
-Gustavo Marques – Back-end Developer 
+Gustavo Marques - Back-end Developer
 
-Lívia Karoliny – Front-end Developer
+Lívia Karoliny - Front-end Developer
 
 Gilles Gael - Tester
 
 Guilherme Yuri - Tester
 
-📌 Academic Context
+🎓 Academic Context
 
-This project was developed as part of an academic assignment focused on:
+This project was developed as part of an academic assignment focusing on:
 
 Database modeling (conceptual, logical, and physical)
 
@@ -201,14 +189,4 @@ Version control collaboration
 
 Team-based project management
 
-Tasks were organized using Trello, and the source code is maintained using Git and GitHub.
-
-📊 Languages
-
-PHP
-
-Blade
-
-CSS
-
-JavaScript
+Tasks were organized using Trello, and the source code is maintained using Git and

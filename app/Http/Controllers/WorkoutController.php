@@ -16,7 +16,7 @@ class WorkoutController extends Controller
         $students = Student::all();
         $exercises = Exercise::all();
 
-        return view('workouts.create', compact('students','exercises'));
+        return view('workouts.create', compact('students', 'exercises'));
     }
 
     public function store(Request $request)
@@ -26,18 +26,20 @@ class WorkoutController extends Controller
             'name' => $request->name
         ]);
 
-        foreach($request->exercise_id as $key => $exercise){
+        if ($request->exercise_id) {
 
-            WorkoutExercise::create([
-                'workout_id' => $workout->id,
-                'exercise_id' => $exercise,
-                'sets' => $request->sets[$key],
-                'reps' => $request->reps[$key],
-                'rest_time' => $request->rest_time[$key]
-            ]);
+            foreach ($request->exercise_id as $key => $exercise) {
+
+                WorkoutExercise::create([
+                    'workout_id' => $workout->id,
+                    'exercise_id' => $exercise,
+                    'sets' => $request->sets[$key],
+                    'reps' => $request->reps[$key],
+                    'rest_time' => $request->rest_time[$key]
+                ]);
+            }
         }
 
         return redirect('/dashboard');
     }
-
 }

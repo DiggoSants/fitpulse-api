@@ -118,13 +118,13 @@
             <span class="es-pill"><i class="fa-solid fa-dumbbell"></i> Musculação</span>
             <span class="es-pill"><i class="fa-solid fa-person-running"></i> Cardio</span>
             <span class="es-pill"><i class="fa-solid fa-users"></i> Aulas coletivas</span>
-            <span class="es-pill"><i class="fa-solid fa-star"></i> 5 unidades</span>
+            <span class="es-pill"><i class="fa-solid fa-star"></i> 6 unidades</span>
           </div>
           <div class="es-stats-row">
             <div class="es-stat"><strong>+3.600</strong><span>alunos</span></div>
             <div class="es-stat"><strong>4,9/5</strong><span>avaliação</span></div>
             <div class="es-stat"><strong>12</strong><span>professores</span></div>
-            <div class="es-stat"><strong>5</strong><span>unidades</span></div>
+            <div class="es-stat"><strong>6</strong><span>unidades</span></div>
           </div>
           <button class="es-next-btn" data-goto="1">
             CONHEÇA A EMPRESA <i class="fa-solid fa-arrow-right"></i>
@@ -142,7 +142,7 @@
             <p class="es-kicker">SOBRE NÓS</p>
             <h2 class="es-title">Uma história<br>de <span>superação</span></h2>
             <p class="es-desc">Fundada em 2014 em Fortaleza, a FIT PULSE nasceu da vontade de oferecer um espaço onde qualquer pessoa — iniciante ou atleta — pudesse evoluir com segurança, orientação e motivação real.</p>
-            <p class="es-desc">Hoje somos referência no Ceará com 5 unidades, mais de 3.600 alunos ativos e uma equipe de professores certificados e apaixonados pelo que fazem.</p>
+            <p class="es-desc">Hoje somos referência no Ceará com 6 unidades, mais de 3.600 alunos ativos e uma equipe de professores certificados e apaixonados pelo que fazem.</p>
             <ul class="es-checklist">
               <li><i class="fa-solid fa-check"></i> Metodologia própria de treino</li>
               <li><i class="fa-solid fa-check"></i> Avaliação física na matrícula</li>
@@ -153,7 +153,7 @@
           </div>
           <div class="es-col-visual">
             <div class="es-card-stat"><strong>2014</strong><span>Fundação</span></div>
-            <div class="es-card-stat es-card-stat--red"><strong>5</strong><span>Unidades CE</span></div>
+            <div class="es-card-stat es-card-stat--red"><strong>6</strong><span>Unidades CE</span></div>
             <div class="es-card-stat"><strong>+3.6k</strong><span>Alunos ativos</span></div>
             <div class="es-card-stat es-card-stat--red"><strong>4,9★</strong><span>Avaliação</span></div>
           </div>
@@ -339,36 +339,43 @@
               <div class="es-sede__num">01</div>
               <strong>Meireles</strong>
               <span>Av. Beira Mar, 1250 · Fortaleza – CE</span>
-              <a href="https://maps.google.com" target="_blank" class="es-sede__link"><i class="fa-solid fa-location-dot"></i> Ver no mapa</a>
+              <a href="https://www.google.com/maps/search/Av.+Beira+Mar+1250+Fortaleza" target="_blank" class="es-sede__link"><i class="fa-solid fa-location-dot"></i> Ver no mapa</a>
             </div>
             <div class="es-sede">
               <div class="es-sede__num">02</div>
               <strong>Aldeota</strong>
               <span>Rua Dom Luís, 880 · Fortaleza – CE</span>
-              <a href="https://maps.google.com" target="_blank" class="es-sede__link"><i class="fa-solid fa-location-dot"></i> Ver no mapa</a>
+              <a href="https://www.google.com/maps/search/Rua+Dom+Luis+880+Fortaleza" target="_blank" class="es-sede__link"><i class="fa-solid fa-location-dot"></i> Ver no mapa</a>
             </div>
             <div class="es-sede">
               <div class="es-sede__num">03</div>
               <strong>Maraponga</strong>
               <span>Av. Godofredo Maciel, 540 · Fortaleza – CE</span>
-              <a href="https://maps.google.com" target="_blank" class="es-sede__link"><i class="fa-solid fa-location-dot"></i> Ver no mapa</a>
+              <a href="https://www.google.com/maps/search/Av+Godofredo+Maciel+540+Fortaleza" target="_blank" class="es-sede__link"><i class="fa-solid fa-location-dot"></i> Ver no mapa</a>
             </div>
             <div class="es-sede">
               <div class="es-sede__num">04</div>
               <strong>Messejana</strong>
               <span>Av. Frei Cirilo, 1100 · Fortaleza – CE</span>
-              <a href="https://maps.google.com" target="_blank" class="es-sede__link"><i class="fa-solid fa-location-dot"></i> Ver no mapa</a>
+              <a href="https://www.google.com/maps/search/Av+Frei+Cirilo+1100+Fortaleza" target="_blank" class="es-sede__link"><i class="fa-solid fa-location-dot"></i> Ver no mapa</a>
             </div>
             <div class="es-sede">
               <div class="es-sede__num">05</div>
               <strong>Caucaia</strong>
               <span>Rua Araújo, 320 · Caucaia – CE</span>
-              <a href="https://maps.google.com" target="_blank" class="es-sede__link"><i class="fa-solid fa-location-dot"></i> Ver no mapa</a>
+              <a href="https://www.google.com/maps/search/Av+Frei+Cirilo+1100+Fortaleza" target="_blank" class="es-sede__link"><i class="fa-solid fa-location-dot"></i> Ver no mapa</a>
+            </div>
+            <div class="es-sede">
+              <div class="es-sede__num">6</div>
+              <strong>Lagamar</strong>
+              <span>Av.Mister Hull · Fortaleza – CE</span>
+              <a href="https://www.google.com/maps/search/Av+Mister+Hull+890+Fortaleza" target="_blank" class="es-sede__link"><i class="fa-solid fa-location-dot"></i> Ver no mapa</a>
             </div>
           </div>
           <button class="es-next-btn" data-goto="7">FALE CONOSCO <i class="fa-solid fa-arrow-right"></i></button>
         </div>
-      </div>
+          </div>
+          
 
       <!-- SLIDE 7: CONTATO -->
       <div class="explore-slide" data-index="7">
@@ -465,7 +472,7 @@
         <div class="stat-label">professores</div>
       </div>
       <div class="stat">
-        <div class="stat-number" data-to="5">0</div>
+        <div class="stat-number" data-to="6">0</div>
         <div class="stat-label">unidades</div>
       </div>
     </div>
@@ -520,93 +527,523 @@
     </div>
   </section>
 
-  <!-- SEDES -->
-  <section class="section" id="sedes">
-    <div class="container">
-      <h2 class="section-title">Nossas sedes</h2>
-      <p class="section-sub">Escolha a unidade mais perto de você.</p>
-      <div class="grid-3">
-        <div class="card">Unidade 1<br><small>Endereço</small></div>
-        <div class="card">Unidade 2<br><small>Endereço</small></div>
-        <div class="card">Unidade 3<br><small>Endereço</small></div>
-      </div>
-    </div>
-  </section>
 
-  <!-- INSTRUTORES -->
-  <section class="section">
-    <div class="container">
-      <h2 class="section-title">CONHEÇA NOSSOS INSTRUTORES</h2>
-      <p class="section-sub">texto...</p>
-      <div class="grid-3"></div>
+<!-- sedes -->
+<section class="section sedes-section" id="sedes">
+  <div class="container">
+ 
+    <div class="sec-header">
+      <span class="sec-kicker">ONDE ESTAMOS</span>
+      <h2 class="section-title">Nossas <span class="txt-red">Sedes</span></h2>
+      <p class="section-sub">6 unidades espalhadas pela Grande Fortaleza. Encontre a mais perto de você.</p>
     </div>
-  </section>
-
-  <!-- BENEFÍCIOS -->
-  <section class="section section--alt" id="beneficios">
-    <div class="container">
-      <h2 class="section-title">Benefícios</h2>
-      <p class="section-sub">O que você ganha treinando aqui.</p>
-      <div class="grid-3">
-        <div class="card">Treinos completos</div>
-        <div class="card">Professores presentes</div>
-        <div class="card">Ambiente motivador</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PLANOS -->
-  <section class="section" id="planos">
-    <div class="container">
-      <h2 class="section-title">Planos</h2>
-      <p class="section-sub">Escolha o plano ideal pra você.</p>
-      <div class="grid-3">
-        <div class="pricing">
-          <h3>Básico</h3>
-          <p class="price">R$ 79,90</p>
-          <ul><li>Musculação</li><li>Acesso em horário comercial</li></ul>
-          <a class="btn btn--outline" href="#matricula">Quero esse</a>
+ 
+    <div class="sedes-grid">
+ 
+      <!-- SEDE 1 -->
+      <article class="sede-card">
+        <div class="sede-card__img-wrap">
+          <!-- Troque o src pela foto real da unidade -->
+          <img
+            src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80"
+            alt="Unidade Meireles"
+            loading="lazy"
+          >
+          <span class="sede-card__badge sede-card__badge--main">SEDE PRINCIPAL</span>
+          <span class="sede-card__num">01</span>
         </div>
-        <div class="pricing pricing--featured">
-          <h3>Premium</h3>
-          <p class="price">R$ 119,90</p>
-          <ul><li>Musculação + Aulas</li><li>Qualquer horário</li><li>Acompanhamento</li></ul>
-          <a class="btn btn--ghost" href="#matricula">Mais escolhido</a>
+        <div class="sede-card__body">
+          <h3 class="sede-card__name">Meireles</h3>
+          <p class="sede-card__addr">
+            <i class="fa-solid fa-location-dot"></i>
+            Av. Beira Mar, 1250 · Fortaleza – CE
+          </p>
+          <ul class="sede-card__info">
+            <li><i class="fa-solid fa-clock"></i> Seg–Sex 05h–23h &nbsp;·&nbsp; Sáb 06h–20h &nbsp;·&nbsp; Dom 08h–14h</li>
+            <li><i class="fa-solid fa-phone"></i> (85) 99999-0001</li>
+            <li><i class="fa-solid fa-car"></i> Estacionamento gratuito</li>
+          </ul>
+          <a
+            href="https://www.google.com/maps/search/Av.+Beira+Mar+1250+Fortaleza"
+            target="_blank" rel="noopener"
+            class="sede-card__map-btn"
+          >
+            <i class="fa-solid fa-map-location-dot"></i> Ver no mapa
+          </a>
         </div>
-        <div class="pricing">
-          <h3>Black</h3>
-          <p class="price">R$ 149,90</p>
-          <ul><li>Tudo do Premium</li><li>Treino personalizado</li></ul>
-          <a class="btn btn--outline" href="#matricula">Quero esse</a>
+      </article>
+ 
+      <!-- SEDE 2 -->
+      <article class="sede-card">
+        <div class="sede-card__img-wrap">
+          <img
+            src="https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=600&q=80"
+            alt="Unidade Aldeota"
+            loading="lazy"
+          >
+          <span class="sede-card__num">02</span>
         </div>
+        <div class="sede-card__body">
+          <h3 class="sede-card__name">Aldeota</h3>
+          <p class="sede-card__addr">
+            <i class="fa-solid fa-location-dot"></i>
+            Rua Dom Luís, 880 · Fortaleza – CE
+          </p>
+          <ul class="sede-card__info">
+            <li><i class="fa-solid fa-clock"></i> Seg–Sex 05h–23h &nbsp;·&nbsp; Sáb 06h–20h &nbsp;·&nbsp; Dom 08h–14h</li>
+            <li><i class="fa-solid fa-phone"></i> (85) 99999-0002</li>
+            <li><i class="fa-solid fa-dumbbell"></i> Spinning exclusivo</li>
+          </ul>
+          <a
+            href="https://www.google.com/maps/search/Rua+Dom+Luis+880+Fortaleza"
+            target="_blank" rel="noopener"
+            class="sede-card__map-btn"
+          >
+            <i class="fa-solid fa-map-location-dot"></i> Ver no mapa
+          </a>
+        </div>
+      </article>
+ 
+      <!-- SEDE 3 -->
+      <article class="sede-card">
+        <div class="sede-card__img-wrap">
+          <img
+            src="https://images.unsplash.com/photo-1593079831268-3381b0db4a77?w=600&q=80"
+            alt="Unidade Maraponga"
+            loading="lazy"
+          >
+          <span class="sede-card__num">03</span>
+        </div>
+        <div class="sede-card__body">
+          <h3 class="sede-card__name">Maraponga</h3>
+          <p class="sede-card__addr">
+            <i class="fa-solid fa-location-dot"></i>
+            Av. Godofredo Maciel, 540 · Fortaleza – CE
+          </p>
+          <ul class="sede-card__info">
+            <li><i class="fa-solid fa-clock"></i> Seg–Sex 05h–23h &nbsp;·&nbsp; Sáb 06h–20h &nbsp;·&nbsp; Dom 08h–14h</li>
+            <li><i class="fa-solid fa-phone"></i> (85) 99999-0003</li>
+            <li><i class="fa-solid fa-spa"></i> Studio de yoga</li>
+          </ul>
+          <a
+            href="https://www.google.com/maps/search/Av+Godofredo+Maciel+540+Fortaleza"
+            target="_blank" rel="noopener"
+            class="sede-card__map-btn"
+          >
+            <i class="fa-solid fa-map-location-dot"></i> Ver no mapa
+          </a>
+        </div>
+      </article>
+ 
+      <!-- SEDE 4 -->
+      <article class="sede-card">
+        <div class="sede-card__img-wrap">
+          <img
+            src="https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=600&q=80"
+            alt="Unidade Messejana"
+            loading="lazy"
+          >
+          <span class="sede-card__num">04</span>
+        </div>
+        <div class="sede-card__body">
+          <h3 class="sede-card__name">Messejana</h3>
+          <p class="sede-card__addr">
+            <i class="fa-solid fa-location-dot"></i>
+            Av. Frei Cirilo, 1100 · Fortaleza – CE
+          </p>
+          <ul class="sede-card__info">
+            <li><i class="fa-solid fa-clock"></i> Seg–Sex 05h–23h &nbsp;·&nbsp; Sáb 06h–20h &nbsp;·&nbsp; Dom 08h–14h</li>
+            <li><i class="fa-solid fa-phone"></i> (85) 99999-0004</li>
+            <li><i class="fa-solid fa-trophy"></i> Área de cross training</li>
+          </ul>
+          <a
+            href="https://www.google.com/maps/search/Av+Frei+Cirilo+1100+Fortaleza"
+            target="_blank" rel="noopener"
+            class="sede-card__map-btn"
+          >
+            <i class="fa-solid fa-map-location-dot"></i> Ver no mapa
+          </a>
+        </div>
+      </article>
+ 
+      <!-- SEDE 5 -->
+      <article class="sede-card">
+        <div class="sede-card__img-wrap">
+          <img src="{{ asset('img/sede5.jpg') }}" alt="Unidade Caucaia" loading="lazy">
+          <span class="sede-card__num">05</span>
+        </div>
+        <div class="sede-card__body">
+          <h3 class="sede-card__name">Caucaia</h3>
+          <p class="sede-card__addr">
+            <i class="fa-solid fa-location-dot"></i>
+            Rua Araújo, 320 · Caucaia – CE
+          </p>
+          <ul class="sede-card__info">
+            <li><i class="fa-solid fa-clock"></i> Seg–Sex 06h–22h &nbsp;·&nbsp; Sáb 07h–18h &nbsp;·&nbsp; Dom 08h–14h</li>
+            <li><i class="fa-solid fa-phone"></i> (85) 99999-0005</li>
+            <li><i class="fa-solid fa-star"></i> Inaugurada em 2024</li>
+          </ul>
+          <a
+            href="https://www.google.com/maps/search/Rua+Araujo+320+Caucaia+CE"
+            target="_blank" rel="noopener"
+            class="sede-card__map-btn"
+          >
+            <i class="fa-solid fa-map-location-dot"></i> Ver no mapa
+          </a>
+        </div>
+      </article>
+
+      <!-- SEDE 6 -->
+        <article class="sede-card">
+          <div class="sede-card__img-wrap">
+           <img src="{{ asset('img/sede6.jpg') }}" alt="Unidade Lagamar" loading="lazy">
+             <span class="sede-card__badge sede-card__badge--new">NOVA</span>
+             <span class="sede-card__num">06</span>
+         </div>
+         <div class="sede-card__body">
+            <h3 class="sede-card__name">Lagamar</h3>
+            <p class="sede-card__addr">
+             <i class="fa-solid fa-location-dot"></i>
+                Av. Mister Hull, 890 · Fortaleza – CE
+            </p>
+          <ul class="sede-card__info">
+             <li><i class="fa-solid fa-clock"></i> Seg–Sex 05h–23h · Sáb 06h–20h · Dom 08h–14h</li>
+             <li><i class="fa-solid fa-phone"></i> (85) 99999-0006</li>
+             <li><i class="fa-solid fa-star"></i> Equipamentos premium</li>
+         </ul>
+         <a href="https://www.google.com/maps/search/Av+Mister+Hull+890+Fortaleza" target="_blank" rel="noopener" class="sede-card__map-btn">
+          <i class="fa-solid fa-map-location-dot"></i> Ver no mapa
+         </a>
       </div>
-    </div>
-  </section>
-
-  <!-- FAQ -->
-  <section class="section section--alt" id="faq">
-    <div class="container">
-      <h2 class="section-title">Perguntas frequentes</h2>
-      <div class="faq">
-        <details class="faq-item">
-          <summary>Tem taxa de matrícula?</summary>
-          <p>Coloque aqui sua resposta.</p>
-        </details>
-        <details class="faq-item">
-          <summary>Posso treinar em qualquer unidade?</summary>
-          <p>Coloque aqui sua resposta.</p>
-        </details>
-      </div>
-    </div>
-  </section>
-
-</main>
-
-<footer class="footer">
-  <div class="container footer-inner">
-    <p>© FIT PULSE</p>
-    <a class="nav-link" href="#topo">Voltar ao topo</a>
+    </article>
+ 
+    </div><!-- /sedes-grid -->
   </div>
-</footer>
+</section>
+ 
+<!--INSTRUTORES-->
+<section class="section section--dark instrutores-section" id="instrutores">
+  <div class="container">
+ 
+    <div class="sec-header">
+      <span class="sec-kicker">NOSSA EQUIPE</span>
+      <h2 class="section-title">Conheça nossos <span class="txt-red">Instrutores</span></h2>
+      <p class="section-sub">Clique em qualquer instrutor para conhecer melhor a trajetória e especialidades de cada um.</p>
+    </div>
+ 
+    <!-- Carrossel wrapper -->
+    <div class="carr-wrap">
+      <button class="carr-btn carr-btn--prev" id="carrPrev" aria-label="Anterior">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+ 
+      <div class="carr-viewport" id="carrViewport">
+        <div class="carr-track" id="carrTrack">
+ 
+          <!-- CARD 1 -->
+          <button class="instr-card" data-id="0" aria-label="Ver perfil de Ricardo Borges">
+            <div class="instr-card__img">
+              <!-- Troque pelo src da foto real -->
+              <div class="instr-card__avatar" style="--c:#d61532">RB</div>
+            </div>
+            <div class="instr-card__overlay">
+              <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
+            <div class="instr-card__foot">
+              <strong>Ricardo Borges</strong>
+              <span>Musculação</span>
+            </div>
+          </button>
+ 
+          <!-- CARD 2 -->
+          <button class="instr-card" data-id="1" aria-label="Ver perfil de Carla Almeida">
+            <div class="instr-card__img">
+              <div class="instr-card__avatar" style="--c:#222">CA</div>
+            </div>
+            <div class="instr-card__overlay">
+              <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
+            <div class="instr-card__foot">
+              <strong>Carla Almeida</strong>
+              <span>Spinning & Funcional</span>
+            </div>
+          </button>
+ 
+          <!-- CARD 3 -->
+          <button class="instr-card" data-id="2" aria-label="Ver perfil de Marcos Freitas">
+            <div class="instr-card__img">
+              <div class="instr-card__avatar" style="--c:#d61532">MF</div>
+            </div>
+            <div class="instr-card__overlay">
+              <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
+            <div class="instr-card__foot">
+              <strong>Marcos Freitas</strong>
+              <span>Cross Training</span>
+            </div>
+          </button>
+ 
+          <!-- CARD 4 -->
+          <button class="instr-card" data-id="3" aria-label="Ver perfil de Juliana Neves">
+            <div class="instr-card__img">
+              <div class="instr-card__avatar" style="--c:#222">JN</div>
+            </div>
+            <div class="instr-card__overlay">
+              <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
+            <div class="instr-card__foot">
+              <strong>Juliana Neves</strong>
+              <span>Yoga & Pilates</span>
+            </div>
+          </button>
+ 
+          <!-- CARD 5 -->
+          <button class="instr-card" data-id="4" aria-label="Ver perfil de Felipe Santos">
+            <div class="instr-card__img">
+              <div class="instr-card__avatar" style="--c:#d61532">FS</div>
+            </div>
+            <div class="instr-card__overlay">
+              <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
+            <div class="instr-card__foot">
+              <strong>Felipe Santos</strong>
+              <span>Zumba & Dança</span>
+            </div>
+          </button>
+ 
+          <!-- CARD 6 -->
+          <button class="instr-card" data-id="5" aria-label="Ver perfil de Ana Lima">
+            <div class="instr-card__img">
+              <div class="instr-card__avatar" style="--c:#222">AL</div>
+            </div>
+            <div class="instr-card__overlay">
+              <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
+            <div class="instr-card__foot">
+              <strong>Ana Lima</strong>
+              <span>Personal Trainer</span>
+            </div>
+          </button>
+
+            <!-- CARD 7 -->
+         <button class="instr-card" data-id="6" aria-label="Ver perfil de Bruno Martins">
+          <div class="instr-card__img">
+           <div class="instr-card__avatar" style="--c:#d61532">BM</div>
+          </div>
+          <div class="instr-card__overlay">
+            <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
+          </div>
+          <div class="instr-card__foot">
+             <strong>Bruno Martins</strong>
+             <span>Força & Powerlifting</span>
+            </div>
+          </button>
+           
+          <!-- CARD 8 -->
+         <button class="instr-card" data-id="7" aria-label="Ver perfil de Larissa Costa">
+           <div class="instr-card__img">
+            <div class="instr-card__avatar" style="--c:#222">LC</div>
+           </div>
+           <div class="instr-card__overlay">
+             <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
+           </div>
+           <div class="instr-card__foot">
+              <strong>Larissa Costa</strong>
+              <span>Aqua Fitness</span>
+              </div>
+           </button>
+
+        <!-- CARD 9 -->
+         <button class="instr-card" data-id="8" aria-label="Ver perfil de Thiago Oliveira">
+          <div class="instr-card__img">
+           <div class="instr-card__avatar" style="--c:#d61532">TO</div>
+          </div>
+          <div class="instr-card__overlay">
+            <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
+          </div>
+          <div class="instr-card__foot">
+             <strong>Thiago Oliveira</strong>
+             <span>Boxe & MMA</span>
+          </div>
+         </button>
+
+         <!-- CARD 10 -->
+       <button class="instr-card" data-id="9" aria-label="Ver perfil de Patrícia Rocha">
+         <div class="instr-card__img">
+           <div class="instr-card__avatar" style="--c:#222">PR</div>
+         </div>
+         <div class="instr-card__overlay">
+         <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
+         </div>
+          <div class="instr-card__foot">
+            <strong>Patrícia Rocha</strong>
+            <span>Pilates & Mobilidade</span>
+           </div>
+         </button>
+
+        <!-- CARD 11 -->
+       <button class="instr-card" data-id="10" aria-label="Ver perfil de Rafael Viana">
+        <div class="instr-card__img">
+          <div class="instr-card__avatar" style="--c:#d61532">RV</div>
+        </div>
+        <div class="instr-card__overlay">
+           <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
+       </div>
+       <div class="instr-card__foot">
+        <strong>Rafael Viana</strong>
+        <span>Corrida & Atletismo</span>
+       </div>
+      </button>
+
+      <!-- CARD 12 -->
+      <button class="instr-card" data-id="11" aria-label="Ver perfil de Marina Sousa">
+       <div class="instr-card__img">
+         <div class="instr-card__avatar" style="--c:#222">MS</div>
+       </div>
+       <div class="instr-card__overlay">
+         <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
+      </div>
+      <div class="instr-card__foot">
+        <strong>Marina Sousa</strong>
+        <span>Flexibilidade & Postura</span>
+       </div>
+      </button>
+ 
+        </div>
+      </div>
+ 
+      <button class="carr-btn carr-btn--next" id="carrNext" aria-label="Próximo">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+ 
+    
+    <div class="carr-dots" id="carrDots"></div>
+ 
+  </div>
+</section>
+ 
+<!-- MODAL: perfil do instrutor -->
+<div class="instr-modal" id="instrModal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="instr-modal__overlay" id="instrOverlay"></div>
+  <div class="instr-modal__panel">
+    <button class="instr-modal__close" id="instrClose" aria-label="Fechar">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+ 
+    <div class="instr-modal__hero">
+      <div class="instr-modal__avatar" id="mAvatar"></div>
+      <div class="instr-modal__headline">
+        <p class="sec-kicker" id="mKicker"></p>
+        <h2 class="instr-modal__name" id="mName"></h2>
+        <p class="instr-modal__role" id="mRole"></p>
+      </div>
+    </div>
+ 
+    <div class="instr-modal__body">
+      <div class="instr-modal__col">
+        <h4 class="instr-modal__label">Sobre</h4>
+        <p id="mBio"></p>
+ 
+        <h4 class="instr-modal__label" style="margin-top:20px">Especialidades</h4>
+        <div class="instr-modal__tags" id="mTags"></div>
+      </div>
+      <div class="instr-modal__col instr-modal__col--stats">
+        <div class="instr-modal__stat" id="mStat1"></div>
+        <div class="instr-modal__stat" id="mStat2"></div>
+        <div class="instr-modal__stat" id="mStat3"></div>
+      </div>
+    </div>
+ 
+    <div class="instr-modal__footer">
+      <a href="#matricula" class="instr-modal__cta-btn" id="instrClose2">
+        <i class="fa-solid fa-dumbbell"></i> Treinar com este instrutor
+      </a>
+    </div>
+  </div>
+</div>
+ 
+ 
+<!-- fac-->
+<section class="section section--alt faq-section" id="faq">
+  <div class="container">
+ 
+    <div class="sec-header">
+      <span class="sec-kicker">TIRE SUAS DÚVIDAS</span>
+      <h2 class="section-title">Perguntas <span class="txt-red">Frequentes</span></h2>
+      <p class="section-sub">Respondemos as dúvidas mais comuns. Não achou o que procura? Fale com a gente.</p>
+    </div>
+ 
+    <div class="faq-list">
+ 
+      <details class="faq-acc">
+        <summary><span>Tem taxa de matrícula?</span><i class="fa-solid fa-plus faq-acc__icon"></i></summary>
+        <div class="faq-acc__body">
+          <p>No primeiro mês a taxa de matrícula é <strong>totalmente isenta</strong> para qualquer plano. A partir do segundo mês, não há cobranças extras além da mensalidade escolhida.</p>
+        </div>
+      </details>
+ 
+      <details class="faq-acc">
+        <summary><span>Posso treinar em qualquer unidade?</span><i class="fa-solid fa-plus faq-acc__icon"></i></summary>
+        <div class="faq-acc__body">
+          <p>Sim! Os planos <strong>Premium</strong> e <strong>Black</strong> dão acesso livre a todas as 5 unidades. O plano Básico é vinculado à unidade escolhida na matrícula.</p>
+        </div>
+      </details>
+ 
+      <details class="faq-acc">
+        <summary><span>Posso cancelar quando quiser?</span><i class="fa-solid fa-plus faq-acc__icon"></i></summary>
+        <div class="faq-acc__body">
+          <p>Sim. Não existe fidelidade mínima. O cancelamento é feito na recepção ou pelo WhatsApp, sem multa e sem burocracia.</p>
+        </div>
+      </details>
+ 
+      <details class="faq-acc">
+        <summary><span>As aulas coletivas têm custo extra?</span><i class="fa-solid fa-plus faq-acc__icon"></i></summary>
+        <div class="faq-acc__body">
+          <p>Não! Spinning, Yoga, Zumba, Funcional e Cross Training estão inclusos nos planos <strong>Premium</strong> e <strong>Black</strong>. No plano Básico, as aulas coletivas não estão inclusas.</p>
+        </div>
+      </details>
+ 
+      <details class="faq-acc">
+        <summary><span>Como funciona a avaliação física?</span><i class="fa-solid fa-plus faq-acc__icon"></i></summary>
+        <div class="faq-acc__body">
+          <p>Toda matrícula inclui uma <strong>avaliação física completa</strong> com um de nossos professores. Com base nela, montamos um plano de treino personalizado para seus objetivos.</p>
+        </div>
+      </details>
+ 
+      <details class="faq-acc">
+        <summary><span>Quais os horários de funcionamento?</span><i class="fa-solid fa-plus faq-acc__icon"></i></summary>
+        <div class="faq-acc__body">
+          <p><strong>Segunda a sexta:</strong> 05h às 23h &nbsp;|&nbsp; <strong>Sábado:</strong> 06h às 20h &nbsp;|&nbsp; <strong>Domingo e feriados:</strong> 08h às 14h. O plano Básico tem acesso apenas em horário comercial (08h–18h).</p>
+        </div>
+      </details>
+ 
+      <details class="faq-acc">
+        <summary><span>Tem serviço de nutrição?</span><i class="fa-solid fa-plus faq-acc__icon"></i></summary>
+        <div class="faq-acc__body">
+          <p>O plano <strong>Black</strong> inclui orientação nutricional básica. Para acompanhamento completo com nutricionista, oferecemos o serviço como add-on em qualquer plano. Consulte na recepção.</p>
+        </div>
+      </details>
+ 
+      <details class="faq-acc">
+        <summary><span>Aceita plano empresarial ou convênio?</span><i class="fa-solid fa-plus faq-acc__icon"></i></summary>
+        <div class="faq-acc__body">
+          <p>Sim! Oferecemos planos corporativos com condições especiais para grupos. Entre em contato por <strong>comercial@fitpulse.com.br</strong> ou pelo WhatsApp para saber mais.</p>
+        </div>
+      </details>
+ 
+    </div><!-- /faq-list -->
+ 
+    <div class="faq-cta">
+      <p>Ainda tem dúvidas?</p>
+      <a href="https://wa.me/5585999999999" target="_blank" rel="noopener" class="faq-whats-btn">
+        <i class="fa-brands fa-whatsapp"></i> Falar no WhatsApp
+      </a>
+    </div>
+ 
+  </div>
+</section>
+ 
+ 
 </body>
 </html>

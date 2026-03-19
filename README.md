@@ -1,17 +1,54 @@
-# FitPulse API
+# 🏋️ FitPulse — Gym Management System
 
-FitPulse is a system developed with **Laravel** for managing gym students.
+> **FitPulse** is a gym management system built with **Laravel** to manage members, instructors, and gym operations in a centralized platform.
+
+This project was developed in an **academic context**, focusing on **database modeling, backend development, system architecture, and collaborative version control**.
 
 ---
 
-# 📌 Technologies Used
+# 📚 Project Overview
 
-* PHP 8+
-* Laravel 12
-* MySQL
-* Laravel Breeze (authentication)
-* Blade
-* Git & GitHub
+FitPulse centralizes the **administrative, financial, and operational processes** of a gym into a single platform.
+
+With this system it is possible to manage members, monitor attendance, control memberships, and organize training and evaluation data efficiently.
+
+---
+
+# 🎯 Project Objectives
+
+The system aims to:
+
+• Manage gym members and staff roles  
+• Control memberships and monthly payments  
+• Monitor student attendance  
+• Manage personalized workout plans  
+• Register physical evaluations  
+• Control internal store sales  
+• Maintain audit logs for system security  
+
+---
+
+# 🛠 Technologies
+
+## Back-end
+- PHP 8+
+- Laravel 12
+- MySQL
+- Eloquent ORM
+
+## Front-end
+- Blade
+- CSS
+- JavaScript
+- Vite
+
+## Tools
+- Git
+- GitHub
+- Trello
+- Figma
+- DBDiagram.io
+- Draw.io / Diagrams.net
 
 ---
 
@@ -20,13 +57,14 @@ FitPulse is a system developed with **Laravel** for managing gym students.
 ```
 fitpulse-api
 │
-├── docs/          # Project documentation and PDFs
+├── docs/           # Project documentation (DER, diagrams, PDFs)
 │
-└── src/           # Laravel application source code
+└── src/            # Laravel application
     ├── app/
     ├── routes/
     ├── resources/
     ├── database/
+    ├── public/
     └── ...
 ```
 
@@ -36,20 +74,20 @@ fitpulse-api
 
 Before running the project, make sure you have installed:
 
-* PHP 8+
-* Composer
-* MySQL
-* Git
-* Node.js (optional, for assets)
+- PHP 8+
+- Composer
+- MySQL
+- Node.js & NPM
+- Git
 
 Recommended environments:
 
-* XAMPP
-* Laragon
+- XAMPP  
+- Laragon  
 
 ---
 
-# 🚀 How to Run the Project
+# 🚀 Installation & Setup
 
 ## 1️⃣ Clone the repository
 
@@ -57,35 +95,33 @@ Recommended environments:
 git clone https://github.com/gustavomrq/fitpulse-api.git
 ```
 
-Enter the project folder:
+## 2️⃣ Enter the project directory
 
 ```bash
 cd fitpulse-api/src
 ```
 
----
-
-# 2️⃣ Install Laravel dependencies
+## 3️⃣ Install PHP dependencies
 
 ```bash
 composer install
 ```
 
----
+## 4️⃣ Install JavaScript dependencies
 
-# 3️⃣ Create the `.env` file
+```bash
+npm install
+```
 
-Copy the example environment file:
+## 5️⃣ Create the environment file
 
 ```bash
 cp .env.example .env
 ```
 
----
+## 6️⃣ Configure the database
 
-# 4️⃣ Configure the database
-
-Open the `.env` file and configure the database connection:
+Open `.env` and update:
 
 ```
 DB_CONNECTION=mysql
@@ -96,17 +132,13 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
----
-
-# 5️⃣ Generate the application key
+## 7️⃣ Generate the application key
 
 ```bash
 php artisan key:generate
 ```
 
----
-
-# 6️⃣ Run database migrations (if necessary)
+## 8️⃣ Run database migrations
 
 ```bash
 php artisan migrate
@@ -114,28 +146,25 @@ php artisan migrate
 
 ---
 
-# 7️⃣ Install Breeze authentication (if not installed)
+# ▶️ Running the Project
 
-```bash
-php artisan breeze:install
-```
-
-Then run:
-
-```bash
-npm install
-npm run build
-```
-
----
-
-# 8️⃣ Start the development server
+Start the Laravel server:
 
 ```bash
 php artisan serve
 ```
 
-The application will be available at:
+Start the Vite development server:
+
+```bash
+npm run dev
+```
+
+---
+
+# 🌐 Access the Application
+
+Open in your browser:
 
 ```
 http://127.0.0.1:8000
@@ -145,19 +174,54 @@ http://127.0.0.1:8000
 
 # 🔐 Authentication
 
-The system uses **Laravel Breeze** for authentication.
+The project uses **Laravel Breeze** for authentication.
 
 Features include:
 
-* User registration
-* Login
-* Logout
-* Route protection
+• User registration  
+• Login  
+• Logout  
+• Route protection  
+• Dashboard access  
 
----
-# 🌐 Main Routes
+Main routes:
 
 ```
 /login
 /register
 /dashboard
+```
+
+---
+
+# 🧩 System Modules
+
+- User Management (Managers, Receptionists, Instructors, Students)
+- Membership & Monthly Billing
+- Workout Management
+- Physical Evaluations
+- Attendance Monitoring
+- Internal Store Sales
+- Audit Logs & Security Monitoring
+
+---
+
+# 👥 Team
+
+Diego Santos - Manager
+Gustavo Marques - Back-end Developer
+Lívia Karoliny - Front-end Developer
+Gilles Gael - Tester
+Guilherme Yuri - Tester
+
+# 🎓 Academic Context
+
+This project was developed as part of an academic assignment focusing on:
+
+- Database modeling (conceptual, logical, and physical)
+- RESTful API development
+- Software architecture
+- Version control collaboration
+- Team-based project management
+
+Tasks were organized using **Trello**, and the source code is maintained using **Git and GitHub**.

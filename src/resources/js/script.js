@@ -586,3 +586,34 @@ document.addEventListener("DOMContentLoaded", () => {
     y: 20, opacity: 0, duration: 0.45, ease: "power2.out", stagger: 0.07
   });
 });
+// ── Toggle modo claro / escuro 
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("btnTheme");
+  if (!btn) return;
+
+  const STORAGE_KEY = "fitpulse-theme";
+  const icon  = btn.querySelector("i");
+  const label = btn.querySelector(".btn-theme__label");
+
+  function applyTheme(theme) {
+    if (theme === "light") {
+      document.documentElement.setAttribute("data-theme", "light");
+      if (icon)  icon.className = "fa-solid fa-sun";
+      if (label) label.textContent = "CLARO";
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+      if (icon)  icon.className = "fa-solid fa-moon";
+      if (label) label.textContent = "ESCURO";
+    }
+    localStorage.setItem(STORAGE_KEY, theme);
+  }
+
+  const saved = localStorage.getItem(STORAGE_KEY);
+  const preferLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  applyTheme(saved ?? (preferLight ? "light" : "dark"));
+
+  btn.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme");
+    applyTheme(current === "light" ? "dark" : "light");
+  });
+});

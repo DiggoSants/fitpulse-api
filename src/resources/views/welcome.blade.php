@@ -58,6 +58,11 @@
 
     <!-- DIREITA: auth -->
     <div class="nav-auth">
+       <!-- Botão trocar cor -->
+        <button class="btn-theme" id="btnTheme" aria-label="Trocar tema">
+           <i class="fa-solid fa-moon"></i>
+          <span class="btn-theme__label">ESCURO</span>
+       </button>
       @if (Route::has('login'))
         @auth
           <a href="{{ url('/dashboard') }}" class="cta--solid">DASHBOARD</a>
@@ -78,10 +83,10 @@
 </header>
 <!-- MODAL EXPLORAR — TELA CHEIA COM SLIDES -->
 <div class="explore-modal" id="exploreModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="exploreTitle">
-
+ 
   <div class="explore-header">
     <div class="explore-logo">FIT<span>PULSE</span></div>
-
+ 
     <nav class="explore-tabs" role="tablist">
       <button class="explore-tab active" data-slide="0" role="tab" aria-selected="true">INÍCIO</button>
       <button class="explore-tab" data-slide="1" role="tab" aria-selected="false">EMPRESA</button>
@@ -92,22 +97,22 @@
       <button class="explore-tab" data-slide="6" role="tab" aria-selected="false">ENDEREÇOS</button>
       <button class="explore-tab" data-slide="7" role="tab" aria-selected="false">CONTATO</button>
     </nav>
-
+ 
     <button class="explore-close" id="closeExplore" aria-label="Fechar">
       <i class="fa-solid fa-xmark"></i>
     </button>
   </div>
-
+ 
   <div class="explore-progress">
     <div class="explore-progress-bar" id="exploreProgress"></div>
   </div>
-
+ 
   <div class="explore-track-wrap">
     <div class="explore-track" id="exploreTrack">
-
+ 
       <!-- SLIDE 0: INÍCIO -->
       <div class="explore-slide" data-index="0">
-        <div class="explore-slide__bg" style="background: linear-gradient(135deg,#0a0a0a 60%,#1a0608 100%);">
+        <div class="explore-slide__bg es-bg-dark">
           <div class="es-watermark" aria-hidden="true">FIT PULSE</div>
         </div>
         <div class="explore-slide__content es-intro">
@@ -131,10 +136,10 @@
           </button>
         </div>
       </div>
-
+ 
       <!-- SLIDE 1: EMPRESA -->
       <div class="explore-slide" data-index="1">
-        <div class="explore-slide__bg" style="background: #0d0d0d;">
+        <div class="explore-slide__bg es-bg-darker">
           <div class="es-watermark" aria-hidden="true">EMPRESA</div>
         </div>
         <div class="explore-slide__content es-two-col">
@@ -159,10 +164,10 @@
           </div>
         </div>
       </div>
-
+ 
       <!-- SLIDE 2: AULAS -->
       <div class="explore-slide" data-index="2">
-        <div class="explore-slide__bg" style="background: #0a0a0a;">
+        <div class="explore-slide__bg es-bg-dark">
           <div class="es-watermark" aria-hidden="true">AULAS</div>
         </div>
         <div class="explore-slide__content">
@@ -204,10 +209,10 @@
           <button class="es-next-btn" data-goto="3">CONHEÇA OS INSTRUTORES <i class="fa-solid fa-arrow-right"></i></button>
         </div>
       </div>
-
+ 
       <!-- SLIDE 3: INSTRUTORES -->
       <div class="explore-slide" data-index="3">
-        <div class="explore-slide__bg" style="background: #0d0d0d;">
+        <div class="explore-slide__bg es-bg-darker">
           <div class="es-watermark" aria-hidden="true">EQUIPE</div>
         </div>
         <div class="explore-slide__content">
@@ -243,10 +248,10 @@
           <button class="es-next-btn" data-goto="4">VER PLANOS <i class="fa-solid fa-arrow-right"></i></button>
         </div>
       </div>
-
+ 
       <!-- SLIDE 4: PLANOS -->
       <div class="explore-slide" data-index="4">
-        <div class="explore-slide__bg" style="background: #0a0a0a;">
+        <div class="explore-slide__bg es-bg-dark">
           <div class="es-watermark" aria-hidden="true">PLANOS</div>
         </div>
         <div class="explore-slide__content">
@@ -292,10 +297,10 @@
           <button class="es-next-btn" data-goto="5">VER HORÁRIOS <i class="fa-solid fa-arrow-right"></i></button>
         </div>
       </div>
-
+ 
       <!-- SLIDE 5: HORÁRIOS -->
       <div class="explore-slide" data-index="5">
-        <div class="explore-slide__bg" style="background: #0d0d0d;">
+        <div class="explore-slide__bg es-bg-darker">
           <div class="es-watermark" aria-hidden="true">HORAS</div>
         </div>
         <div class="explore-slide__content es-two-col">
@@ -325,10 +330,10 @@
           <button class="es-next-btn" style="margin-top:24px" data-goto="6">VER ENDEREÇOS <i class="fa-solid fa-arrow-right"></i></button>
         </div>
       </div>
-
+ 
       <!-- SLIDE 6: ENDEREÇOS -->
       <div class="explore-slide" data-index="6">
-        <div class="explore-slide__bg" style="background: #0a0a0a;">
+        <div class="explore-slide__bg es-bg-dark">
           <div class="es-watermark" aria-hidden="true">SEDES</div>
         </div>
         <div class="explore-slide__content">
@@ -376,10 +381,10 @@
         </div>
           </div>
           
-
+ 
       <!-- SLIDE 7: CONTATO -->
       <div class="explore-slide" data-index="7">
-        <div class="explore-slide__bg" style="background: #0d0d0d;">
+        <div class="explore-slide__bg es-bg-darker">
           <div class="es-watermark" aria-hidden="true">CONTATO</div>
         </div>
         <div class="explore-slide__content es-two-col">
@@ -394,8 +399,8 @@
               <a href="tel:+5585999999999" class="es-contato-btn">
                 <i class="fa-solid fa-phone"></i> (85) 99999-9999
               </a>
-              <a href="mailto:contato@fitpulse.com.br" class="es-contato-btn">
-                <i class="fa-solid fa-envelope"></i> contato@fitpulse.com.br
+              <a href="/cdn-cgi/l/email-protection#0f6c60617b6e7b604f69667b7f7a637c6a216c6062216d7d" class="es-contato-btn">
+                <i class="fa-solid fa-envelope"></i> <span class="__cf_email__" data-cfemail="d9bab6b7adb8adb699bfb0ada9acb5aabcf7bab6b4f7bbab">[email&#160;protected]</span>
               </a>
             </div>
             <div class="es-social">
@@ -414,23 +419,22 @@
           </div>
         </div>
       </div>
-
+ 
     </div>
   </div>
-
+ 
   <button class="explore-arrow explore-arrow--prev" id="explorePrev" aria-label="Slide anterior">
     <i class="fa-solid fa-chevron-left"></i>
   </button>
   <button class="explore-arrow explore-arrow--next" id="exploreNext" aria-label="Próximo slide">
     <i class="fa-solid fa-chevron-right"></i>
   </button>
-
+ 
   <div class="explore-dots" id="exploreDots"></div>
-
+ 
 </div>
-
+ 
 <main>
-
   <!-- HERO -->
   <section class="hero hero--porão" id="topo">
     <div class="container hero-layout">
@@ -543,7 +547,6 @@
       <!-- SEDE 1 -->
       <article class="sede-card">
         <div class="sede-card__img-wrap">
-          <!-- Troque o src pela foto real da unidade -->
           <img
             src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80"
             alt="Unidade Meireles"

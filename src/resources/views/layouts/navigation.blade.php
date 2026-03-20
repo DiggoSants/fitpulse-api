@@ -5,11 +5,12 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" style="text-decoration:none; color:#fff; line-height:1;">
-                        <div style="font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:3px; color:#fff;">
-                            FIT<span style="color:#d61532;">PULSE</span>
-                        </div>
-                    </a>
+                  <a href="{{ route('dashboard') }}" style="text-decoration:none; color:#fff; line-height:1; display:flex; align-items:center; gap:8px;">
+                  <img src="{{ asset('img/logo.png') }}" style="width:36px; height:36px;">
+                <div style="font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:3px; color:#fff;">
+                   FIT<span style="color:#d61532;">PULSE</span>
+                </div>
+                 </a>
                 </div>
 
                 <!-- Navigation Links -->

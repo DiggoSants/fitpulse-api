@@ -9,8 +9,184 @@
   --font-secondary: "Montserrat", sans-serif;
   --border: rgba(255,255,255,.10);
   --panel: rgba(255,255,255,.03);
+  --color-primary: #d61532;
+  --topbar-bg: rgba(10,10,10,.85);
+  --footer-bg: #0d0d0d;
+  --section-alt-border: rgba(255,255,255,.08);
+  --card-border: rgba(255,255,255,.08);
+  --card-bg: rgba(255,255,255,.03);
+  --input-bg: rgba(0,0,0,.25);
+  --modal-bg: #111;
+  --explore-bg: #0a0a0a;
+  --instr-foot-text: rgba(255,255,255,.4);
+  --faq-text: rgba(255,255,255,.82);
+  --faq-body-text: rgba(255,255,255,.58);
 }
-
+/* modo claro */
+ 
+/* Variáveis base */
+[data-theme="light"] {
+  --bg: #f2f2f2;
+  --text: #111;
+  --muted: rgba(0,0,0,.60);
+  --border: rgba(0,0,0,.10);
+  --panel: rgba(0,0,0,.03);
+}
+ 
+/* ── Topbar ── */
+[data-theme="light"] .topbar {
+  background: rgba(242,242,242,.92);
+  border-bottom: 1px solid rgba(0,0,0,.08);
+}
+[data-theme="light"] .nav-logo-img {
+  mix-blend-mode: multiply;
+  filter: drop-shadow(0 0 3px rgba(214,21,50,.2));
+}
+[data-theme="light"] .logo-title  { color: #111; }
+[data-theme="light"] .logo-sub    { color: rgba(0,0,0,.45); }
+[data-theme="light"] .btn-explorar { color: rgba(0,0,0,.65); }
+[data-theme="light"] .btn-explorar:hover { color: var(--red); background: rgba(0,0,0,.05); }
+[data-theme="light"] .nav-auth .cta--solid { color: #fff; }
+[data-theme="light"] .btn-theme { background: rgba(0,0,0,.06); border-color: rgba(0,0,0,.12); color: #111; }
+[data-theme="light"] .btn-theme:hover { background: rgba(0,0,0,.12); }
+[data-theme="light"] .explorar-preview { background: #fff; border-color: rgba(0,0,0,.10); }
+[data-theme="light"] .explorar-preview__cta { color: rgba(0,0,0,.35); border-top-color: rgba(0,0,0,.06); }
+[data-theme="light"] .ep-tab { color: rgba(0,0,0,.5); border-color: rgba(0,0,0,.08); background: rgba(0,0,0,.02); }
+[data-theme="light"] .ep-tab--active { color: #111; background: rgba(214,21,50,.08); border-color: rgba(214,21,50,.2); }
+ 
+/* ── Hero ── */
+[data-theme="light"] .hero--porão {
+    overflow: visible;
+}
+[data-theme="light"] .hero--porão { background: var(--bg); }
+[data-theme="light"] .hero-kicker { color: rgba(0,0,0,.5); }
+[data-theme="light"] .hero-layout .hero-watermark span {
+  -webkit-text-stroke: 2px rgba(0,0,0,.22);
+  color: transparent;
+}
+ 
+/* ── Contador / Stats ── */
+[data-theme="light"] .stats       { border-color: rgba(0,0,0,.08); }
+[data-theme="light"] .stat        { border-color: rgba(0,0,0,.12); background: rgba(0,0,0,.04); }
+[data-theme="light"] .stat:hover  { background: rgba(0,0,0,.07); border-color: rgba(0,0,0,.20); }
+[data-theme="light"] .stat-number { color: #111; }
+[data-theme="light"] .stat-label  { color: rgba(0,0,0,.55); }
+[data-theme="light"] .stats-title { color: #111; }
+[data-theme="light"] .stats-sub   { color: rgba(0,0,0,.55); }
+ 
+/* ── Seções ── */
+[data-theme="light"] .section--alt  { background: rgba(0,0,0,.03); border-color: rgba(0,0,0,.08); }
+[data-theme="light"] .section--dark { background: #e4e4e4; }
+[data-theme="light"] .section-title { color: #111; }
+[data-theme="light"] .section-sub   { color: rgba(0,0,0,.6); }
+ 
+/* ── Sedes ── */
+[data-theme="light"] .sede-card          { background: rgba(0,0,0,.02); border-color: rgba(0,0,0,.10); }
+[data-theme="light"] .sede-card__name    { color: #111; }
+[data-theme="light"] .sede-card__addr,
+[data-theme="light"] .sede-card__info li { color: rgba(0,0,0,.55); }
+ 
+/* ── Instrutores ── */
+[data-theme="light"] .instr-card             { background: rgba(0,0,0,.02); border-color: rgba(0,0,0,.10); }
+[data-theme="light"] .instr-card__foot strong { color: #111; }
+[data-theme="light"] .instr-card__foot span   { color: rgba(0,0,0,.45); }
+[data-theme="light"] .carr-btn  { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.12); color: #111; }
+[data-theme="light"] .carr-dot  { background: rgba(0,0,0,.18); }
+ 
+/* ── FAQ (mais visível) ── */
+[data-theme="light"] .faq-acc         { background: #fff; border-color: rgba(0,0,0,.12); }
+[data-theme="light"] .faq-acc[open]   { background: rgba(214,21,50,.04); border-color: rgba(214,21,50,.35); }
+[data-theme="light"] .faq-acc summary span    { color: #111; font-weight: 700; }
+[data-theme="light"] .faq-acc[open] summary span { color: #111; }
+[data-theme="light"] .faq-acc__body            { border-top-color: rgba(0,0,0,.08); }
+[data-theme="light"] .faq-acc__body p          { color: rgba(0,0,0,.65); }
+[data-theme="light"] .faq-acc__body p strong   { color: #111; }
+[data-theme="light"] .faq-cta p                { color: rgba(0,0,0,.45); }
+ 
+/* ── Rodapé ── */
+[data-theme="light"] .footer          { background: #e2e2e2; border-top-color: rgba(0,0,0,.08); }
+[data-theme="light"] .footer-logo     { color: #111; }
+[data-theme="light"] .footer-copy     { color: rgba(0,0,0,.35); }
+[data-theme="light"] .footer-links a  { color: rgba(0,0,0,.5); }
+[data-theme="light"] .footer-top-btn  { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.12); color: #111; }
+ 
+/* ── Modal explorar — MODO CLARO ── */
+[data-theme="light"] .explore-modal   { background: #f2f2f2; }
+[data-theme="light"] .explore-header  { background: rgba(242,242,242,.97); border-bottom-color: rgba(0,0,0,.08); }
+[data-theme="light"] .explore-logo    { color: #111; }
+[data-theme="light"] .explore-tab     { color: rgba(0,0,0,.45); }
+[data-theme="light"] .explore-tab:hover { color: #111; background: rgba(0,0,0,.06); }
+[data-theme="light"] .explore-tab.active { color: #fff; background: var(--red); }
+[data-theme="light"] .explore-close   { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.12); color: #111; }
+[data-theme="light"] .explore-progress { background: rgba(0,0,0,.08); }
+[data-theme="light"] .explore-arrow   { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.12); color: #111; }
+[data-theme="light"] .explore-dot     { background: rgba(0,0,0,.18); }
+ 
+[data-theme="light"] .explore-slide__bg { filter: brightness(1); }
+[data-theme="light"] .explore-slide     { background: #f2f2f2; }
+ 
+/* Watermark do explorar mais escuro */
+[data-theme="light"] .es-watermark { -webkit-text-stroke: 1.5px rgba(0,0,0,.14); }
+ 
+[data-theme="light"] .es-title      { color: #111; }
+[data-theme="light"] .es-desc       { color: rgba(0,0,0,.65); }
+[data-theme="light"] .es-kicker     { color: var(--red); }
+[data-theme="light"] .es-stat span  { color: rgba(0,0,0,.45); }
+[data-theme="light"] .es-pill       { background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.10); color: rgba(0,0,0,.75); }
+[data-theme="light"] .es-next-btn   { color: #111; border-color: rgba(0,0,0,.20); }
+[data-theme="light"] .es-next-btn:hover { border-color: var(--red); background: rgba(214,21,50,.06); }
+ 
+[data-theme="light"] .es-card-stat         { background: rgba(0,0,0,.03); border-color: rgba(0,0,0,.10); }
+[data-theme="light"] .es-card-stat strong  { color: #111; }
+[data-theme="light"] .es-card-stat span    { color: rgba(0,0,0,.45); }
+[data-theme="light"] .es-checklist li      { color: rgba(0,0,0,.75); }
+ 
+[data-theme="light"] .es-aula-card        { background: rgba(0,0,0,.02); border-color: rgba(0,0,0,.08); }
+[data-theme="light"] .es-aula-card strong { color: #111; }
+[data-theme="light"] .es-aula-card span   { color: rgba(0,0,0,.5); }
+[data-theme="light"] .es-aula-card:hover  { background: rgba(214,21,50,.04); border-color: rgba(214,21,50,.3); }
+ 
+[data-theme="light"] .es-instrutor         { background: rgba(0,0,0,.02); border-color: rgba(0,0,0,.08); }
+[data-theme="light"] .es-instrutor strong  { color: #111; }
+[data-theme="light"] .es-instrutor > span  { color: rgba(0,0,0,.45); }
+ 
+[data-theme="light"] .es-plano             { background: rgba(0,0,0,.02); border-color: rgba(0,0,0,.10); }
+[data-theme="light"] .es-plano__name       { color: rgba(0,0,0,.6); }
+[data-theme="light"] .es-plano ul li       { color: rgba(0,0,0,.7); }
+[data-theme="light"] .es-plano__price      { color: rgba(0,0,0,.5); }
+[data-theme="light"] .es-plano__price strong { color: #111; }
+ 
+[data-theme="light"] .es-horario-table     { border-color: rgba(0,0,0,.08); }
+[data-theme="light"] .es-horario-row       { color: rgba(0,0,0,.7); border-bottom-color: rgba(0,0,0,.06); }
+[data-theme="light"] .es-horario-row--head { background: rgba(0,0,0,.04); color: rgba(0,0,0,.4); }
+[data-theme="light"] .es-obs              { color: rgba(0,0,0,.45); }
+[data-theme="light"] .es-schedule-item    { background: rgba(0,0,0,.02); border-color: rgba(0,0,0,.08); }
+[data-theme="light"] .es-schedule-name    { color: #111; }
+[data-theme="light"] .es-schedule-item em { color: rgba(0,0,0,.4); }
+ 
+[data-theme="light"] .es-sede        { background: rgba(0,0,0,.02); border-color: rgba(0,0,0,.08); }
+[data-theme="light"] .es-sede strong { color: #111; }
+[data-theme="light"] .es-sede > span { color: rgba(0,0,0,.5); }
+ 
+[data-theme="light"] .es-contato-btn   { color: rgba(0,0,0,.75); border-color: rgba(0,0,0,.10); background: rgba(0,0,0,.02); }
+[data-theme="light"] .es-contato-btn:hover { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.2); }
+[data-theme="light"] .es-social a      { color: rgba(0,0,0,.55); border-color: rgba(0,0,0,.10); background: rgba(0,0,0,.02); }
+[data-theme="light"] .es-matricula-cta { background: rgba(214,21,50,.05); }
+[data-theme="light"] .es-matricula-cta h3 { color: #111; }
+[data-theme="light"] .es-matricula-cta p  { color: rgba(0,0,0,.5); }
+ 
+/* ── Modais instrutores / vídeo ── */
+[data-theme="light"] .instr-modal__panel  { background: #fff; border-color: rgba(0,0,0,.10); }
+[data-theme="light"] .instr-modal__hero   { background: #f5f5f5; border-bottom-color: rgba(0,0,0,.07); }
+[data-theme="light"] .instr-modal__name   { color: #111; }
+[data-theme="light"] .instr-modal__role   { color: rgba(0,0,0,.45); }
+[data-theme="light"] .instr-modal__close  { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.12); color: #111; }
+[data-theme="light"] .instr-modal__col p  { color: rgba(0,0,0,.65); }
+[data-theme="light"] .instr-modal__stat   { background: rgba(0,0,0,.02); border-color: rgba(0,0,0,.08); }
+[data-theme="light"] .instr-modal__stat span { color: rgba(0,0,0,.45); }
+[data-theme="light"] .instr-modal__footer { border-top-color: rgba(0,0,0,.07); }
+[data-theme="light"] .modal__panel  { background: #f5f5f5; border-color: rgba(0,0,0,.12); }
+[data-theme="light"] .modal__close  { background: rgba(0,0,0,.05); border-color: rgba(0,0,0,.12); color: #111; }
 * {
   box-sizing: border-box;
   margin: 0;
@@ -2456,4 +2632,24 @@ img, video, iframe {
     }
   .about-video {
      display: none; }
+}
+/* Botão de tema */
+.btn-theme {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 8px 12px;
+    cursor: pointer;
+    color: #fff;
+    font-size: 15px;
+    transition: background .2s, color .2s, border-color .2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.btn-theme:hover { background: rgba(255,255,255,0.12); }
+.btn-theme__label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .5px;
 }

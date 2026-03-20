@@ -122,7 +122,7 @@
           <div class="es-pills">
             <span class="es-pill"><i class="fa-solid fa-dumbbell"></i> Musculação</span>
             <span class="es-pill"><i class="fa-solid fa-person-running"></i> Cardio</span>
-            <span class="es-pill"><i class="fa-solid fa-users"></i> Aulas coletivas</span>
+            <span class="es-pill"><i class="fa-solid fa-users"></i> Plano conjunto</span>
             <span class="es-pill"><i class="fa-solid fa-star"></i> 6 unidades</span>
           </div>
           <div class="es-stats-row">
@@ -192,13 +192,13 @@
             </div>
             <div class="es-aula-card">
               <i class="fa-solid fa-spa"></i>
-              <strong>Yoga</strong>
-              <span>Equilíbrio, flexibilidade e consciência corporal.</span>
+              <strong>Área Cardio</strong>
+              <span>Esteiras, bicicletas e elípticos para melhorar o condicionamento e acelerar seus resultados.</span>
             </div>
             <div class="es-aula-card">
               <i class="fa-solid fa-heart-pulse"></i>
-              <strong>Zumba</strong>
-              <span>Dança, ritmo e cardio numa aula que parece festa.</span>
+              <strong>Treino de Core</strong>
+              <span>Exercícios focados em abdômen, postura e estabilidade para mais força e equilíbrio.</span>
             </div>
             <div class="es-aula-card">
               <i class="fa-solid fa-trophy"></i>
@@ -321,10 +321,10 @@
           </div>
           <div class="es-col-visual es-aulas-schedule">
             <p class="es-kicker" style="margin-bottom:14px">GRADE DE AULAS</p>
-            <div class="es-schedule-item"><span class="es-schedule-time">06:30</span><span class="es-schedule-name">Spinning</span><em>Seg · Qua · Sex</em></div>
-            <div class="es-schedule-item"><span class="es-schedule-time">08:00</span><span class="es-schedule-name">Yoga</span><em>Ter · Qui</em></div>
+            <div class="es-schedule-item"><span class="es-schedule-time">06:30</span><span class="es-schedule-name">Musculação liberada</span><em>Seg · Qua · Sex</em></div>
+            <div class="es-schedule-item"><span class="es-schedule-time">08:00</span><span class="es-schedule-name">Spinning</span><em>Ter · Qui</em></div>
             <div class="es-schedule-item es-schedule-item--red"><span class="es-schedule-time">12:00</span><span class="es-schedule-name">Funcional</span><em>Diário</em></div>
-            <div class="es-schedule-item"><span class="es-schedule-time">18:30</span><span class="es-schedule-name">Zumba</span><em>Ter · Qui · Sáb</em></div>
+            <div class="es-schedule-item"><span class="es-schedule-time">18:30</span><span class="es-schedule-name">Avaliação sob agendamento</span><em>Ter · Qui · Sáb</em></div>
             <div class="es-schedule-item es-schedule-item--red"><span class="es-schedule-time">19:30</span><span class="es-schedule-name">Cross Training</span><em>Seg · Qua · Sex</em></div>
           </div>
           <button class="es-next-btn" style="margin-top:24px" data-goto="6">VER ENDEREÇOS <i class="fa-solid fa-arrow-right"></i></button>
@@ -626,7 +626,7 @@
           <ul class="sede-card__info">
             <li><i class="fa-solid fa-clock"></i> Seg–Sex 05h–23h &nbsp;·&nbsp; Sáb 06h–20h &nbsp;·&nbsp; Dom 08h–14h</li>
             <li><i class="fa-solid fa-phone"></i> (85) 99999-0003</li>
-            <li><i class="fa-solid fa-spa"></i> Studio de yoga</li>
+            <li><i class="fa-solid fa-spa"></i> Acompanhamento personalizado </li>
           </ul>
           <a
             href="https://www.google.com/maps/search/Av+Godofredo+Maciel+540+Fortaleza"

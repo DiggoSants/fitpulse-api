@@ -216,25 +216,25 @@
           <p class="es-desc" style="max-width:520px">Todos certificados, atualizados e prontos para guiar sua evolução do primeiro ao último treino.</p>
           <div class="es-instrutores-grid">
             <div class="es-instrutor">
-              <div class="es-instrutor__avatar">RB</div>
+               <img src="{{ asset('img/instrutor2.jpeg') }}" alt="Ricardo Borges" class="es-instrutor__avatar">
               <strong>Ricardo Borges</strong>
               <span>Musculação · CREF 001234</span>
               <div class="es-instrutor__tags"><em>Hipertrofia</em><em>Força</em></div>
             </div>
             <div class="es-instrutor">
-              <div class="es-instrutor__avatar" style="background:var(--red)">CA</div>
+              <img src="{{ asset('img/instrutora8.jpeg') }}" alt="Carla Almeida" class="es-instrutor__avatar">
               <strong>Carla Almeida</strong>
               <span>Spinning & Funcional · CREF 005678</span>
               <div class="es-instrutor__tags"><em>Cardio</em><em>HIIT</em></div>
             </div>
             <div class="es-instrutor">
-              <div class="es-instrutor__avatar">MF</div>
+              <img src="{{ asset('img/instrutor12.png') }}" alt="Marcos Freitas" class="es-instrutor__avatar">
               <strong>Marcos Freitas</strong>
               <span>Cross Training · CREF 009012</span>
               <div class="es-instrutor__tags"><em>Performance</em><em>Calistenia</em></div>
             </div>
             <div class="es-instrutor">
-              <div class="es-instrutor__avatar" style="background:var(--red)">JN</div>
+              <img src="{{ asset('img/instrutora7.jpg') }}" alt="Juliana Neves" class="es-instrutor__avatar">
               <strong>Juliana Neves</strong>
               <span>Yoga & Pilates · CREF 003456</span>
               <div class="es-instrutor__tags"><em>Flexibilidade</em><em>Equilíbrio</em></div>
@@ -742,13 +742,12 @@
  
           <!-- CARD 1 -->
           <button class="instr-card" data-id="0" aria-label="Ver perfil de Ricardo Borges">
-            <div class="instr-card__img">
-              <!-- Troque pelo src da foto real -->
-              <div class="instr-card__avatar" style="--c:#d61532">RB</div>
-            </div>
-            <div class="instr-card__overlay">
-              <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
-            </div>
+             <div class="instr-card__img">
+               <img src="{{ asset('img/instrutor2.jpeg') }}" alt="Ricardo Borges" class="instr-card__photo">
+               <div class="instr-card__overlay">
+                <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
+               </div>
+             </div>
             <div class="instr-card__foot">
               <strong>Ricardo Borges</strong>
               <span>Musculação</span>
@@ -758,10 +757,10 @@
           <!-- CARD 2 -->
           <button class="instr-card" data-id="1" aria-label="Ver perfil de Carla Almeida">
             <div class="instr-card__img">
-              <div class="instr-card__avatar" style="--c:#222">CA</div>
-            </div>
+              <img src="{{ asset('img/instrutora8.jpeg') }}" alt="Carla Almeida" class="instr-card__photo">
             <div class="instr-card__overlay">
               <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
             </div>
             <div class="instr-card__foot">
               <strong>Carla Almeida</strong>
@@ -772,10 +771,10 @@
           <!-- CARD 3 -->
           <button class="instr-card" data-id="2" aria-label="Ver perfil de Marcos Freitas">
             <div class="instr-card__img">
-              <div class="instr-card__avatar" style="--c:#d61532">MF</div>
-            </div>
+              <img src="{{ asset('img/instrutor12.png') }}" alt="Marcos Freitas" class="instr-card__photo">
             <div class="instr-card__overlay">
               <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
             </div>
             <div class="instr-card__foot">
               <strong>Marcos Freitas</strong>
@@ -786,10 +785,10 @@
           <!-- CARD 4 -->
           <button class="instr-card" data-id="3" aria-label="Ver perfil de Juliana Neves">
             <div class="instr-card__img">
-              <div class="instr-card__avatar" style="--c:#222">JN</div>
-            </div>
+              <img src="{{ asset('img/instrutora7.jpg') }}" alt="Juliana Neves" class="instr-card__photo">
             <div class="instr-card__overlay">
               <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
             </div>
             <div class="instr-card__foot">
               <strong>Juliana Neves</strong>
@@ -800,11 +799,11 @@
           <!-- CARD 5 -->
           <button class="instr-card" data-id="4" aria-label="Ver perfil de Felipe Santos">
             <div class="instr-card__img">
-              <div class="instr-card__avatar" style="--c:#d61532">FS</div>
-            </div>
-            <div class="instr-card__overlay">
+              <img src="{{ asset('img/instrutor3.jpeg') }}" alt="Felipe Santos" class="instr-card__photo">
+              <div class="instr-card__overlay">
               <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
             </div>
+          </div>
             <div class="instr-card__foot">
               <strong>Felipe Santos</strong>
               <span>Zumba & Dança</span>
@@ -814,11 +813,11 @@
           <!-- CARD 6 -->
           <button class="instr-card" data-id="5" aria-label="Ver perfil de Ana Lima">
             <div class="instr-card__img">
-              <div class="instr-card__avatar" style="--c:#222">AL</div>
-            </div>
+              <img src="{{ asset('img/instrutora4.jpeg') }}" alt="Ana Lima" class="instr-card__photo">
             <div class="instr-card__overlay">
               <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
             </div>
+          </div>
             <div class="instr-card__foot">
               <strong>Ana Lima</strong>
               <span>Personal Trainer</span>
@@ -828,11 +827,11 @@
             <!-- CARD 7 -->
          <button class="instr-card" data-id="6" aria-label="Ver perfil de Bruno Martins">
           <div class="instr-card__img">
-           <div class="instr-card__avatar" style="--c:#d61532">BM</div>
-          </div>
+           <img src="{{ asset('img/Instrutor5.jpeg') }}" alt="Bruno Martins" class="instr-card__photo">
           <div class="instr-card__overlay">
             <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
           </div>
+        </div>     
           <div class="instr-card__foot">
              <strong>Bruno Martins</strong>
              <span>Força & Powerlifting</span>
@@ -842,11 +841,11 @@
           <!-- CARD 8 -->
          <button class="instr-card" data-id="7" aria-label="Ver perfil de Larissa Costa">
            <div class="instr-card__img">
-            <div class="instr-card__avatar" style="--c:#222">LC</div>
-           </div>
-           <div class="instr-card__overlay">
+            <img src="{{ asset('img/instrutora6.jpeg') }}" alt="Larissa Costa" class="instr-card__photo">
+          <div class="instr-card__overlay">
              <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
            </div>
+          </div>
            <div class="instr-card__foot">
               <strong>Larissa Costa</strong>
               <span>Aqua Fitness</span>
@@ -856,11 +855,11 @@
         <!-- CARD 9 -->
          <button class="instr-card" data-id="8" aria-label="Ver perfil de Thiago Oliveira">
           <div class="instr-card__img">
-           <div class="instr-card__avatar" style="--c:#d61532">TO</div>
-          </div>
+            <img src="{{ asset('img/instrutor9.png') }}" alt="Thiago Oliveira" class="instr-card__photo">
           <div class="instr-card__overlay">
             <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
           </div>
+        </div>
           <div class="instr-card__foot">
              <strong>Thiago Oliveira</strong>
              <span>Boxe & MMA</span>
@@ -870,11 +869,11 @@
          <!-- CARD 10 -->
        <button class="instr-card" data-id="9" aria-label="Ver perfil de Patrícia Rocha">
          <div class="instr-card__img">
-           <div class="instr-card__avatar" style="--c:#222">PR</div>
+            <img src="{{ asset('img/Instrutora1.jpeg') }}" alt="Patrícia Rocha" class="instr-card__photo">
+          <div class="instr-card__overlay">
+              <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
          </div>
-         <div class="instr-card__overlay">
-         <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
-         </div>
+       </div>
           <div class="instr-card__foot">
             <strong>Patrícia Rocha</strong>
             <span>Pilates & Mobilidade</span>
@@ -884,11 +883,11 @@
         <!-- CARD 11 -->
        <button class="instr-card" data-id="10" aria-label="Ver perfil de Rafael Viana">
         <div class="instr-card__img">
-          <div class="instr-card__avatar" style="--c:#d61532">RV</div>
-        </div>
-        <div class="instr-card__overlay">
+          <img src="{{ asset('img/instrutor10.png') }}" alt="Rafael Viana" class="instr-card__photo">
+          <div class="instr-card__overlay">
            <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
        </div>
+      </div>
        <div class="instr-card__foot">
         <strong>Rafael Viana</strong>
         <span>Corrida & Atletismo</span>
@@ -898,11 +897,11 @@
       <!-- CARD 12 -->
       <button class="instr-card" data-id="11" aria-label="Ver perfil de Marina Sousa">
        <div class="instr-card__img">
-         <div class="instr-card__avatar" style="--c:#222">MS</div>
-       </div>
-       <div class="instr-card__overlay">
+          <img src="{{ asset('img/instrutora13.jpg') }}" alt="Marina Sousa" class="instr-card__photo">
+           <div class="instr-card__overlay">
          <span class="instr-card__cta">Ver perfil <i class="fa-solid fa-arrow-right"></i></span>
       </div>
+    </div>
       <div class="instr-card__foot">
         <strong>Marina Sousa</strong>
         <span>Flexibilidade & Postura</span>
@@ -998,13 +997,6 @@
       </details>
  
       <details class="faq-acc">
-        <summary><span>As aulas coletivas têm custo extra?</span><i class="fa-solid fa-plus faq-acc__icon"></i></summary>
-        <div class="faq-acc__body">
-          <p>Não! Spinning, Yoga, Zumba, Funcional e Cross Training estão inclusos nos planos <strong>Premium</strong> e <strong>Black</strong>. No plano Básico, as aulas coletivas não estão inclusas.</p>
-        </div>
-      </details>
- 
-      <details class="faq-acc">
         <summary><span>Como funciona a avaliação física?</span><i class="fa-solid fa-plus faq-acc__icon"></i></summary>
         <div class="faq-acc__body">
           <p>Toda matrícula inclui uma <strong>avaliação física completa</strong> com um de nossos professores. Com base nela, montamos um plano de treino personalizado para seus objetivos.</p>
@@ -1044,6 +1036,23 @@
   </div>
 </section>
  
- 
+ <!-- RODAPÉ -->
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">FIT<span>PULSE</span></div>
+      <p class="footer-copy">© 2025 FIT PULSE Academia. Todos os direitos reservados.</p>
+    </div>
+    <div class="footer-links">
+      <a href="#sobre">Sobre</a>
+      <a href="#sedes">Unidades</a>
+      <a href="#instrutores">Instrutores</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <a href="#topo" class="footer-top-btn" aria-label="Voltar ao topo">
+      <i class="fa-solid fa-chevron-up"></i>
+    </a>
+  </div>
+</footer>
 </body>
 </html>

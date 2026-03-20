@@ -13,7 +13,6 @@
     @vite(['resources/css/style.css'])
 
     <style>
-        /* ── GUEST LAYOUT ─────────────────────────────── */
         .auth-page {
             min-height: 100vh;
             background: var(--bg);

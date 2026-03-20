@@ -267,6 +267,7 @@ const INSTRUTORES = [
   {
     initials: "RB",
     avatarColor: "#d61532",
+    photo: "/img/instrutor2.jpeg",
     kicker: "MUSCULAÇÃO · CREF 001234",
     name: "Ricardo Borges",
     role: "Especialista em Hipertrofia & Força",
@@ -279,6 +280,7 @@ const INSTRUTORES = [
   {
     initials: "CA",
     avatarColor: "#1a1a1a",
+    photo: "/img/instrutora8.jpeg",
     kicker: "SPINNING & FUNCIONAL · CREF 005678",
     name: "Carla Almeida",
     role: "Referência em Cardio de Alta Intensidade",
@@ -291,6 +293,7 @@ const INSTRUTORES = [
   {
     initials: "MF",
     avatarColor: "#d61532",
+    photo: "/img/instrutor12.png",
     kicker: "CROSS TRAINING · CREF 009012",
     name: "Marcos Freitas",
     role: "Performance & Calistenia",
@@ -303,6 +306,7 @@ const INSTRUTORES = [
   {
     initials: "JN",
     avatarColor: "#1a1a1a",
+    photo: "/img/instrutora7.jpg",
     kicker: "YOGA & PILATES · CREF 003456",
     name: "Juliana Neves",
     role: "Equilíbrio Mente-Corpo",
@@ -315,6 +319,7 @@ const INSTRUTORES = [
   {
     initials: "FS",
     avatarColor: "#d61532",
+    photo: "/img/instrutor3.jpeg",
     kicker: "ZUMBA & DANÇA · CREF 007890",
     name: "Felipe Santos",
     role: "Cardio que Parece Festa",
@@ -327,6 +332,7 @@ const INSTRUTORES = [
   {
     initials: "AL",
     avatarColor: "#1a1a1a",
+    photo: "/img/instrutora4.jpeg",
     kicker: "PERSONAL TRAINER · CREF 002345",
     name: "Ana Lima",
     role: "Emagrecimento & Condicionamento",
@@ -339,6 +345,7 @@ const INSTRUTORES = [
   {
     initials: "BM",
     avatarColor: "#d61532",
+    photo: "/img/Instrutor5.jpeg",
     kicker: "MUSCULAÇÃO · CREF 011234",
     name: "Bruno Martins",
     role: "Força & Powerlifting",
@@ -351,6 +358,7 @@ const INSTRUTORES = [
   {
     initials: "LC",
     avatarColor: "#1a1a1a",
+    photo: "/img/instrutora6.jpeg",
     kicker: "NATAÇÃO & AQUA FITNESS · CREF 014567",
     name: "Larissa Costa",
     role: "Aqua Fitness & Condicionamento",
@@ -363,6 +371,7 @@ const INSTRUTORES = [
   {
     initials: "TO",
     avatarColor: "#d61532",
+    photo: "/img/instrutor9.png",
     kicker: "BOXE & ARTES MARCIAIS · CREF 018900",
     name: "Thiago Oliveira",
     role: "Boxe, MMA & Defesa Pessoal",
@@ -375,6 +384,7 @@ const INSTRUTORES = [
   {
     initials: "PR",
     avatarColor: "#1a1a1a",
+    photo: "/img/Instrutora1.jpeg",
     kicker: "PILATES & MOBILIDADE · CREF 022345",
     name: "Patrícia Rocha",
     role: "Pilates Solo & Mobilidade Articular",
@@ -387,6 +397,7 @@ const INSTRUTORES = [
   {
     initials: "RV",
     avatarColor: "#d61532",
+    photo: "/img/instrutor10.png",
     kicker: "CORRIDA & ATLETISMO · CREF 026789",
     name: "Rafael Viana",
     role: "Corrida de Rua & Resistência",
@@ -399,6 +410,7 @@ const INSTRUTORES = [
   {
     initials: "MS",
     avatarColor: "#1a1a1a",
+    photo: "/img/instrutora13.jpg",
     kicker: "ALONGAMENTO & FLEXIBILITY · CREF 030123",
     name: "Marina Sousa",
     role: "Flexibilidade & Ginástica Postural",
@@ -432,14 +444,20 @@ document.addEventListener("DOMContentLoaded", () => {
     return 4;
   }
  
-  // Cria dots
-  for (let i = 0; i < total; i++) {
+// Cria dots (um por posição, não por card)
+function buildDots() {
+  dotsWrap.innerHTML = "";
+  const vis = visibleCount();
+  const pages = Math.max(1, total - vis + 1);
+  for (let i = 0; i < pages; i++) {
     const d = document.createElement("button");
     d.className = "carr-dot" + (i === 0 ? " active" : "");
-    d.setAttribute("aria-label", `Instrutor ${i + 1}`);
+    d.setAttribute("aria-label", `Posição ${i + 1}`);
     d.addEventListener("click", () => goTo(i));
     dotsWrap.appendChild(d);
   }
+}
+buildDots();
  
   function goTo(idx) {
     const vis = visibleCount();
@@ -461,7 +479,7 @@ document.addEventListener("DOMContentLoaded", () => {
   prevBtn.addEventListener("click", () => goTo(current - 1));
   nextBtn.addEventListener("click", () => goTo(current + 1));
  
-  // Swipe touch
+ // Swipe touch
   let tx = 0;
   track.addEventListener("touchstart", e => { tx = e.touches[0].clientX; }, { passive: true });
   track.addEventListener("touchend", e => {
@@ -469,7 +487,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (Math.abs(diff) > 40) diff > 0 ? goTo(current + 1) : goTo(current - 1);
   });
  
-  window.addEventListener("resize", () => goTo(current));
+  window.addEventListener("resize", () => { buildDots(); goTo(current); });
   goTo(0);
 });
  
@@ -501,8 +519,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!d) return;
  
     // Preenche
-    mAvatar.textContent = d.initials;
-    mAvatar.style.setProperty("--av-c", d.avatarColor);
+   if (d.photo) {
+    mAvatar.innerHTML = `<img src="${d.photo}" alt="${d.name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+  } else {
+     mAvatar.textContent = d.initials;
+     mAvatar.style.setProperty("--av-c", d.avatarColor);
+    }
     mKicker.textContent = d.kicker;
     mName.textContent   = d.name;
     mRole.textContent   = d.role;

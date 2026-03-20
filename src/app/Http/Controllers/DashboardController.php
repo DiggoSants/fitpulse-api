@@ -15,7 +15,21 @@ class DashboardController extends Controller
 
         $student = Student::where('user_id', $user->id)->first();
 
+        if (!$student) {
+            return view('dashboard', [
+                'message' => 'Aluno não encontrado',
+                'exercises' => collect()
+            ]);
+        }
+
         $workout = $student->workouts()->latest()->first();
+
+        if (!$workout) {
+            return view('dashboard', [
+                'message' => 'Nenhum treino encontrado',
+                'exercises' => collect()
+            ]);
+        }
 
         $exercises = WorkoutExercise::with('exercise')
             ->where('workout_id', $workout->id)

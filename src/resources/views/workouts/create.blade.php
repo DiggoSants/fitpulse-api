@@ -2,56 +2,44 @@
 
 <form action="/workout/store" method="POST">
 
-@csrf
+    @csrf
 
-<label>Aluno</label>
+    <label>Aluno</label>
 
-<select name="student_id">
+    <select name="student_id">
 
-@foreach($students as $student)
+        @foreach($students as $student)
 
-<option value="{{ $student->id }}">
-Aluno {{ $student->id }}
-</option>
+        <option value="{{ $student->id }}">
+            Aluno {{ $student->id }}
+        </option>
 
-@endforeach
+        @endforeach
 
-</select>
+    </select>
 
-<br><br>
+    <br><br>
 
-<input type="text" name="name" placeholder="Nome do treino">
+    <input type="text" name="name" placeholder="Nome do treino">
 
-<br><br>
+    <br><br>
 
-<h3>Exercícios</h3>
+    <h3>Exercícios</h3>
 
-@foreach($exercises as $exercise)
+    @foreach($exercises as $index => $exercise)
+    <div style="margin-bottom:10px;">
 
-<div style="border:1px solid black;padding:10px;margin:10px">
+        <input type="checkbox" name="exercise_id[{{ $index }}]" value="{{ $exercise->id }}">
 
-<input type="checkbox" name="exercise_id[]" value="{{ $exercise->id }}">
+        <strong>{{ $exercise->name }}</strong>
 
-{{ $exercise->name }}
+        <input type="number" name="sets[{{ $index }}]" placeholder="Séries" required>
+        <input type="number" name="reps[{{ $index }}]" placeholder="Reps" required>
+        <input type="number" name="rest_time[{{ $index }}]" placeholder="Descanso">
 
-<br>
+    </div>
+    @endforeach
 
-Séries
-
-<input type="number" name="sets[]">
-
-Reps
-
-<input type="number" name="reps[]">
-
-Descanso
-
-<input type="number" name="rest_time[]">
-
-</div>
-
-@endforeach
-
-<button type="submit">Salvar treino</button>
+    <button type="submit">Salvar treino</button>
 
 </form>

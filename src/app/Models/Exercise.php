@@ -10,7 +10,9 @@ class Exercise extends Model
     protected $fillable = [
         'name',
         'description',
-        'muscle_group'
+        'muscle_group',
+        'image_url',
+        'video_url'
     ];
 
     public function workoutExercises()

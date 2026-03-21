@@ -37,3 +37,7 @@ use App\Http\Controllers\WorkoutController;
 
 Route::get('/workout/create', [WorkoutController::class,'create']);
 Route::post('/workout/store', [WorkoutController::class,'store']);
+
+
+Route::get('/workout/{id}/edit', [WorkoutController::class, 'edit'])->name('workout.edit');
+Route::put('/workout/{id}', [WorkoutController::class, 'update'])->name('workout.update');

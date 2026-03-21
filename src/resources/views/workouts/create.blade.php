@@ -7,15 +7,11 @@
     <label>Aluno</label>
 
     <select name="student_id">
-
         @foreach($students as $student)
-
-        <option value="{{ $student->id }}">
-            Aluno {{ $student->id }}
-        </option>
-
+            <option value="{{ $student->id }}">
+                Aluno {{ $student->id }}
+            </option>
         @endforeach
-
     </select>
 
     <br><br>
@@ -26,16 +22,19 @@
 
     <h3>Exercícios</h3>
 
-    @foreach($exercises as $index => $exercise)
-    <div style="margin-bottom:10px;">
+    @foreach($exercises as $exercise)
+    <div style="margin-bottom:10px; border-bottom:1px solid #ccc; padding:10px;">
 
-        <input type="checkbox" name="exercise_id[{{ $index }}]" value="{{ $exercise->id }}">
+        <label>
+            <input type="checkbox" name="exercise_id[]" value="{{ $exercise->id }}">
+            <strong>{{ $exercise->name }}</strong>
+        </label>
 
-        <strong>{{ $exercise->name }}</strong>
+        <br>
 
-        <input type="number" name="sets[{{ $index }}]" placeholder="Séries" required>
-        <input type="number" name="reps[{{ $index }}]" placeholder="Reps" required>
-        <input type="number" name="rest_time[{{ $index }}]" placeholder="Descanso">
+        <input type="number" name="sets[{{ $exercise->id }}]" placeholder="Séries">
+        <input type="number" name="reps[{{ $exercise->id }}]" placeholder="Reps">
+        <input type="number" name="rest_time[{{ $exercise->id }}]" placeholder="Descanso">
 
     </div>
     @endforeach

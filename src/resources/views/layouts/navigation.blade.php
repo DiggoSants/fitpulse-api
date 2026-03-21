@@ -4,6 +4,7 @@
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
+                 
                 <div class="shrink-0 flex items-center">
                   <a href="{{ route('dashboard') }}" style="text-decoration:none; color:#fff; line-height:1; display:flex; align-items:center; gap:8px;">
                   <img src="{{ asset('img/logo.png') }}" style="width:36px; height:36px;">
@@ -20,9 +21,13 @@
                     </x-nav-link>
                 </div>
             </div>
-
+            
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
+                <button class="btn-theme" id="btnTheme" aria-label="Trocar tema" 
+                  style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:8px 12px; cursor:pointer; color:#fff; font-size:15px; display:inline-flex; align-items:center; gap:6px; transition:background .2s;">
+                  <i class="fa-solid fa-moon"></i>
+                </button>
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button style="display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:8px 14px; cursor:pointer; color:#fff; font-family:'Montserrat',sans-serif; font-size:13px; font-weight:700;">
@@ -34,7 +39,7 @@
                             </div>
                         </button>
                     </x-slot>
-
+                    
                     <x-slot name="content">
                         <x-dropdown-link :href="route('profile.edit')">
                             {{ __('Profile') }}

@@ -61,7 +61,6 @@
        <!-- Botão trocar cor -->
         <button class="btn-theme" id="btnTheme" aria-label="Trocar tema">
            <i class="fa-solid fa-moon"></i>
-          <span class="btn-theme__label">ESCURO</span>
        </button>
       @if (Route::has('login'))
         @auth

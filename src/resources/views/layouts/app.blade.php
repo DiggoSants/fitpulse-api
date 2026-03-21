@@ -11,8 +11,11 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-        @stack('styles')
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+        <script src="{{ asset('js/app.js') }}"></script>
+       <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+       @stack('styles')
+       @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         <style>
             body { background: #0a0a0a !important; color: #fff !important; font-family: 'Montserrat', sans-serif !important; }

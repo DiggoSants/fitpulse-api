@@ -8,8 +8,21 @@
 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
 <h2 class="text-2xl font-bold mb-6">
-Seu Treino
+    Seu Treino
 </h2>
+
+<a href="{{ route('workout.create') }}"
+   style="
+    display:inline-block;
+    margin-bottom:20px;
+    padding:10px 15px;
+    background:#4CAF50;
+    color:white;
+    border-radius:8px;
+    text-decoration:none;
+   ">
+    + Criar Treino
+</a>
 
 @if(isset($workout))
 

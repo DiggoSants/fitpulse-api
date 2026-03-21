@@ -25,10 +25,10 @@
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <button class="btn-theme" id="btnTheme" aria-label="Trocar tema" 
-                  style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:8px 12px; cursor:pointer; color:#fff; font-size:15px; display:inline-flex; align-items:center; gap:6px; transition:background .2s;">
+                  style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:8px 12px; cursor:pointer; color:#fff; font-size:15px; display:inline-flex; align-items:center; gap:6px; transition:background .2s; margin-left: 12px;">
                   <i class="fa-solid fa-moon"></i>
                 </button>
-                
+
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button style="display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:8px 14px; cursor:pointer; color:#fff; font-family:'Montserrat',sans-serif; font-size:13px; font-weight:700;">

@@ -1,4 +1,4 @@
-// ── Palavra dinâmica no hero ──────────────────────────────────
+//  Palavra dinâmica no hero 
 document.addEventListener("DOMContentLoaded", () => {
   const words = ["AMBIENTE", "ESTRUTURA", "PROFESSORES", "TREINOS", "RESULTADOS", "MOTIVAÇÃO"];
   const el = document.querySelector("#word");
@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// ── Animação entrada hero-character ──────────────────────────
+//  Animação entrada hero-character
 document.addEventListener("DOMContentLoaded", () => {
   const img = document.querySelector(".hero-character");
   if (!img || typeof gsap === "undefined") return;
@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 });
 
-// ── Contadores animados ───────────────────────────────────────
+//  Contadores animados
 document.addEventListener("DOMContentLoaded", () => {
   const counters = document.querySelectorAll(".stat-number");
 
@@ -113,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
   counters.forEach((c) => io.observe(c));
 });
 
-// ── Animações da seção "Sobre nós" ───────────────────────────
+//  Animações da seção "Sobre nós" 
 document.addEventListener("DOMContentLoaded", () => {
   if (typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") return;
   gsap.registerPlugin(ScrollTrigger);
@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ── Modal de vídeo ────────────────────────────────────────────
+//  Modal de vídeo
 document.addEventListener("DOMContentLoaded", () => {
   const openBtn = document.querySelector("#openVideo");
   const modal   = document.querySelector("#videoModal");
@@ -170,7 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ── Modal Explorar — navegação por slides ────────────────────
+//  Modal Explorar — navegação por slides
 document.addEventListener("DOMContentLoaded", () => {
   const modal       = document.getElementById("exploreModal");
   const openBtn     = document.getElementById("openExplore");
@@ -262,7 +262,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   goTo(0);
 });
-// ── Dados dos instrutores ─────────────────────────────────────
+//  Dados dos instrutores
 const INSTRUTORES = [
   {
     initials: "RB",
@@ -422,7 +422,7 @@ const INSTRUTORES = [
   },
 ];
  
-// ── Carrossel ─────────────────────────────────────────────────
+// Carrossel 
 document.addEventListener("DOMContentLoaded", () => {
   const track    = document.getElementById("carrTrack");
   const viewport = document.getElementById("carrViewport");
@@ -491,7 +491,7 @@ buildDots();
   goTo(0);
 });
  
-// ── Modal instrutor ───────────────────────────────────────────
+//  Modal instrutor 
 document.addEventListener("DOMContentLoaded", () => {
   const modal    = document.getElementById("instrModal");
   const overlay  = document.getElementById("instrOverlay");
@@ -562,7 +562,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
  
-// ── Animações de entrada (GSAP ScrollTrigger) ─────────────────
+//  Animações de entrada (GSAP ScrollTrigger)
 document.addEventListener("DOMContentLoaded", () => {
   if (typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") return;
   gsap.registerPlugin(ScrollTrigger);

@@ -28,6 +28,7 @@
                   style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:8px 12px; cursor:pointer; color:#fff; font-size:15px; display:inline-flex; align-items:center; gap:6px; transition:background .2s;">
                   <i class="fa-solid fa-moon"></i>
                 </button>
+                
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button style="display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:8px 14px; cursor:pointer; color:#fff; font-family:'Montserrat',sans-serif; font-size:13px; font-weight:700;">

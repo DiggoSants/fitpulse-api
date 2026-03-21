@@ -1,68 +1,90 @@
 <x-app-layout>
 
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+@endpush
 
-            <h2>Meu Treino</h2>
-            <h3>
-              
-                <a href="{{ route('workout.edit', $workout->id) }}"
-                    style="margin-left: 10px; color: yellow;">
-                    ✏️ Editar
-                </a>
-            </h3>
-            @if(isset($workout))
-            <h3>{{ $workout->name ?? 'Treino' }}</h3>
+<div class="py-6">
+<div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            @if($exercises->count())
-            <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+<h2 class="text-2xl font-bold mb-6">
+Seu Treino
+</h2>
 
-                @foreach($exercises as $item)
-                <div style="border: 1px solid #ccc; padding: 15px; width: 250px; border-radius: 10px;">
+@if(isset($workout))
 
-                    <h4>{{ $item->exercise->name }}</h4>
+    <h3 class="mb-4">
+        {{ $workout->name ?? 'Treino' }}
 
-                    <div style="
-    margin-top: 10px;
-    height: 150px;
-    background: #222;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-">
+        <a href="{{ route('workout.edit', $workout->id) }}"
+           style="margin-left: 10px; color: yellow;">
+            ✏️ Editar
+        </a>
+    </h3>
 
-                        {{-- FUTURO: imagem --}}
-                        {{-- <img src="{{ $item->exercise->image_url }}" style="width:100%; height:100%; object-fit:cover;"> --}}
+    @if($exercises->count())
 
-                        {{-- FUTURO: vídeo --}}
-                        {{--
-    <video controls style="width:100%; height:100%;">
-        <source src="{{ $item->exercise->video_url }}">
-                        </video>
-                        --}}
+        <ul class="exercise-list">
 
-                        <span style="color:#666;">Mídia do exercício</span>
+        @foreach($exercises as $item)
 
-                    </div>
+        <li class="exercise-card">
 
-                    <p><strong>Séries:</strong> {{ $item->sets }}</p>
-                    <p><strong>Repetições:</strong> {{ $item->reps }}</p>
+            <div class="exercise-thumb">
 
-                </div>
-                @endforeach
+                {{-- FUTURO: IMAGEM --}}
+                {{-- <img src="{{ $item->exercise->image_url }}"> --}}
+
+                {{-- fallback atual --}}
+                <svg viewBox="0 0 24 24">
+                    <rect x="2" y="9" width="4" height="6" rx="1"/>
+                    <rect x="18" y="9" width="4" height="6" rx="1"/>
+                    <rect x="7" y="11" width="10" height="2" rx="1"/>
+                </svg>
 
             </div>
-            @else
-            <p>Nenhum exercício encontrado.</p>
-            @endif
 
-            @else
-            <p>Nenhum treino disponível.</p>
-            @endif
+            <div class="exercise-info">
+                <div class="exercise-name">
+                    {{ $item->exercise->name }}
+                </div>
 
-        </div>
-    </div>
+                <div class="chips">
+                    <span class="chip chip--series">
+                        {{ $item->sets }} séries
+                    </span>
+
+                    <span class="chip chip--reps">
+                        {{ $item->reps }} reps
+                    </span>
+
+                    <span class="chip chip--rest">
+                        {{ $item->rest_time ?? 0 }}s descanso
+                    </span>
+                </div>
+            </div>
+
+            <button class="btn-play" title="Iniciar">
+                <svg viewBox="0 0 10 12">
+                    <polygon points="0,0 10,6 0,12"/>
+                </svg>
+            </button>
+
+        </li>
+
+        @endforeach
+
+        </ul>
+
+    @else
+        <p class="empty-state">Nenhum exercício encontrado.</p>
+    @endif
+
+@else
+    <p class="empty-state">Nenhum treino disponível.</p>
+@endif
+
+</div>
+</div>
 
 </x-app-layout>

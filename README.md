@@ -1,59 +1,227 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🏋️ FitPulse — Gym Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> **FitPulse** is a gym management system built with **Laravel** to manage members, instructors, and gym operations in a centralized platform.
 
-## About Laravel
+This project was developed in an **academic context**, focusing on **database modeling, backend development, system architecture, and collaborative version control**.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+# 📚 Project Overview
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+FitPulse centralizes the **administrative, financial, and operational processes** of a gym into a single platform.
 
-## Learning Laravel
+With this system it is possible to manage members, monitor attendance, control memberships, and organize training and evaluation data efficiently.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+# 🎯 Project Objectives
 
-## Laravel Sponsors
+The system aims to:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+• Manage gym members and staff roles  
+• Control memberships and monthly payments  
+• Monitor student attendance  
+• Manage personalized workout plans  
+• Register physical evaluations  
+• Control internal store sales  
+• Maintain audit logs for system security  
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+# 🛠 Technologies
 
-## Contributing
+## Back-end
+- PHP 8+
+- Laravel 12
+- MySQL
+- Eloquent ORM
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Front-end
+- Blade
+- CSS
+- JavaScript
+- Vite
 
-## Code of Conduct
+## Tools
+- Git
+- GitHub
+- Trello
+- Figma
+- DBDiagram.io
+- Draw.io / Diagrams.net
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+# 📂 Project Structure
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```
+fitpulse-api
+│
+├── docs/           # Project documentation (DER, diagrams, PDFs)
+│
+└── src/            # Laravel application
+    ├── app/
+    ├── routes/
+    ├── resources/
+    ├── database/
+    ├── public/
+    └── ...
+```
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# ⚙️ Requirements
+
+Before running the project, make sure you have installed:
+
+- PHP 8+
+- Composer
+- MySQL
+- Node.js & NPM
+- Git
+
+Recommended environments:
+
+- XAMPP  
+- Laragon  
+
+---
+
+# 🚀 Installation & Setup
+
+## 1️⃣ Clone the repository
+
+```bash
+git clone https://github.com/gustavomrq/fitpulse-api.git
+```
+
+## 2️⃣ Enter the project directory
+
+```bash
+cd fitpulse-api/src
+```
+
+## 3️⃣ Install PHP dependencies
+
+```bash
+composer install
+```
+
+## 4️⃣ Install JavaScript dependencies
+
+```bash
+npm install
+```
+
+## 5️⃣ Create the environment file
+
+```bash
+cp .env.example .env
+```
+
+## 6️⃣ Configure the database
+
+Open `.env` and update:
+
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=fitpulse
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+## 7️⃣ Generate the application key
+
+```bash
+php artisan key:generate
+```
+
+## 8️⃣ Run database migrations
+
+```bash
+php artisan migrate
+```
+
+---
+
+# ▶️ Running the Project
+
+Start the Laravel server:
+
+```bash
+php artisan serve
+```
+
+Start the Vite development server:
+
+```bash
+npm run dev
+```
+
+---
+
+# 🌐 Access the Application
+
+Open in your browser:
+
+```
+http://127.0.0.1:8000
+```
+
+---
+
+# 🔐 Authentication
+
+The project uses **Laravel Breeze** for authentication.
+
+Features include:
+
+• User registration  
+• Login  
+• Logout  
+• Route protection  
+• Dashboard access  
+
+Main routes:
+
+```
+/login
+/register
+/dashboard
+```
+
+---
+
+# 🧩 System Modules
+
+- User Management (Managers, Receptionists, Instructors, Students)
+- Membership & Monthly Billing
+- Workout Management
+- Physical Evaluations
+- Attendance Monitoring
+- Internal Store Sales
+- Audit Logs & Security Monitoring
+
+---
+
+# 👥 Team
+
+Diego Santos - Manager
+Gustavo Marques - Back-end Developer
+Lívia Karoliny - Front-end Developer
+Gilles Gael - Tester
+Guilherme Yuri - Tester
+
+# 🎓 Academic Context
+
+This project was developed as part of an academic assignment focusing on:
+
+- Database modeling (conceptual, logical, and physical)
+- RESTful API development
+- Software architecture
+- Version control collaboration
+- Team-based project management
+
+Tasks were organized using **Trello**, and the source code is maintained using **Git and GitHub**.

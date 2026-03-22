@@ -1,22 +1,61 @@
-<h1>Editar Exercício</h1>
+<x-app-layout>
 
-<form action="/exercises/{{ $exercise->id }}" method="POST">
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/app.css') }}">
+@endpush
 
-@csrf
-@method('PUT')
+<div class="form-page">
 
-<input type="text" name="name" value="{{ $exercise->name }}">
+    <div class="form-watermark" aria-hidden="true">
+        <span>FIT</span>
+        <span>PULSE</span>
+    </div>
 
-<br><br>
+    <div class="form-content py-6">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8" style="max-width:560px;">
 
-<input type="text" name="muscle_group" value="{{ $exercise->muscle_group }}">
+        <div class="dashboard-welcome">
+            <div>
+                <p class="section-label" style="margin-bottom:4px;">EXERCÍCIOS</p>
+                <h1 style="font-size:22px; font-weight:700; color:var(--text-white); margin:0;">Editar Exercício</h1>
+            </div>
+            <a href="/exercises"
+               style="font-size:12px; font-weight:600; color:var(--text-muted); text-decoration:none; display:inline-flex; align-items:center; gap:5px; padding:6px 14px; border:1px solid var(--border); border-radius:var(--radius-pill);">
+               ← Voltar
+            </a>
+        </div>
 
-<br><br>
+        <div class="profile-card">
+            <form action="/exercises/{{ $exercise->id }}" method="POST">
+                @csrf
+                @method('PUT')
 
-<textarea name="description">{{ $exercise->description }}</textarea>
+                <div class="profile-field">
+                    <label>Nome do exercício</label>
+                    <input type="text" name="name" value="{{ $exercise->name }}">
+                </div>
 
-<br><br>
+                <div class="profile-field">
+                    <label>Grupo muscular</label>
+                    <input type="text" name="muscle_group" value="{{ $exercise->muscle_group }}">
+                </div>
 
-<button type="submit">Atualizar</button>
+                <div class="profile-field">
+                    <label>Descrição</label>
+                    <textarea name="description"
+                        style="width:100%; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-md); padding:11px 14px; font-size:14px; color:var(--text-white); outline:none; font-family:'Montserrat',sans-serif; resize:vertical; min-height:100px; box-sizing:border-box;">{{ $exercise->description }}</textarea>
+                </div>
 
-</form>
+                <div class="profile-form-row">
+                    <button type="submit" class="btn-save">Atualizar</button>
+                    <a href="/exercises" class="btn-cancel" style="text-decoration:none;">Cancelar</a>
+                </div>
+            </form>
+        </div>
+
+    </div>
+    </div>
+
+</div>
+
+</x-app-layout>

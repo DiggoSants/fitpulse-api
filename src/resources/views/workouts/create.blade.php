@@ -6,14 +6,6 @@
 
     <label>Aluno</label>
 
-    <select name="student_id">
-        @foreach($students as $student)
-            <option value="{{ $student->id }}">
-                Aluno {{ $student->id }}
-            </option>
-        @endforeach
-    </select>
-
     <br><br>
 
     <input type="text" name="name" placeholder="Nome do treino">

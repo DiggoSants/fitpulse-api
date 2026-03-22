@@ -1,18 +1,18 @@
 <x-app-layout>
 
-@push('styles')
-<link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
-@endpush
+    @push('styles')
+    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    @endpush
 
-<div class="py-6">
-<div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-<h2 class="text-2xl font-bold mb-6">
-    Seu Treino
-</h2>
+            <h2 class="text-2xl font-bold mb-6">
+                Seu Treino
+            </h2>
 
-<a href="{{ route('workout.create') }}"
-   style="
+            <a href="{{ route('workout.create') }}"
+                style="
     display:inline-block;
     margin-bottom:20px;
     padding:10px 15px;
@@ -21,83 +21,92 @@
     border-radius:8px;
     text-decoration:none;
    ">
-    + Criar Treino
-</a>
+                + Criar Treino
+            </a>
 
-@if(isset($workout))
+            @if(isset($workout))
 
-    <h3 class="mb-4">
-        {{ $workout->name ?? 'Treino' }}
+            <h3 class="mb-4">
+                {{ $workout->name ?? 'Treino' }}
 
-        <a href="{{ route('workout.edit', $workout->id) }}"
-           style="margin-left: 10px; color: yellow;">
-            ✏️ Editar
-        </a>
-    </h3>
+                <a href="{{ route('workout.edit', $workout->id) }}"
+                    style="margin-left: 10px; color: yellow;">
+                    ✏️ Editar
+                </a>
+            </h3>
+            <form action="{{ route('workout.destroy', $workout->id) }}" method="POST" style="display:inline;">
+                @csrf
+                @method('DELETE')
 
-    @if($exercises->count())
+                <button type="submit"
+                    style="color:red; margin-left:10px; background:none; border:none; cursor:pointer;">
+                    🗑️ Deletar
+                </button>
+            </form>
 
-        <ul class="exercise-list">
+            @if($exercises->count())
 
-        @foreach($exercises as $item)
+            <ul class="exercise-list">
 
-        <li class="exercise-card">
+                @foreach($exercises as $item)
 
-            <div class="exercise-thumb">
+                <li class="exercise-card">
 
-                {{-- FUTURO: IMAGEM --}}
-                {{-- <img src="{{ $item->exercise->image_url }}"> --}}
+                    <div class="exercise-thumb">
 
-                {{-- fallback atual --}}
-                <svg viewBox="0 0 24 24">
-                    <rect x="2" y="9" width="4" height="6" rx="1"/>
-                    <rect x="18" y="9" width="4" height="6" rx="1"/>
-                    <rect x="7" y="11" width="10" height="2" rx="1"/>
-                </svg>
+                        {{-- FUTURO: IMAGEM --}}
+                        {{-- <img src="{{ $item->exercise->image_url }}"> --}}
 
-            </div>
+                        {{-- fallback atual --}}
+                        <svg viewBox="0 0 24 24">
+                            <rect x="2" y="9" width="4" height="6" rx="1" />
+                            <rect x="18" y="9" width="4" height="6" rx="1" />
+                            <rect x="7" y="11" width="10" height="2" rx="1" />
+                        </svg>
 
-            <div class="exercise-info">
-                <div class="exercise-name">
-                    {{ $item->exercise->name }}
-                </div>
+                    </div>
 
-                <div class="chips">
-                    <span class="chip chip--series">
-                        {{ $item->sets }} séries
-                    </span>
+                    <div class="exercise-info">
+                        <div class="exercise-name">
+                            {{ $item->exercise->name }}
+                        </div>
 
-                    <span class="chip chip--reps">
-                        {{ $item->reps }} reps
-                    </span>
+                        <div class="chips">
+                            <span class="chip chip--series">
+                                {{ $item->sets }} séries
+                            </span>
 
-                    <span class="chip chip--rest">
-                        {{ $item->rest_time ?? 0 }}s descanso
-                    </span>
-                </div>
-            </div>
+                            <span class="chip chip--reps">
+                                {{ $item->reps }} reps
+                            </span>
 
-            <button class="btn-play" title="Iniciar">
-                <svg viewBox="0 0 10 12">
-                    <polygon points="0,0 10,6 0,12"/>
-                </svg>
-            </button>
+                            <span class="chip chip--rest">
+                                {{ $item->rest_time ?? 0 }}s descanso
+                            </span>
+                        </div>
+                    </div>
 
-        </li>
+                    <button class="btn-play" title="Iniciar">
+                        <svg viewBox="0 0 10 12">
+                            <polygon points="0,0 10,6 0,12" />
+                        </svg>
+                    </button>
 
-        @endforeach
+                </li>
 
-        </ul>
+                @endforeach
 
-    @else
-        <p class="empty-state">Nenhum exercício encontrado.</p>
-    @endif
+            </ul>
 
-@else
-    <p class="empty-state">Nenhum treino disponível.</p>
-@endif
+            @else
+            <p class="empty-state">Nenhum exercício encontrado.</p>
+            @endif
 
-</div>
-</div>
+            @else
+            <p class="empty-state">Nenhum treino disponível.</p>
+            @endif
+
+        </div>
+    </div>
 
 </x-app-layout>

@@ -42,3 +42,4 @@ Route::post('/workout/store', [WorkoutController::class,'store']);
 Route::get('/workout/{id}/edit', [WorkoutController::class, 'edit'])->name('workout.edit');
 Route::put('/workout/{id}', [WorkoutController::class, 'update'])->name('workout.update');
 Route::get('/workout/create', [WorkoutController::class, 'create'])->name('workout.create');
+Route::delete('/workout/{id}', [WorkoutController::class, 'destroy'])->name('workout.destroy');

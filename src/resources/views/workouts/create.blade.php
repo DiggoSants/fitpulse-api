@@ -40,6 +40,7 @@
                 </select>
             </div>
 
+
             {{-- Nome do treino --}}
             <div class="profile-field">
                 <label>Nome do treino</label>

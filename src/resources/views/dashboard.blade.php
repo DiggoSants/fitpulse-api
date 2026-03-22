@@ -1,12 +1,10 @@
 <x-app-layout>
-
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 @endpush
-
-<div class="py-6">
-<div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        
     {{-- ══ HERO ══ --}}
     <div class="dash-hero">
         <div class="dash-hero__ring"></div>
@@ -35,6 +33,16 @@
     </div>
 
     @if(isset($workout))
+    
+            <form action="{{ route('workout.destroy', $workout->id) }}" method="POST" style="display:inline;">
+                @csrf
+                @method('DELETE')
+
+                <button type="submit"
+                    style="color:red; margin-left:10px; background:none; border:none; cursor:pointer;">
+                    🗑️ Deletar
+                </button>
+            </form>        
 
         {{-- ══ STAT CARDS ══ --}}
         <div class="dash-stats">

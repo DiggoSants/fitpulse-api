@@ -1,117 +1,149 @@
 <x-app-layout>
-    <x-slot name="header"></x-slot>
+    <x-slot name="header">
+        <h2 style="font-size:18px; font-weight:700; color:#fff;">
+            {{ __('Profile') }}
+        </h2>
+    </x-slot>
 
-    <div class="ex-form-page">
+    <div class="profile-wrapper">
 
-        <a href="/exercises" class="btn-back">
-            <svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-            Voltar
-        </a>
+        {{-- Atualizar informações --}}
+        <div class="profile-card">
+            <div class="profile-card__title">Informações do perfil</div>
+            <div class="profile-card__desc">Atualize seu nome e endereço de e-mail.</div>
 
-        <h2 class="ex-form-page__title">Editar Exercício</h2>
+            <form method="post" action="{{ route('profile.update') }}">
+                @csrf
+                @method('patch')
 
-        {{-- GIF atual --}}
-        @if($exercise->gif_url)
-        <div style="margin-bottom:1.5rem;">
-            <p class="section-label">GIF atual</p>
-            <div class="gif-preview-card gif-preview--visible" style="pointer-events:none;">
-                <div class="gif-preview-thumb">
-                    <img id="current-gif" src="{{ $exercise->gif_url }}" alt="{{ $exercise->name }}">
+                <div class="profile-field">
+                    <label for="name">Nome</label>
+                    <input id="name" type="text" name="name"
+                           value="{{ old('name', $user->name) }}"
+                           required autofocus autocomplete="name"
+                           placeholder="Seu nome">
+                    @error('name')
+                        <p class="profile-field-error">{{ $message }}</p>
+                    @enderror
                 </div>
-                <div>
-                    <p class="gif-preview-name">{{ $exercise->name }}</p>
-                    <p class="gif-preview-target">{{ $exercise->muscle_group }}</p>
+
+                <div class="profile-field">
+                    <label for="email">E-mail</label>
+                    <input id="email" type="email" name="email"
+                           value="{{ old('email', $user->email) }}"
+                           required autocomplete="username"
+                           placeholder="seu@email.com">
+                    @error('email')
+                        <p class="profile-field-error">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
+                    <div style="margin-bottom:16px;">
+                        <p style="font-size:13px; color:var(--text-muted);">
+                            {{ __('Your email address is unverified.') }}
+                            <button form="send-verification" style="background:none; border:none; color:var(--red-light); cursor:pointer; font-size:13px; padding:0;">
+                                {{ __('Click here to re-send the verification email.') }}
+                            </button>
+                        </p>
+                        @if (session('status') === 'verification-link-sent')
+                            <p style="font-size:13px; color:var(--green-light); margin-top:6px;">
+                                {{ __('A new verification link has been sent to your email address.') }}
+                            </p>
+                        @endif
+                    </div>
+                @endif
+
+                <div class="profile-form-row">
+                    <button type="submit" class="btn-save">Salvar</button>
+                    @if (session('status') === 'profile-updated')
+                        <p class="profile-saved">Salvo!</p>
+                    @endif
+                </div>
+            </form>
+        </div>
+
+        {{-- Alterar senha --}}
+        <div class="profile-card">
+            <div class="profile-card__title">Alterar senha</div>
+            <div class="profile-card__desc">Use uma senha longa e aleatória para manter sua conta segura.</div>
+
+            <form method="post" action="{{ route('password.update') }}">
+                @csrf
+                @method('put')
+
+                <div class="profile-field">
+                    <label for="current_password">Senha atual</label>
+                    <input id="current_password" type="password" name="current_password"
+                           autocomplete="current-password" placeholder="••••••••">
+                    @error('current_password', 'updatePassword')
+                        <p class="profile-field-error">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="profile-field">
+                    <label for="password">Nova senha</label>
+                    <input id="password" type="password" name="password"
+                           autocomplete="new-password" placeholder="••••••••">
+                    @error('password', 'updatePassword')
+                        <p class="profile-field-error">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="profile-field">
+                    <label for="password_confirmation">Confirmar nova senha</label>
+                    <input id="password_confirmation" type="password" name="password_confirmation"
+                           autocomplete="new-password" placeholder="••••••••">
+                    @error('password_confirmation', 'updatePassword')
+                        <p class="profile-field-error">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="profile-form-row">
+                    <button type="submit" class="btn-save">Atualizar senha</button>
+                    @if (session('status') === 'password-updated')
+                        <p class="profile-saved">Atualizado!</p>
+                    @endif
+                </div>
+            </form>
+        </div>
+
+        {{-- Deletar conta --}}
+        <div class="profile-card profile-card--danger" x-data="{ confirming: false }">
+            <div class="profile-card__title profile-card__title--danger">Deletar conta</div>
+            <div class="profile-card__desc">Uma vez deletada, todos os dados serão permanentemente removidos.</div>
+
+            <button class="btn-delete" @click="confirming = true">Deletar conta</button>
+
+            {{-- Modal de confirmação --}}
+            <div x-show="confirming" style="display:none; position:fixed; inset:0; z-index:50; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1rem;">
+                <div style="background:#1a1a1a; border:1px solid rgba(255,255,255,0.10); border-radius:16px; padding:28px; max-width:420px; width:100%;">
+                    <h2 style="font-size:16px; font-weight:700; color:#fff; margin-bottom:8px;">Tem certeza?</h2>
+                    <p style="font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:20px;">
+                        Esta ação é irreversível. Digite sua senha para confirmar.
+                    </p>
+
+                    <form method="post" action="{{ route('profile.destroy') }}">
+                        @csrf
+                        @method('delete')
+
+                        <div class="profile-field">
+                            <label for="delete_password">Senha</label>
+                            <input id="delete_password" type="password" name="password"
+                                   placeholder="••••••••" autofocus>
+                            @error('password', 'userDeletion')
+                                <p class="profile-field-error">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div style="display:flex; gap:10px; margin-top:8px;">
+                            <button type="submit" class="btn-delete">Confirmar exclusão</button>
+                            <button type="button" class="btn-cancel" @click="confirming = false">Cancelar</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-        @endif
-
-        {{-- Busca novo GIF --}}
-        <div class="gif-search">
-            <p class="section-label">Trocar GIF (opcional)</p>
-            <div class="gif-search__row">
-                <input type="text" id="gif-input" class="gif-search__input"
-                       value="{{ $exercise->name }}" placeholder="Buscar exercício...">
-                <button type="button" class="gif-search__btn" onclick="searchGif()">Buscar</button>
-            </div>
-            <div class="gif-results" id="gif-results"></div>
-        </div>
-
-        <form action="/exercises/{{ $exercise->id }}" method="POST">
-            @csrf
-            @method('PUT')
-            <input type="hidden" name="gif_url" id="f-gif-url" value="{{ $exercise->gif_url }}">
-
-            <div class="ex-form-card">
-
-                <div class="ex-field">
-                    <label>Nome do exercício</label>
-                    <input type="text" name="name" value="{{ $exercise->name }}">
-                </div>
-
-                <div class="ex-field">
-                    <label>Grupo muscular</label>
-                    <input type="text" name="muscle_group" value="{{ $exercise->muscle_group }}">
-                </div>
-
-                <div class="ex-field">
-                    <label>Descrição</label>
-                    <textarea name="description" rows="3">{{ $exercise->description }}</textarea>
-                </div>
-
-            </div>
-
-            <div class="ex-form-actions">
-                <button type="submit" class="btn-save">Atualizar</button>
-                <a href="/exercises" class="btn-cancel" style="text-decoration:none; display:inline-flex; align-items:center;">Cancelar</a>
-            </div>
-
-        </form>
 
     </div>
-
-    <script>
-    async function searchGif() {
-        const q = document.getElementById('gif-input').value.trim();
-        if (!q) return;
-        const box = document.getElementById('gif-results');
-        box.style.display = 'flex';
-        box.innerHTML = '<p style="font-size:13px;color:var(--text-muted);padding:8px 0;">Buscando...</p>';
-        try {
-            const res = await fetch(
-                `https://exercisedb.p.rapidapi.com/exercises/name/${encodeURIComponent(q)}?limit=8&offset=0`,
-                { headers: { 'x-rapidapi-host': 'exercisedb.p.rapidapi.com', 'x-rapidapi-key': '{{ config("services.exercisedb.key") }}' } }
-            );
-            const data = await res.json();
-            if (!Array.isArray(data) || !data.length) {
-                box.innerHTML = '<p style="font-size:13px;color:var(--text-muted);padding:8px 0;">Nenhum resultado.</p>';
-                return;
-            }
-            box.innerHTML = data.map(ex => `
-                <div class="gif-result-item" onclick="selectGif(this,'${ex.gifUrl}','${ex.name}','${ex.target}','${ex.bodyPart}')">
-                    <div class="gif-result-thumb"><img src="${ex.gifUrl}" loading="lazy"></div>
-                    <div>
-                        <p class="gif-result-name">${ex.name}</p>
-                        <p class="gif-result-target">${ex.target} · ${ex.bodyPart}</p>
-                    </div>
-                </div>
-            `).join('');
-        } catch(e) {
-            box.innerHTML = '<p style="font-size:13px;color:var(--red-light);padding:8px 0;">Erro — verifique a chave da API.</p>';
-        }
-    }
-
-    function selectGif(el, gifUrl, name, target, bodyPart) {
-        document.querySelectorAll('.gif-result-item').forEach(i => i.classList.remove('selected'));
-        el.classList.add('selected');
-        document.getElementById('f-gif-url').value = gifUrl;
-        const cur = document.getElementById('current-gif');
-        if (cur) cur.src = gifUrl;
-    }
-
-    document.getElementById('gif-input').addEventListener('keydown', e => {
-        if (e.key === 'Enter') { e.preventDefault(); searchGif(); }
-    });
-    </script>
-
 </x-app-layout>

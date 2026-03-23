@@ -33,7 +33,7 @@
             {{-- Nome do treino --}}
             <div class="profile-field">
                 <label>Nome do treino</label>
-                <input type="text" name="name" placeholder="Ex: Treino A — Peito e Tríceps">
+                <input type="text" name="name" placeholder="Ex: Supino">
             </div>
 
             {{-- Exercícios --}}

@@ -1598,3 +1598,104 @@ nav [x-show] {
     border-color: rgba(0,0,0,0.12);
     color: #111;
 }
+/* ── BTN DELETAR ── */
+.btn-del {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 20px;
+    background: rgba(214,21,50,.08);
+    border: 1px solid rgba(214,21,50,.28);
+    border-radius: 50px;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #f87171;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    transition: background .18s, border-color .18s, transform .15s;
+}
+
+.btn-del:hover {
+    background: rgba(214,21,50,.18);
+    border-color: rgba(214,21,50,.55);
+    transform: translateY(-1px);
+}
+
+.btn-del:active {
+    transform: scale(.97);
+}
+
+.btn-del svg {
+    stroke: #f87171;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    width: 14px;
+    height: 14px;
+}
+/* ── BTN GHOST (Editar) ── */
+.btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 22px;
+    background: transparent;
+    border: 1.5px solid rgba(214,21,50,.5);
+    border-radius: 50px;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #d61532;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    transition: background .18s, color .18s, transform .15s;
+    text-decoration: none;
+}
+
+.btn-ghost:hover {
+    background: #d61532;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.btn-ghost:active {
+    transform: scale(.97);
+}
+
+.btn-ghost svg {
+    width: 13px;
+    height: 13px;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    transition: stroke .18s;
+}
+
+/* ── TEMA CLARO ── */
+[data-theme="light"] .btn-del {
+    background: rgba(214,21,50,.06);
+    border-color: rgba(214,21,50,.22);
+    color: #b91c1c;
+}
+
+[data-theme="light"] .btn-del svg {
+    stroke: #b91c1c;
+}
+
+[data-theme="light"] .btn-del:hover {
+    background: rgba(214,21,50,.12);
+    border-color: rgba(214,21,50,.40);
+}
+
+[data-theme="light"] .btn-ghost {
+    color: #b91c1c;
+    border-color: rgba(214,21,50,.40);
+}
+
+[data-theme="light"] .btn-ghost:hover {
+    background: #d61532;
+    color: #fff;
+}

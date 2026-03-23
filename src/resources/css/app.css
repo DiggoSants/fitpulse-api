@@ -1699,3 +1699,16 @@ nav [x-show] {
     background: #d61532;
     color: #fff;
 }
+/* inputs do form dos exercicios*/
+.exercise-card {
+    overflow: hidden;
+}
+
+.workout-inputs {
+    min-width: 0;
+    flex-wrap: wrap;   /* fallback extra em telas muito pequenas */
+}
+
+.workout-input-sm {
+    min-width: 0;
+}

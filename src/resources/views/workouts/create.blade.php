@@ -28,17 +28,6 @@
         <form action="/workout/store" method="POST">
             @csrf
 
-            {{-- Aluno --}}
-            <div class="profile-field">
-                <label>Aluno</label>
-                <select name="student_id" class="workout-select">
-                    @foreach($students as $student)
-                        <option value="{{ $student->id }}" style="background:#1a1a1a;">
-                            Aluno {{ $student->id }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
 
 
             {{-- Nome do treino --}}

@@ -28,21 +28,6 @@
         <form action="{{ route('workout.update', $workout->id) }}" method="POST">
             @csrf
             @method('PUT')
-
-            {{-- Aluno --}}
-            <div class="profile-field">
-                <label>Aluno</label>
-                <select name="student_id" class="workout-select">
-                    @foreach($students as $student)
-                        <option value="{{ $student->id }}"
-                            {{ $student->id == $workout->student_id ? 'selected' : '' }}
-                            style="background:#1a1a1a;">
-                            Aluno {{ $student->id }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
             {{-- Nome do treino --}}
             <div class="profile-field">
                 <label>Nome do treino</label>

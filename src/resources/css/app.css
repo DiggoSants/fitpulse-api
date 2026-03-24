@@ -1706,9 +1706,10 @@ nav [x-show] {
 
 .workout-inputs {
     min-width: 0;
-    flex-wrap: wrap;   /* fallback extra em telas muito pequenas */
+    flex-wrap: wrap;   /* telas muito pequenas */
 }
 
 .workout-input-sm {
     min-width: 0;
 }
+[x-cloak] { display: none !important; }

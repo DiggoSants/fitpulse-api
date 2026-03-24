@@ -254,6 +254,17 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   openBtn.addEventListener("click", openModal);
+
+  // Botão "MAIS SOBRE NÓS" abre o modal na aba EMPRESA
+  
+const sobreBtn = document.querySelector('.about-actions .btn--ghost');
+if (sobreBtn) {
+  sobreBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    openModal();   // já abre no slide 0 por padrão
+    goTo(1);       // vai para EMPRESA
+  });
+}
   closeBtn.addEventListener("click", closeModal);
 
   modal.querySelectorAll("a[href='#matricula']").forEach((a) => {

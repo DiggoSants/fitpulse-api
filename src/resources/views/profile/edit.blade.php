@@ -1,4 +1,7 @@
 <x-app-layout>
+    @push('styles')
+<link rel="stylesheet" href="{{ asset('css/app.css') }}">
+@endpush
     <x-slot name="header">
         <h2 style="font-size:18px; font-weight:700; color:#fff;">
             {{ __('Profile') }}
@@ -116,33 +119,44 @@
             <button class="btn-delete" @click="confirming = true">Deletar conta</button>
 
             {{-- Modal de confirmação --}}
-            <div x-show="confirming" style="display:none; position:fixed; inset:0; z-index:50; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1rem;">
-                <div style="background:#1a1a1a; border:1px solid rgba(255,255,255,0.10); border-radius:16px; padding:28px; max-width:420px; width:100%;">
-                    <h2 style="font-size:16px; font-weight:700; color:#fff; margin-bottom:8px;">Tem certeza?</h2>
-                    <p style="font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:20px;">
-                        Esta ação é irreversível. Digite sua senha para confirmar.
-                    </p>
+             <div x-show="confirming" x-cloak
+     style="position:fixed; inset:0; z-index:50;
+            background:rgba(0,0,0,0.7);
+            backdrop-filter:blur(4px);
+            -webkit-backdrop-filter:blur(4px);">
 
-                    <form method="post" action="{{ route('profile.destroy') }}">
-                        @csrf
-                        @method('delete')
+    <div style="display:flex; align-items:center; justify-content:center;
+                width:100%; height:100%; padding:1rem;">
 
-                        <div class="profile-field">
-                            <label for="delete_password">Senha</label>
-                            <input id="delete_password" type="password" name="password"
-                                   placeholder="••••••••" autofocus>
-                            @error('password', 'userDeletion')
-                                <p class="profile-field-error">{{ $message }}</p>
-                            @enderror
-                        </div>
+        <div style="background:#1a1a1a; border:1px solid rgba(255,255,255,0.10);
+                    border-radius:16px; padding:28px; max-width:420px; width:100%;">
+                        <h2 style="font-size:16px; font-weight:700; color:#fff; margin-bottom:8px;">Tem certeza?</h2>
+                        <p style="font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:20px;">
+                            Esta ação é irreversível. Digite sua senha para confirmar.
+                        </p>
 
-                        <div style="display:flex; gap:10px; margin-top:8px;">
-                            <button type="submit" class="btn-delete">Confirmar exclusão</button>
-                            <button type="button" class="btn-cancel" @click="confirming = false">Cancelar</button>
-                        </div>
-                    </form>
+                        <form method="post" action="{{ route('profile.destroy') }}">
+                            @csrf
+                            @method('delete')
+
+                            <div class="profile-field">
+                                <label for="delete_password">Senha</label>
+                                <input id="delete_password" type="password" name="password"
+                                       placeholder="••••••••" autofocus>
+                                @error('password', 'userDeletion')
+                                    <p class="profile-field-error">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div style="display:flex; gap:10px; margin-top:8px;">
+                                <button type="submit" class="btn-delete">Confirmar exclusão</button>
+                                <button type="button" class="btn-cancel" @click="confirming = false">Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
+
         </div>
 
     </div>

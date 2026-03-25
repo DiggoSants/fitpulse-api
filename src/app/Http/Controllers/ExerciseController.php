@@ -20,6 +20,10 @@ class ExerciseController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'name' => 'required|min:3'
+        ]);
+        
         Exercise::create([
             'name' => $request->name,
             'description' => $request->description,

@@ -1,7 +1,10 @@
 <x-app-layout>
+    @push('styles')
+<link rel="stylesheet" href="{{ asset('css/app.css') }}">
+@endpush
     <x-slot name="header">
         <h2 style="font-size:18px; font-weight:700; color:#fff;">
-            {{ __('Profile') }}
+            {{ __('Perfil') }}
         </h2>
     </x-slot>
 
@@ -116,33 +119,82 @@
             <button class="btn-delete" @click="confirming = true">Deletar conta</button>
 
             {{-- Modal de confirmação --}}
-            <div x-show="confirming" style="display:none; position:fixed; inset:0; z-index:50; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1rem;">
-                <div style="background:#1a1a1a; border:1px solid rgba(255,255,255,0.10); border-radius:16px; padding:28px; max-width:420px; width:100%;">
-                    <h2 style="font-size:16px; font-weight:700; color:#fff; margin-bottom:8px;">Tem certeza?</h2>
-                    <p style="font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:20px;">
-                        Esta ação é irreversível. Digite sua senha para confirmar.
+            <div x-show="confirming" x-cloak
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 style="position:fixed; inset:0; z-index:50;
+                        backdrop-filter:blur(8px);
+                        -webkit-backdrop-filter:blur(8px);
+                        background:rgba(0,0,0,0.15);
+                        display:flex !important; align-items:center; justify-content:center; padding:1rem;">
+
+                <div x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 translate-y-2"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     style="background:rgba(255,255,255,0.06);
+                            border:1px solid rgba(255,255,255,0.12);
+                            border-radius:14px; padding:24px 28px;
+                            max-width:380px; width:100%;
+                            margin:auto;
+                            box-shadow: 0 0 0 1px rgba(220,38,38,0.15),
+                                        0 0 40px rgba(220,38,38,0.12),
+                                        0 8px 32px rgba(0,0,0,0.3);">
+
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                             fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        <span style="font-size:14px; font-weight:700; color:#fff;">Deletar conta</span>
+                        <span style="font-size:11px; color:rgba(239,68,68,0.8); margin-left:2px;">— irreversível</span>
+                    </div>
+
+                    <p style="font-size:12px; color:rgba(255,255,255,0.45); margin-bottom:16px; line-height:1.6;">
+                        Todos os dados serão permanentemente removidos. Digite sua senha para confirmar.
                     </p>
 
-                    <form method="post" action="{{ route('profile.destroy') }}">
+                    <form method="post" action="{{ route('profile.destroy') }}" x-data="{ pwd: '' }">
                         @csrf
                         @method('delete')
 
-                        <div class="profile-field">
-                            <label for="delete_password">Senha</label>
+                        <div class="profile-field" style="margin-bottom:12px;">
                             <input id="delete_password" type="password" name="password"
-                                   placeholder="••••••••" autofocus>
+                                   x-model="pwd"
+                                   placeholder="Sua senha"
+                                   autofocus
+                                   style="background:rgba(255,255,255,0.05);
+                                          border:1px solid rgba(220,38,38,0.25);
+                                          border-radius:8px; padding:9px 12px;
+                                          font-size:13px; color:#fff; width:100%;
+                                          outline:none;">
                             @error('password', 'userDeletion')
-                                <p class="profile-field-error">{{ $message }}</p>
+                                <p class="profile-field-error" style="margin-top:6px;">{{ $message }}</p>
                             @enderror
                         </div>
 
-                        <div style="display:flex; gap:10px; margin-top:8px;">
-                            <button type="submit" class="btn-delete">Confirmar exclusão</button>
-                            <button type="button" class="btn-cancel" @click="confirming = false">Cancelar</button>
+                        <div style="display:flex; gap:8px; justify-content:flex-end;">
+                            <button type="button" class="btn-cancel"
+                                    style="font-size:12px; padding:7px 14px;"
+                                    @click="confirming = false; pwd = ''">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn-delete"
+                                    style="font-size:12px; padding:7px 14px;"
+                                    :disabled="pwd.length === 0"
+                                    :style="pwd.length === 0 ? 'opacity:0.4; cursor:not-allowed;' : ''">
+                                Confirmar exclusão
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
+
         </div>
 
     </div>

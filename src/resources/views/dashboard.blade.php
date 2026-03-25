@@ -34,23 +34,15 @@
 
     @if(isset($workout))
     
-            <form action="{{ route('workout.destroy', $workout->id) }}" method="POST" style="display:inline;">
-                @csrf
-                @method('DELETE')
-
-                <button type="submit"
-                    style="color:red; margin-left:10px; background:none; border:none; cursor:pointer;">
-                    🗑️ Deletar
-                </button>
-            </form>        
+               
 
         {{-- ══ STAT CARDS ══ --}}
         <div class="dash-stats">
             <div class="dash-stat dash-stat--red">
-                <div class="dash-stat__bg-icon">🏋️</div>
+                <div class="dash-stat__bg-icon">⚡</div>
                 <div class="dash-stat__header">
                     <span class="dash-stat__dot"></span>
-                    <span class="dash-stat__label">Exercícios</span>
+                    <span class="dash-stat__label">Séries totais</span>
                 </div>
                 <div class="dash-stat__value">{{ $exercises->count() }}</div>
             </div>
@@ -58,35 +50,45 @@
                 <div class="dash-stat__bg-icon">🔁</div>
                 <div class="dash-stat__header">
                     <span class="dash-stat__dot"></span>
-                    <span class="dash-stat__label">Séries totais</span>
+                    <span class="dash-stat__label">Reps totais</span>
                 </div>
                 <div class="dash-stat__value">{{ $exercises->sum('sets') }}</div>
             </div>
             <div class="dash-stat dash-stat--green">
-                <div class="dash-stat__bg-icon">⚡</div>
+                <div class="dash-stat__bg-icon">🏋️</div>
                 <div class="dash-stat__header">
                     <span class="dash-stat__dot"></span>
-                    <span class="dash-stat__label">Reps totais</span>
+                    <span class="dash-stat__label">Descanso</span>
                 </div>
                 <div class="dash-stat__value">{{ $exercises->sum('reps') }}</div>
             </div>
         </div>
 
         {{-- ══ CABEÇALHO EXERCÍCIOS ══ --}}
-        <div class="exercises-header">
-            <div class="exercises-header__left">
+         <div class="exercises-header">
+             <div class="exercises-header__left">
                 <span class="exercises-header__tag">Treino atual</span>
-                <h3 class="exercises-header__name">{{ $workout->name ?? 'Treino' }}</h3>
-                <span class="exercises-header__badge">{{ $exercises->count() }} exerc.</span>
-            </div>
-            <a href="{{ route('workout.edit', $workout->id) }}" class="exercises-header__edit">
-                <svg width="12" height="12" viewBox="0 0 14 14" fill="none"
-                     style="stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;">
-                    <path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z"/>
+                 <h3 class="exercises-header__name">{{ $workout->name ?? 'Treino' }}</h3>
+                      <span class="exercises-header__badge">{{ $exercises->count() }} exerc.</span>
+             </div>
+
+            <div style="display:flex; align-items:center; gap:8px;"> <a href="{{ route('workout.edit', $workout->id) }}" class="btn-ghost"><svg viewBox="0 0 14 14" fill="none"><path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z"/>
+              </svg>
+              Editar
+              </a>
+
+        <form action="{{ route('workout.destroy', $workout->id) }}" method="POST" style="margin:0;">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn-del">
+                <svg viewBox="0 0 14 16" fill="none">
+                    <path d="M1 3.5h12M4.5 3.5V2a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v1.5M5.5 7v5M8.5 7v5M2.5 3.5l.9 10a.5.5 0 00.5.5h6.2a.5.5 0 00.5-.5l.9-10"/>
                 </svg>
-                Editar
-            </a>
-        </div>
+                Deletar
+            </button>
+        </form>
+    </div>
+</div>
 
         {{-- ══ GRADE LADO A LADO ══ --}}
         @if($exercises->count())

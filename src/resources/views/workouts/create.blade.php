@@ -31,16 +31,16 @@
                 </div>
                 @endif
 
+
                 <form action="/workout/store" method="POST">
                     @csrf
 
+            {{-- Nome do treino --}}
+            <div class="profile-field">
+                <label>Nome do treino</label>
+                <input type="text" name="name" placeholder="Ex: Supino">
+            </div>
 
-
-                    {{-- Nome do treino --}}
-                    <div class="profile-field">
-                        <label>Nome do treino</label>
-                        <input type="text" name="name" placeholder="Ex: Treino A — Peito e Tríceps">
-                    </div>
 
                     {{-- Exercícios --}}
                     <a href="{{ route('exercises.create') }}"

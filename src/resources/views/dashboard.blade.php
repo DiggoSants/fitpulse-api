@@ -19,7 +19,7 @@
                             <span class="dash-hero__pulse-dot"></span>
                             FITPULSE ATIVO
                         </span>
-                        <a href="{{ route('workout.create') }}" class="btn-save"
+                        <a href="{{ route('workouts.create') }}" class="btn-save"
                             style="text-decoration:none; display:inline-flex; align-items:center; gap:7px;">
                             <svg width="11" height="11" viewBox="0 0 12 12" fill="none"
                                 style="stroke:#fff; stroke-width:2.5; stroke-linecap:round;">
@@ -33,8 +33,6 @@
             </div>
 
             @if(isset($workout))
-
-
 
             {{-- ══ STAT CARDS ══ --}}
             <div class="dash-stats">
@@ -80,13 +78,14 @@
                     <span class="exercises-header__badge">{{ $exercises->count() }} exerc.</span>
                 </div>
 
-                <div style="display:flex; align-items:center; gap:8px;"> <a href="{{ route('workout.edit', $workout->id) }}" class="btn-ghost"><svg viewBox="0 0 14 14" fill="none">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <a href="{{ route('workouts.edit', $workout->id) }}" class="btn-ghost">
+                        <svg viewBox="0 0 14 14" fill="none">
                             <path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z" />
                         </svg>
                         Editar
                     </a>
-
-                    <form action="{{ route('workout.destroy', $workout->id) }}" method="POST" style="margin:0;">
+                    <form action="{{ route('workouts.destroy', $workout->id) }}" method="POST" style="margin:0;">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn-del">

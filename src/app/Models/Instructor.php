@@ -4,15 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Student extends Model
+class Instructor extends Model
 {
     protected $fillable = [
         'user_id',
-        'instructor_id',
-        'biometric_id',
-        'rfid_tag',
-        'birth_date',
-        'is_defaulter',
+        'specialty',
     ];
 
     public function user()
@@ -20,9 +16,9 @@ class Student extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function instructor()
+    public function students()
     {
-        return $this->belongsTo(Instructor::class);
+        return $this->hasMany(Student::class);
     }
 
     public function workouts()

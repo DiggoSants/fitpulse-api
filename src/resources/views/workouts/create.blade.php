@@ -31,16 +31,17 @@
                 </div>
                 @endif
 
-
-                <form action="/workout/store" method="POST">
+                <form action="{{ route('workouts.store') }}" method="POST">
                     @csrf
 
-            {{-- Nome do treino --}}
-            <div class="profile-field">
-                <label>Nome do treino</label>
-                <input type="text" name="name" placeholder="Ex: Supino">
-            </div>
-
+                    {{-- Nome do treino --}}
+                    <div class="profile-field">
+                        <label>Nome do treino</label>
+                        <input type="text" name="name" placeholder="Ex: Supino" value="{{ old('name') }}">
+                        @error('name')
+                            <span style="color:#ff4d6a; font-size:12px;">{{ $message }}</span>
+                        @enderror
+                    </div>
 
                     {{-- Exercícios --}}
                     <a href="{{ route('exercises.create') }}"
@@ -50,6 +51,10 @@
                     <div style="margin-top:1.5rem; margin-bottom:12px;">
                         <p class="section-label">EXERCÍCIOS</p>
                     </div>
+
+                    @error('exercise_id')
+                        <div style="color:#ff4d6a; font-size:12px; margin-bottom:10px;">{{ $message }}</div>
+                    @enderror
 
                     <ul class="exercise-list">
                         @foreach($exercises as $exercise)
@@ -69,9 +74,9 @@
                             </label>
 
                             <div class="workout-inputs">
-                                <input type="number" name="sets[{{ $exercise->id }}]" placeholder="Séries" class="workout-input-sm">
-                                <input type="number" name="reps[{{ $exercise->id }}]" placeholder="Reps" class="workout-input-sm">
-                                <input type="number" name="rest_time[{{ $exercise->id }}]" placeholder="Descanso (s)" class="workout-input-sm">
+                                <input type="number" name="sets[{{ $exercise->id }}]" placeholder="Séries" class="workout-input-sm" min="1">
+                                <input type="number" name="reps[{{ $exercise->id }}]" placeholder="Reps" class="workout-input-sm" min="1">
+                                <input type="number" name="rest_time[{{ $exercise->id }}]" placeholder="Descanso (s)" class="workout-input-sm" min="1">
                             </div>
 
                         </li>

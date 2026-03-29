@@ -1,15 +1,20 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\ExerciseController;
+use App\Http\Controllers\WorkoutController;
+use App\Http\Controllers\InstructorController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -17,29 +22,28 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-use App\Http\Controllers\StudentController;
-
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('students', StudentController::class);
 });
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::resource('exercises', ExerciseController::class);
+});
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::resource('workouts', WorkoutController::class)->only([
+        'create',
+        'store',
+        'edit',
+        'update',
+        'destroy'
+    ]);
+});
+Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
+    Route::resource('instructors', InstructorController::class);
+});
+Route::middleware(['auth', 'verified', 'role:manager,instructor'])->group(function () {
+    Route::get('/instructor/dashboard', [InstructorController::class, 'dashboard']);
+});
+
 require __DIR__ . '/auth.php';
-
-use App\Http\Controllers\DashboardController;
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth'])
-    ->name('dashboard');
-
-use App\Http\Controllers\ExerciseController;
-
-Route::resource('exercises', ExerciseController::class);
-
-use App\Http\Controllers\WorkoutController;
-
-Route::get('/workout/create', [WorkoutController::class,'create']);
-Route::post('/workout/store', [WorkoutController::class,'store']);
-
-
-Route::get('/workout/{id}/edit', [WorkoutController::class, 'edit'])->name('workout.edit');
-Route::put('/workout/{id}', [WorkoutController::class, 'update'])->name('workout.update');
-Route::get('/workout/create', [WorkoutController::class, 'create'])->name('workout.create');
-Route::delete('/workout/{id}', [WorkoutController::class, 'destroy'])->name('workout.destroy');

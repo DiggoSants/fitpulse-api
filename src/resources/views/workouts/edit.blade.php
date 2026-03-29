@@ -31,14 +31,17 @@
                 </div>
                 @endif
 
-                <form action="{{ route('workout.update', $workout->id) }}" method="POST">
+                <form action="{{ route('workouts.update', $workout->id) }}" method="POST">
                     @csrf
                     @method('PUT')
 
                     {{-- Nome do treino --}}
                     <div class="profile-field">
                         <label>Nome do treino</label>
-                        <input type="text" name="name" value="{{ $workout->name }}">
+                        <input type="text" name="name" value="{{ old('name', $workout->name) }}">
+                        @error('name')
+                            <span style="color:#ff4d6a; font-size:12px;">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     {{-- Exercícios --}}
@@ -46,10 +49,14 @@
                         <p class="section-label">EXERCÍCIOS</p>
                     </div>
 
+                    @error('exercise_id')
+                        <div style="color:#ff4d6a; font-size:12px; margin-bottom:10px;">{{ $message }}</div>
+                    @enderror
+
                     <ul class="exercise-list">
                         @foreach($exercises as $exercise)
                         @php
-                        $we = $workout->workoutExercises->firstWhere('exercise_id', $exercise->id);
+                            $we = $workout->workoutExercises->firstWhere('exercise_id', $exercise->id);
                         @endphp
 
                         <li class="exercise-card {{ $we ? 'exercise-card--active' : '' }}" style="flex-direction:column; align-items:flex-start; gap:10px;">
@@ -75,9 +82,9 @@
                             </label>
 
                             <div class="workout-inputs">
-                                <input type="number" name="sets[{{ $exercise->id }}]" value="{{ $we->sets ?? '' }}" placeholder="Séries" class="workout-input-sm">
-                                <input type="number" name="reps[{{ $exercise->id }}]" value="{{ $we->reps ?? '' }}" placeholder="Reps" class="workout-input-sm">
-                                <input type="number" name="rest_time[{{ $exercise->id }}]" value="{{ $we->rest_time ?? '' }}" placeholder="Descanso (s)" class="workout-input-sm">
+                                <input type="number" name="sets[{{ $exercise->id }}]" value="{{ old('sets.'.$exercise->id, $we->sets ?? '') }}" placeholder="Séries" class="workout-input-sm" min="1">
+                                <input type="number" name="reps[{{ $exercise->id }}]" value="{{ old('reps.'.$exercise->id, $we->reps ?? '') }}" placeholder="Reps" class="workout-input-sm" min="1">
+                                <input type="number" name="rest_time[{{ $exercise->id }}]" value="{{ old('rest_time.'.$exercise->id, $we->rest_time ?? '') }}" placeholder="Descanso (s)" class="workout-input-sm" min="1">
                             </div>
 
                         </li>

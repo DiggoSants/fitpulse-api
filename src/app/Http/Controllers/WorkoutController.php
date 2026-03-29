@@ -11,38 +11,53 @@ use Illuminate\Support\Facades\Auth;
 
 class WorkoutController extends Controller
 {
-    public function create()
+    private function resolveStudent(?int $studentId = null): Student
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($studentId && ($user->isInstructor() || $user->isManager())) {
+            $student = Student::findOrFail($studentId);
+            if ($user->isInstructor()) {
+                $instructor = $user->instructor;
+                abort_if($student->instructor_id !== $instructor->id, 403, 'Este aluno não é seu.');
+            }
+
+            return $student;
+        }
+
+        $student = Student::where('user_id', $user->id)->first();
+        abort_if(!$student, 403, 'Aluno não encontrado.');
+
+        return $student;
+    }
+
+    public function create(Request $request)
     {
         $exercises = Exercise::all();
+        $studentId = $request->query('student_id');
+        $student   = $this->resolveStudent($studentId ? (int) $studentId : null);
 
-        return view('workouts.create', compact('exercises'));
+        return view('workouts.create', compact('exercises', 'student'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'name'          => ['required', 'min:3', 'regex:/^[A-Za-z0-9\s]+$/'],
-            'exercise_id'   => ['required', 'array'],
-            'sets.*'        => ['nullable', 'integer', 'min:1'],
-            'reps.*'        => ['nullable', 'integer', 'min:1'],
-            'rest_time.*'   => ['nullable', 'integer', 'min:1'],
+            'name'        => ['required', 'min:3', 'regex:/^[A-Za-z0-9\s]+$/'],
+            'exercise_id' => ['required', 'array'],
+            'sets.*'      => ['nullable', 'integer', 'min:1'],
+            'reps.*'      => ['nullable', 'integer', 'min:1'],
+            'rest_time.*' => ['nullable', 'integer', 'min:1'],
         ], [
             'name.required'        => 'O nome do treino é obrigatório',
             'name.min'             => 'O nome deve ter pelo menos 3 caracteres',
             'name.regex'           => 'Use apenas letras e números',
             'exercise_id.required' => 'Selecione pelo menos um exercício',
-            'sets.*.min'           => 'Séries devem ser no mínimo 1',
-            'reps.*.min'           => 'Reps devem ser no mínimo 1',
         ]);
 
-        if (!$request->exercise_id || count($request->exercise_id) === 0) {
-            return back()->with('error', 'Selecione pelo menos um exercício')->withInput();
-        }
-
-        $student = Student::where('user_id', Auth::id())->first();
-        if (!$student) {
-            return back()->with('error', 'Aluno não encontrado');
-        }
+        $studentId = $request->input('student_id');
+        $student   = $this->resolveStudent($studentId ? (int) $studentId : null);
 
         $workout = Workout::create([
             'student_id' => $student->id,
@@ -78,39 +93,41 @@ class WorkoutController extends Controller
         return redirect()->route('dashboard');
     }
 
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
         $workout   = Workout::with('workoutExercises')->findOrFail($id);
         $exercises = Exercise::all();
+        $studentId = $request->query('student_id');
+        $student   = $this->resolveStudent($studentId ? (int) $studentId : null);
 
-        return view('workouts.edit', compact('workout', 'exercises'));
+        abort_if($workout->student_id !== $student->id, 403, 'Este treino não pertence a este aluno.');
+
+        return view('workouts.edit', compact('workout', 'exercises', 'student'));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name'          => ['required', 'min:3', 'regex:/^[A-Za-z0-9\s]+$/'],
-            'exercise_id'   => ['required', 'array'],
-            'sets.*'        => ['nullable', 'integer', 'min:1'],
-            'reps.*'        => ['nullable', 'integer', 'min:1'],
-            'rest_time.*'   => ['nullable', 'integer', 'min:1'],
+            'name'        => ['required', 'min:3', 'regex:/^[A-Za-z0-9\s]+$/'],
+            'exercise_id' => ['required', 'array'],
+            'sets.*'      => ['nullable', 'integer', 'min:1'],
+            'reps.*'      => ['nullable', 'integer', 'min:1'],
+            'rest_time.*' => ['nullable', 'integer', 'min:1'],
         ], [
             'name.required'        => 'O nome do treino é obrigatório',
             'name.min'             => 'O nome deve ter pelo menos 3 caracteres',
             'name.regex'           => 'Use apenas letras e números',
             'exercise_id.required' => 'Selecione pelo menos um exercício',
-            'sets.*.min'           => 'Séries devem ser no mínimo 1',
-            'reps.*.min'           => 'Reps devem ser no mínimo 1',
         ]);
 
-        if (!$request->exercise_id || count($request->exercise_id) === 0) {
-            return back()->with('error', 'Selecione pelo menos um exercício')->withInput();
-        }
+        $studentId = $request->input('student_id');
+        $student   = $this->resolveStudent($studentId ? (int) $studentId : null);
 
         $workout = Workout::findOrFail($id);
+        abort_if($workout->student_id !== $student->id, 403, 'Este treino não pertence a este aluno.');
+
         $workout->update(['name' => $request->name]);
 
-        // Remove os exercícios antigos e recria com os novos dados
         WorkoutExercise::where('workout_id', $workout->id)->delete();
 
         $validExercise = false;
@@ -141,9 +158,13 @@ class WorkoutController extends Controller
         return redirect()->route('dashboard');
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $workout = Workout::findOrFail($id);
+        $workout   = Workout::findOrFail($id);
+        $studentId = $request->input('student_id');
+        $student   = $this->resolveStudent($studentId ? (int) $studentId : null);
+
+        abort_if($workout->student_id !== $student->id, 403, 'Este treino não pertence a este aluno.');
 
         WorkoutExercise::where('workout_id', $id)->delete();
         $workout->delete();

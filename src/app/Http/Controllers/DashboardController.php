@@ -2,32 +2,51 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Student;
+use App\Models\Instructor;
+use App\Models\Workout;
 use App\Models\WorkoutExercise;
 
 class DashboardController extends Controller
 {
     public function index()
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
+        if ($user->isManager()) {
+            $instructors = Instructor::with([
+                'user',
+                'students.user',
+                'students.workouts.workoutExercises.exercise',
+            ])->get();
 
+            return view('dashboard', compact('instructors'));
+        }
+        if ($user->isInstructor()) {
+            $instructor = Instructor::with([
+                'user',
+                'students.user',
+                'students.workouts.workoutExercises.exercise',
+            ])->where('user_id', $user->id)->firstOrFail();
+
+            return view('dashboard', compact('instructor'));
+        }
         $student = Student::where('user_id', $user->id)->first();
 
         if (!$student) {
-            return view('dashboard', ['exercises' => []]);
+            return view('dashboard', ['exercises' => collect()]);
         }
 
-        $workout = \App\Models\Workout::where('student_id', $student->id)
+        $workout = Workout::where('student_id', $student->id)
             ->latest()
             ->first();
 
         if (!$workout) {
-            return view('dashboard', ['exercises' => []]);
+            return view('dashboard', ['exercises' => collect()]);
         }
 
-        $exercises = \App\Models\WorkoutExercise::with('exercise')
+        $exercises = WorkoutExercise::with('exercise')
             ->where('workout_id', $workout->id)
             ->get();
 

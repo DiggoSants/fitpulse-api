@@ -42,8 +42,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
     Route::resource('instructors', InstructorController::class);
 });
-Route::middleware(['auth', 'verified', 'role:manager,instructor'])->group(function () {
-    Route::get('/instructor/dashboard', [InstructorController::class, 'dashboard']);
-});
 
 require __DIR__ . '/auth.php';

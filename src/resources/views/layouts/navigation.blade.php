@@ -12,6 +12,7 @@
                              alt="FitPulse logo">
                         <span class="nav-fitpulse-fit">FIT</span><span class="nav-fitpulse-pulse">PULSE</span>
                     </a>
+                    <span class="nav-separator" aria-hidden="true"></span>
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
@@ -23,8 +24,7 @@
 
             <div class="hidden sm:flex sm:items-center sm:ms-6" style="gap:8px;">
 
-                <button id="btnTheme" aria-label="Trocar tema"
-                        style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:8px 12px; cursor:pointer; color:#fff; font-size:15px; display:inline-flex; align-items:center; gap:6px; transition:background .18s, border-color .18s, transform .18s; z-index:100; position:relative;">
+                <button id="btnTheme" class="nav-btn-icon" aria-label="Trocar tema" type="button">
                     <i class="fa-solid fa-moon"></i>
                 </button>
 

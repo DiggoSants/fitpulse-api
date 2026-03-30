@@ -195,6 +195,19 @@ nav [x-show] {
     color: #fff;
 }
 
+.nav-separator {
+    width: 1px;
+    height: 24px;
+    background: rgba(255,255,255,0.3);
+    margin-left: 14px;
+    margin-right: 14px;
+    border-radius: 1px;
+}
+
+[data-theme="light"] .nav-separator {
+    background: rgba(0,0,0,0.2);
+}
+
 [data-theme="light"] .nav-fitpulse-fit {
     color: #111;
 }
@@ -215,13 +228,13 @@ nav [x-show] {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 12px;
+    padding: 6px 14px;
     border-radius: 8px;
     font-size: 13px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.50);
+    font-weight: 700;
+    color: rgba(255,255,255,0.60);
     text-decoration: none;
-    letter-spacing: .02em;
+    letter-spacing: .03em;
     transition: color .18s, background .18s;
     position: relative;
 }
@@ -2560,6 +2573,133 @@ INSTRUCTOR DASHBOARD — SEÇÕES / CARDS ALUNOS
     color: rgba(0,0,0,.40);
 }
 
+
+/* ══════════════════════════════════════════════════
+WORKOUT BLOCK — LAYOUT FIXO
+══════════════════════════════════════════════════ */
+
+.ex-table {
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.06);
+}
+
+[data-theme="light"] .ex-table {
+    border-color: rgba(0,0,0,.07);
+}
+
+.ex-table__head {
+    display: grid;
+    grid-template-columns: 2fr 1.2fr 52px 52px 52px;
+    padding: 7px 14px;
+    background: rgba(255,255,255,.04);
+    border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+[data-theme="light"] .ex-table__head {
+    background: rgba(0,0,0,.03);
+    border-bottom-color: rgba(0,0,0,.06);
+}
+
+.ex-table__head span {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: #666;
+}
+
+[data-theme="light"] .ex-table__head span {
+    color: rgba(0,0,0,.38);
+}
+
+.ex-table__row {
+    display: grid;
+    grid-template-columns: 2fr 1.2fr 52px 52px 52px;
+    padding: 10px 14px;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    transition: background .15s;
+}
+
+.ex-table__row:last-child {
+    border-bottom: none;
+}
+
+.ex-table__row:hover {
+    background: rgba(255,255,255,.04);
+}
+
+[data-theme="light"] .ex-table__row {
+    border-bottom-color: rgba(0,0,0,.05);
+}
+
+[data-theme="light"] .ex-table__row:hover {
+    background: rgba(0,0,0,.02);
+}
+
+.ex-table__name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #f0f0f0;
+}
+
+[data-theme="light"] .ex-table__name {
+    color: #111;
+}
+
+.ex-table__group {
+    font-size: 12px;
+    color: #888;
+}
+
+[data-theme="light"] .ex-table__group {
+    color: rgba(0,0,0,.45);
+}
+
+/* Botões Editar / Deletar dentro do workout-block */
+
+.btn-workout-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 13px;
+    border-radius: 50px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .18s, border-color .18s, transform .15s;
+    background: rgba(20,20,20,0.9);
+    border: 1px solid rgba(214,21,50,.45);
+    color: #e03040;
+}
+
+.btn-workout-action:hover {
+    background: rgba(214,21,50,.12);
+    border-color: rgba(214,21,50,.75);
+    transform: translateY(-1px);
+}
+
+.btn-workout-action svg {
+    flex-shrink: 0;
+    stroke: currentColor;
+}
+
+[data-theme="light"] .btn-workout-action {
+    background: #fff;
+    border-color: rgba(214,21,50,.35);
+    color: #c1121f;
+}
+
+[data-theme="light"] .btn-workout-action:hover {
+    background: rgba(214,21,50,.06);
+    border-color: rgba(214,21,50,.60);
+}
+
 /* ══════════════════════════════════════════════════
 SKELETON
 ══════════════════════════════════════════════════ */
@@ -2577,15 +2717,16 @@ SKELETON
 
 .sk {
     border-radius: 6px;
-    background: linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.10) 50%,rgba(255,255,255,.04) 75%);
+    background: linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.12) 50%,rgba(255,255,255,.04) 75%);
     background-size: 600px 100%;
-    animation: sk-shimmer 1.5s infinite linear;
+    animation: sk-shimmer 1.4s infinite linear;
+    min-height: 10px;
 }
 
 [data-theme="light"] .sk {
-    background: linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(0,0,0,.13) 50%,rgba(0,0,0,.06) 75%);
+    background: linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(0,0,0,.14) 50%,rgba(0,0,0,.06) 75%);
     background-size: 600px 100%;
-    animation: sk-shimmer 1.5s infinite linear;
+    animation: sk-shimmer 1.4s infinite linear;
 }
 
 .sk-avatar-sm {

@@ -1,5 +1,5 @@
-<nav x-data="{ open: false }" style="background:rgba(10,10,10,0.90); backdrop-filter:blur(10px); border-bottom:1px solid rgba(255,255,255,0.08); font-family:'Montserrat',sans-serif;">
-
+<nav x-data="{ open: false }" class="nav-main">
+ 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
 
@@ -66,8 +66,7 @@
         </div>
     </div>
 
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden"
-         style="background:rgba(10,10,10,0.98); border-top:1px solid rgba(255,255,255,0.08);">
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden nav-mobile-menu">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Painel') }}

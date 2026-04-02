@@ -16,9 +16,15 @@
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Painel') }}
-                    </x-nav-link>
+                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')"> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-right:8px;">
+                     <rect x="3" y="3" width="7" height="7" rx="1"/>
+                     <rect x="14" y="3" width="7" height="7" rx="1"/>
+                     <rect x="14" y="14" width="7" height="7" rx="1"/>
+                     <rect x="3" y="14" width="7" height="7" rx="1"/>
+                    </svg>
+
+                   {{ __('Painel') }}
+                   </x-nav-link>
                 </div>
             </div>
 
@@ -31,8 +37,9 @@
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="nav-user-btn">
-                            <div>{{ Auth::user()->name }}</div>
-                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <span class="nav-user-avatar">{{ strtoupper(substr(Auth::user()->name, 0, 2)) }}</span>
+                            <span class="nav-user-name">{{ Auth::user()->name }}</span>
+                            <svg class="nav-user-chevron fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                             </svg>
                         </button>
@@ -66,6 +73,26 @@
         </div>
     </div>
 
+    {{-- Context bar --}}
+    <div class="nav-context-bar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="nav-context-inner">
+                <span class="nav-ctx-crumb">FitPulse</span>
+                <span class="nav-ctx-sep">/</span>
+                <span class="nav-ctx-crumb nav-ctx-crumb--active">
+                    @if(request()->routeIs('dashboard'))
+                        Painel
+                    @elseif(request()->routeIs('profile.*'))
+                        Perfil
+                    @else
+                        {{ ucfirst(request()->segment(1) ?? 'Página') }}
+                    @endif
+                </span>
+            </div>
+        </div>
+    </div>
+
+    {{-- Menu mobile --}}
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden nav-mobile-menu">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
@@ -78,7 +105,9 @@
                 <div style="font-size:12px; color:rgba(255,255,255,0.4); margin-top:2px;">{{ Auth::user()->email }}</div>
             </div>
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">{{ __('Perfil') }}</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('profile.edit')">
+                    {{ __('Perfil') }}
+                </x-responsive-nav-link>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <x-responsive-nav-link :href="route('logout')"

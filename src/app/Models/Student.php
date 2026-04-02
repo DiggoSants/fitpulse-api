@@ -29,4 +29,22 @@ class Student extends Model
     {
         return $this->hasMany(Workout::class);
     }
+
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    public function activeEnrollment()
+    {
+        return $this->enrollments()
+            ->where('end_date', '>=', now()->toDateString())
+            ->latest('start_date')
+            ->first();
+    }
+
+    public function isEnrolled(): bool
+    {
+        return $this->activeEnrollment() !== null;
+    }
 }

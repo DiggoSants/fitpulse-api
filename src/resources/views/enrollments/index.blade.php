@@ -1,3 +1,4 @@
+<x-app-layout>
 <div class="enrollment-wrap">
 
     {{-- Cabeçalho --}}
@@ -21,32 +22,30 @@
         </div>
     @endif
 
-    {{-- Card do formulário --}}
     <div class="enrollment-card">
         <form action="{{ route('enrollment.store') }}" method="POST">
             @csrf
 
-            {{-- Código do instrutor --}}
-            <p class="enrollment-section-label">Código do Instrutor</p>
-            <input 
-                type="text" 
-                name="invite_code" 
-                value="{{ old('invite_code') }}"
-                placeholder="Ex: A3BX92KL" 
-                maxlength="8"
-                style="text-transform:uppercase;"
-            >
-            @error('invite_code')
-                <span>{{ $message }}</span>
-            @enderror
+            <div class="profile-field">
+                <p class="enrollment-section-label">Código do Instrutor</p>
+                <input
+                    type="text"
+                    name="invite_code"
+                    value="{{ old('invite_code') }}"
+                    placeholder="Ex: A3BX92KL"
+                    maxlength="8"
+                    style="text-transform:uppercase;"
+                >
+                @error('invite_code')
+                    <span class="profile-field-error">{{ $message }}</span>
+                @enderror
+            </div>
 
-            {{-- Escolha do plano --}}
             <p class="enrollment-section-label">Escolha seu Plano</p>
 
             <ul class="plan-list">
                 @forelse($plans as $plan)
                     <li class="plan-option">
-
                         <input
                             type="radio"
                             name="plan_id"
@@ -54,7 +53,6 @@
                             id="plan_{{ $plan->id }}"
                             {{ old('plan_id') == $plan->id ? 'checked' : '' }}
                         >
-
                         <label for="plan_{{ $plan->id }}">
                             <div class="plan-option__info">
                                 <p class="plan-option__name">{{ $plan->name }}</p>
@@ -64,7 +62,6 @@
                                 R$ {{ number_format($plan->price, 2, ',', '.') }}
                             </span>
                         </label>
-
                         <button
                             type="button"
                             class="plan-option__details-btn"
@@ -72,12 +69,15 @@
                         >
                             Ver detalhes
                         </button>
-
                     </li>
                 @empty
                     <li class="enrollment-empty">Nenhum plano disponível no momento.</li>
                 @endforelse
             </ul>
+
+            @error('plan_id')
+                <span class="profile-field-error">{{ $message }}</span>
+            @enderror
 
             @if($plans->count())
                 <div class="enrollment-actions" style="margin-top: 8px;">
@@ -89,3 +89,4 @@
     </div>
 
 </div>
+</x-app-layout>

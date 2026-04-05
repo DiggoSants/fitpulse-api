@@ -1,30 +1,63 @@
 <x-app-layout>
+<div class="workout-form-wrap">
 
-    <a href="{{ route('instructors.index') }}">← Voltar</a>
-
-    <h1>Editar Instrutor</h1>
+    {{-- Cabeçalho --}}
+    <div class="workout-form-header">
+        <div>
+            <p class="workout-form-kicker">Gerenciamento</p>
+            <h1 class="workout-form-title">Editar Instrutor</h1>
+        </div>
+        <a href="{{ route('instructors.index') }}" class="workout-form-back">← Voltar</a>
+    </div>
 
     @if($errors->any())
-        <ul>
+        <div class="enrollment-errors" style="margin-bottom: 20px;">
             @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
+                <p>{{ $error }}</p>
             @endforeach
-        </ul>
+        </div>
     @endif
 
-    <form action="{{ route('instructors.update', $instructor->id) }}" method="POST">
-        @csrf
-        @method('PUT')
+    <div class="workout-form-card">
+        <form action="{{ route('instructors.update', $instructor->id) }}" method="POST">
+            @csrf
+            @method('PUT')
 
-        {{-- Usuário não pode ser trocado, apenas exibido --}}
-        <label>Usuário</label>
-        <input type="text" value="{{ $instructor->user->name }}" disabled>
+            {{-- Usuário não pode ser trocado, apenas exibido --}}
+            <div class="profile-field">
+                <label>Usuário</label>
+                <div style="display:flex; align-items:center; gap:12px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-md); padding:11px 14px;">
+                    <div class="student-avatar" style="width:32px; height:32px; font-size:12px; flex-shrink:0;">
+                        {{ strtoupper(substr($instructor->user->name, 0, 2)) }}
+                    </div>
+                    <div>
+                        <p style="font-size:14px; font-weight:700; color:var(--text-white); margin:0 0 2px;">{{ $instructor->user->name }}</p>
+                        <p style="font-size:12px; color:var(--text-muted); margin:0;">{{ $instructor->user->email }}</p>
+                    </div>
+                    <span style="margin-left:auto; font-size:11px; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:.06em;">Não editável</span>
+                </div>
+            </div>
 
-        <label>Especialidade</label>
-        <input type="text" name="specialty" value="{{ old('specialty', $instructor->specialty) }}" placeholder="Ex: Musculação, Crossfit...">
+            <div class="profile-field">
+                <label>Especialidade</label>
+                <input
+                    type="text"
+                    name="specialty"
+                    value="{{ old('specialty', $instructor->specialty) }}"
+                    placeholder="Ex: Musculação, Crossfit..."
+                >
+                @error('specialty')
+                    <span class="profile-field-error">{{ $message }}</span>
+                @enderror
+            </div>
 
-        <button type="submit">Atualizar</button>
-        <a href="{{ route('instructors.index') }}">Cancelar</a>
-    </form>
+            <div class="profile-form-row" style="margin-top: 8px;">
+                <button type="submit" class="btn-save">Atualizar</button>
+                <a href="{{ route('instructors.index') }}" class="btn-cancel">Cancelar</a>
+            </div>
 
+        </form>
+    </div>
+
+</div>
 </x-app-layout>

@@ -23,7 +23,7 @@ class DashboardController extends Controller
                 'students.workouts.workoutExercises.exercise',
             ])->get();
 
-            return view('dashboard', compact('instructors'));
+            return view('instructors.dashboard', compact('instructors'));
         }
 
         // ── INSTRUTOR ─────────────────────────────────────────────────────────
@@ -34,7 +34,7 @@ class DashboardController extends Controller
                 'students.workouts.workoutExercises.exercise',
             ])->where('user_id', $user->id)->firstOrFail();
 
-            return view('dashboard', compact('instructor'));
+            return view('instructors.dashboard', compact('instructor'));
         }
 
         // ── ALUNO ─────────────────────────────────────────────────────────────

@@ -1,156 +1,142 @@
 <x-app-layout>
-
-    <h1>Dashboard do Instrutor</h1>
+<div class="py-6">
+<div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
     @if(session('success'))
-    <p>{{ session('success') }}</p>
+    <div style="margin-bottom:16px; padding:12px 16px; background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.2); border-radius:10px; color:#4ade80; font-size:13px; font-weight:600;">
+        {{ session('success') }}
+    </div>
     @endif
 
+    {{-- VISÃO DO GERENTE --}}
     @if(Auth::user()->isManager())
 
-    {{-- VISÃO DO GERENTE: todos os instrutores e seus alunos --}}
-    @forelse($instructors as $instructor)
+        <div class="dash-hero">
+            <div class="dash-hero__ring"></div>
+            <div class="dash-hero__inner">
+                <div>
+                    <div class="dash-hero__eyebrow">Gerenciamento</div>
+                    <h2 class="dash-hero__title">Painel Geral</h2>
+                    <p class="dash-hero__sub">Visão completa de instrutores e alunos</p>
+                </div>
+                <div class="dash-hero__right">
+                    <span class="dash-hero__pulse">
+                        <span class="dash-hero__pulse-dot"></span>
+                        GERENTE
+                    </span>
+                    <a href="{{ route('instructors.create') }}" class="btn-save">
+                        + Novo Instrutor
+                    </a>
+                </div>
+            </div>
+        </div>
 
-    <h2>{{ $instructor->user->name }} — {{ $instructor->specialty ?? 'Sem especialidade' }}</h2>
-    <p>Código de convite: <strong>{{ $instructor->invite_code ?? 'Não gerado' }}</strong></p>
+        @forelse($instructors as $instructor)
+        <div class="inst-section">
 
-    <form action="{{ route('instructors.regenerate-code', $instructor->id) }}" method="POST">
-        @csrf
-        <button type="submit">Regenerar Código</button>
-    </form>
+            {{-- INFO DO INSTRUTOR --}}
+            <div class="inst-section__header">
+                <div class="inst-avatar-sm">{{ strtoupper(substr($instructor->user->name, 0, 2)) }}</div>
+                <h3 class="inst-section__name">{{ $instructor->user->name }}</h3>
+                <span class="inst-section__count">{{ $instructor->students->count() }} aluno(s)</span>
 
-    @forelse($instructor->students as $student)
+                {{-- 🔥 CÓDIGO DE CONVITE ADICIONADO --}}
+                <span style="font-size:12px; opacity:.7;">
+                    Código: <strong>{{ $instructor->invite_code ?? '—' }}</strong>
+                </span>
 
-    <h3>Aluno: {{ $student->user->name }}</h3>
-    <p>Email: {{ $student->user->email }}</p>
-    <p>Devedor: {{ $student->is_defaulter ? 'Sim' : 'Não' }}</p>
+                <form action="{{ route('instructors.regenerate-code', $instructor->id) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn-ghost" style="font-size:11px;">
+                        🔄 Novo código
+                    </button>
+                </form>
 
-    <a href="{{ route('workouts.create', ['student_id' => $student->id]) }}">
-        + Criar treino para este aluno
-    </a>
+                <a href="{{ route('instructors.edit', $instructor->id) }}" class="btn-ghost">
+                    ✏️ Editar
+                </a>
+            </div>
 
-    <h4>Treinos</h4>
-    @forelse($student->workouts as $workout)
+            <div class="students-grid">
+                @forelse($instructor->students as $student)
 
-    <p><strong>{{ $workout->name }}</strong></p>
+                <div class="student-card {{ $student->is_defaulter ? 'student-card--bad' : 'student-card--ok' }}">
 
-    <a href="{{ route('workouts.edit', [$workout->id, 'student_id' => $student->id]) }}">
-        Editar treino
-    </a>
+                    <div class="student-card__header">
+                        <div class="student-avatar">{{ strtoupper(substr($student->user->name, 0, 2)) }}</div>
 
-    <form action="{{ route('workouts.destroy', $workout->id) }}" method="POST">
-        @csrf
-        @method('DELETE')
-        <input type="hidden" name="student_id" value="{{ $student->id }}">
-        <button type="submit">Deletar treino</button>
-    </form>
+                        <div style="flex:1;">
+                            <p class="student-card__name">{{ $student->user->name }}</p>
+                            <p class="student-card__email">{{ $student->user->email }}</p>
+                        </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Exercício</th>
-                <th>Grupo muscular</th>
-                <th>Séries</th>
-                <th>Reps</th>
-                <th>Descanso (s)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($workout->workoutExercises as $we)
-            <tr>
-                <td>{{ $we->exercise->name }}</td>
-                <td>{{ $we->exercise->muscle_group ?? '—' }}</td>
-                <td>{{ $we->sets }}</td>
-                <td>{{ $we->reps }}</td>
-                <td>{{ $we->rest_time ?? '—' }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+                        <span class="badge-devedor {{ $student->is_defaulter ? 'badge-devedor--sim' : 'badge-devedor--nao' }}">
+                            {{ $student->is_defaulter ? 'Devedor' : 'Em dia' }}
+                        </span>
+                    </div>
 
-    @empty
-    <p>Nenhum treino cadastrado para este aluno.</p>
-    @endforelse
+                    <div style="padding:10px 20px;">
+                        <a href="{{ route('workouts.create', ['student_id' => $student->id]) }}" class="btn-save">
+                            + Criar treino
+                        </a>
+                    </div>
 
-    @empty
-    <p>Nenhum aluno vinculado a este instrutor.</p>
-    @endforelse
+                </div>
 
-    @empty
-    <p>Nenhum instrutor cadastrado.</p>
-    @endforelse
+                @empty
+                <div class="inst-empty">Nenhum aluno vinculado.</div>
+                @endforelse
+            </div>
 
+        </div>
+        @empty
+        <div class="inst-empty">Nenhum instrutor cadastrado.</div>
+        @endforelse
+
+    {{-- VISÃO DO INSTRUTOR --}}
     @else
 
-    {{-- VISÃO DO INSTRUTOR: seus alunos + seu próprio código --}}
-    <h2>Meu Código de Convite</h2>
-    <p><strong>{{ $instructor->invite_code ?? 'Não gerado' }}</strong></p>
-    <p>Passe este código para seus alunos na hora da matrícula.</p>
+        <div class="dash-hero">
+            <div class="dash-hero__ring"></div>
+            <div class="dash-hero__inner">
+                <div>
+                    <div class="dash-hero__eyebrow">Bem-vindo</div>
+                    <h2 class="dash-hero__title">Meus Alunos</h2>
+                </div>
 
-    <form action="{{ route('instructors.regenerate-code', $instructor->id) }}" method="POST">
-        @csrf
-        <button type="submit">Regenerar Código</button>
-    </form>
+                <div class="dash-hero__right">
+                    <span class="dash-hero__pulse">
+                        INSTRUTOR
+                    </span>
+                </div>
+            </div>
+        </div>
 
-    <h2>Meus Alunos</h2>
+        {{-- 🔥 CÓDIGO DE CONVITE AQUI --}}
+        <div style="margin:15px 0;">
+            <p style="font-size:13px;">Seu código de convite:</p>
+            <h3>{{ $instructor->invite_code ?? '—' }}</h3>
 
-    @forelse($instructor->students as $student)
+            <form action="{{ route('instructors.regenerate-code', $instructor->id) }}" method="POST">
+                @csrf
+                <button type="submit" class="btn-ghost">Regenerar código</button>
+            </form>
+        </div>
 
-    <h3>{{ $student->user->name }}</h3>
-    <p>Email: {{ $student->user->email }}</p>
-    <p>Devedor: {{ $student->is_defaulter ? 'Sim' : 'Não' }}</p>
+        <div class="students-grid">
+            @forelse($instructor->students as $student)
 
-    <a href="{{ route('workouts.create', ['student_id' => $student->id]) }}">
-        + Criar treino para este aluno
-    </a>
+            <div class="student-card">
+                <p>{{ $student->user->name }}</p>
+            </div>
 
-    <h4>Treinos</h4>
-    @forelse($student->workouts as $workout)
-
-    <p><strong>{{ $workout->name }}</strong></p>
-
-    <a href="{{ route('workouts.edit', [$workout->id, 'student_id' => $student->id]) }}">
-        Editar treino
-    </a>
-
-    <form action="{{ route('workouts.destroy', $workout->id) }}" method="POST">
-        @csrf
-        @method('DELETE')
-        <input type="hidden" name="student_id" value="{{ $student->id }}">
-        <button type="submit">Deletar treino</button>
-    </form>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Exercício</th>
-                <th>Grupo muscular</th>
-                <th>Séries</th>
-                <th>Reps</th>
-                <th>Descanso (s)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($workout->workoutExercises as $we)
-            <tr>
-                <td>{{ $we->exercise->name }}</td>
-                <td>{{ $we->exercise->muscle_group ?? '—' }}</td>
-                <td>{{ $we->sets }}</td>
-                <td>{{ $we->reps }}</td>
-                <td>{{ $we->rest_time ?? '—' }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-    @empty
-    <p>Nenhum treino cadastrado para este aluno.</p>
-    @endforelse
-
-    @empty
-    <p>Nenhum aluno vinculado a você.</p>
-    @endforelse
+            @empty
+            <div class="inst-empty">Nenhum aluno.</div>
+            @endforelse
+        </div>
 
     @endif
 
+</div>
+</div>
 </x-app-layout>

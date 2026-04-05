@@ -1,5 +1,3 @@
-<x-app-layout>
-
 <div class="enrollment-wrap">
 
     {{-- Cabeçalho --}}
@@ -28,12 +26,27 @@
         <form action="{{ route('enrollment.store') }}" method="POST">
             @csrf
 
+            {{-- Código do instrutor --}}
+            <p class="enrollment-section-label">Código do Instrutor</p>
+            <input 
+                type="text" 
+                name="invite_code" 
+                value="{{ old('invite_code') }}"
+                placeholder="Ex: A3BX92KL" 
+                maxlength="8"
+                style="text-transform:uppercase;"
+            >
+            @error('invite_code')
+                <span>{{ $message }}</span>
+            @enderror
+
+            {{-- Escolha do plano --}}
             <p class="enrollment-section-label">Escolha seu Plano</p>
 
             <ul class="plan-list">
                 @forelse($plans as $plan)
                     <li class="plan-option">
-                
+
                         <input
                             type="radio"
                             name="plan_id"
@@ -41,6 +54,7 @@
                             id="plan_{{ $plan->id }}"
                             {{ old('plan_id') == $plan->id ? 'checked' : '' }}
                         >
+
                         <label for="plan_{{ $plan->id }}">
                             <div class="plan-option__info">
                                 <p class="plan-option__name">{{ $plan->name }}</p>
@@ -50,15 +64,15 @@
                                 R$ {{ number_format($plan->price, 2, ',', '.') }}
                             </span>
                         </label>
-                       
+
                         <button
                             type="button"
                             class="plan-option__details-btn"
                             onclick="openPlanModal('modal-{{ $plan->id }}')"
                         >
-                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                             Ver detalhes
                         </button>
+
                     </li>
                 @empty
                     <li class="enrollment-empty">Nenhum plano disponível no momento.</li>
@@ -75,5 +89,3 @@
     </div>
 
 </div>
-
-</x-app-layout>

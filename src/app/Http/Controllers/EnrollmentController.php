@@ -6,22 +6,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Plan;
 use App\Models\Student;
+use App\Models\Instructor;
 use App\Models\Enrollment;
 use Carbon\Carbon;
 
 class EnrollmentController extends Controller
 {
-    /**
-     * Tela de escolha de plano.
-     * Só acessível após login — redireciona para dashboard se já tiver matrícula ativa.
-     */
     public function index()
     {
         /** @var \App\Models\User $user */
         $user    = Auth::user();
         $student = Student::where('user_id', $user->id)->first();
-
-        // Se já tem matrícula ativa, manda para o dashboard
         if ($student && $student->isEnrolled()) {
             return redirect()->route('dashboard');
         }
@@ -34,11 +29,20 @@ class EnrollmentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'plan_id' => ['required', 'exists:plans,id'],
+            'plan_id'     => ['required', 'exists:plans,id'],
+            'invite_code' => ['required', 'string'],
         ], [
-            'plan_id.required' => 'Selecione um plano',
-            'plan_id.exists'   => 'Plano inválido',
+            'plan_id.required'     => 'Selecione um plano',
+            'plan_id.exists'       => 'Plano inválido',
+            'invite_code.required' => 'Insira o código do seu instrutor',
         ]);
+        $instructor = Instructor::where('invite_code', strtoupper($request->invite_code))->first();
+
+        if (!$instructor) {
+            return back()
+                ->withInput()
+                ->withErrors(['invite_code' => 'Código de instrutor inválido.']);
+        }
 
         /** @var \App\Models\User $user */
         $user    = Auth::user();
@@ -54,6 +58,8 @@ class EnrollmentController extends Controller
             'start_date' => $startDate,
             'end_date'   => $endDate,
         ]);
+
+        $student->update(['instructor_id' => $instructor->id]);
 
         return redirect()->route('dashboard')->with('success', 'Matrícula realizada com sucesso!');
     }

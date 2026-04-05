@@ -9,28 +9,6 @@ use App\Models\User;
 
 class InstructorController extends Controller
 {
-    public function dashboard()
-    {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        if ($user->isManager()) {
-            $instructors = Instructor::with([
-                'user',
-                'students.user',
-                'students.workouts.workoutExercises.exercise',
-            ])->get();
-
-            return view('instructors.dashboard', compact('instructors'));
-        }
-
-        $instructor = Instructor::with([
-            'user',
-            'students.user',
-            'students.workouts.workoutExercises.exercise',
-        ])->where('user_id', $user->id)->firstOrFail();
-
-        return view('instructors.dashboard', compact('instructor'));
-    }
 
     public function index()
     {
@@ -40,8 +18,7 @@ class InstructorController extends Controller
 
     public function create()
     {
-        $users = User::whereDoesntHave('student')
-            ->whereDoesntHave('instructor')
+        $users = User::whereDoesntHave('instructor')
             ->get();
 
         return view('instructors.create', compact('users'));
@@ -58,8 +35,9 @@ class InstructorController extends Controller
         ]);
 
         Instructor::create([
-            'user_id'   => $request->user_id,
-            'specialty' => $request->specialty,
+            'user_id'     => $request->user_id,
+            'specialty'   => $request->specialty,
+            'invite_code' => Instructor::generateInviteCode(),
         ]);
 
         return redirect()->route('instructors.index')->with('success', 'Instrutor cadastrado com sucesso!');
@@ -98,5 +76,22 @@ class InstructorController extends Controller
         $instructor->delete();
 
         return redirect()->route('instructors.index')->with('success', 'Instrutor removido com sucesso!');
+    }
+
+    public function regenerateCode($id)
+    {
+        /** @var \App\Models\User $user */
+        $user       = Auth::user();
+        $instructor = Instructor::findOrFail($id);
+
+        if ($user->isInstructor() && $user->instructor->id !== $instructor->id) {
+            abort(403, 'Acesso não autorizado.');
+        }
+
+        $instructor->update([
+            'invite_code' => Instructor::generateInviteCode(),
+        ]);
+
+        return back()->with('success', 'Código regenerado com sucesso!');
     }
 }

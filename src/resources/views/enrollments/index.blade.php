@@ -1,6 +1,6 @@
 <x-app-layout>
 
-    <h1>Escolha seu Plano</h1>
+    <h1>Matrícula</h1>
 
     @if(session('info'))
         <p>{{ session('info') }}</p>
@@ -17,6 +17,17 @@
     <form action="{{ route('enrollment.store') }}" method="POST">
         @csrf
 
+        {{-- Código do instrutor --}}
+        <label>Código do Instrutor</label>
+        <input type="text" name="invite_code" value="{{ old('invite_code') }}"
+            placeholder="Ex: A3BX92KL" maxlength="8"
+            style="text-transform:uppercase;">
+        @error('invite_code')
+            <span>{{ $message }}</span>
+        @enderror
+
+        {{-- Escolha do plano --}}
+        <label>Plano</label>
         @forelse($plans as $plan)
         <div>
             <input type="radio" name="plan_id" value="{{ $plan->id }}" id="plan_{{ $plan->id }}"
@@ -30,6 +41,10 @@
         @empty
             <p>Nenhum plano disponível no momento.</p>
         @endforelse
+
+        @error('plan_id')
+            <span>{{ $message }}</span>
+        @enderror
 
         @if($plans->count())
             <button type="submit">Confirmar Matrícula</button>

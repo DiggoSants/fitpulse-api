@@ -17,17 +17,20 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+// ── Matrícula (só após login, sem exigir matrícula prévia) ────────────────────
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/enrollment', [EnrollmentController::class, 'index'])->name('enrollment.index');
     Route::post('/enrollment', [EnrollmentController::class, 'store'])->name('enrollment.store');
 });
 
+// ── Perfil ────────────────────────────────────────────────────────────────────
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// ── Alunos ────────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('students', StudentController::class);
 });
@@ -47,8 +50,15 @@ Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
         'destroy'
     ]);
 });
+
+// ── Instrutores (só gerentes) ─────────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
     Route::resource('instructors', InstructorController::class);
+});
+
+Route::middleware(['auth', 'verified', 'role:manager,instructor'])->group(function () {
+    Route::post('/instructors/{id}/regenerate-code', [InstructorController::class, 'regenerateCode'])
+        ->name('instructors.regenerate-code');
 });
 
 require __DIR__ . '/auth.php';

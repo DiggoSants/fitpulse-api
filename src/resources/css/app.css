@@ -3381,6 +3381,50 @@ div[x-show="confirmingUserDeletion"] button:not([class*="red"]):not([class*="dan
 [data-theme="light"] .plan-modal__close { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.10); color: rgba(0,0,0,0.45); }
 [data-theme="light"] .plan-modal__close:hover { background: rgba(0,0,0,0.10); color: #111; }
 
+.invite-box {
+    margin: 20px 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 18px 24px;
+    flex-wrap: wrap;
+}
+
+.invite-code-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .10em;
+    margin: 0 0 6px;
+}
+
+.invite-code {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 4px;
+    color: #fff;
+    margin: 0;
+    line-height: 1;
+}
+
+[data-theme="light"] .invite-box {
+    background: rgba(214,21,50,0.04);
+    border-color: rgba(214,21,50,0.12);
+}
+
+[data-theme="light"] .invite-code-label {
+    color: rgba(0,0,0,0.55);
+}
+
+[data-theme="light"] .invite-code {
+    color: #b91c1c;
+    font-weight: 700;
+}
+
 /* RESPONSIVO */
 
 @media (max-width: 640px) {

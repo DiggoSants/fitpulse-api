@@ -10,120 +10,199 @@
             </div>
             @endif
 
-            {{-- ══════════════════════════════════════════════════════════════
-                 VISÃO DO GERENTE
-            ══════════════════════════════════════════════════════════════ --}}
-            @if(Auth::user()->isManager())
+            {{-- VISÃO DO GERENTE --}}
+           @if(Auth::user()->isManager())
 
-            <div class="dash-hero">
-                <div class="dash-hero__ring"></div>
-                <div class="dash-hero__inner">
-                    <div>
-                        <div class="dash-hero__eyebrow">Gerenciamento</div>
-                        <h2 class="dash-hero__title">Painel Geral</h2>
-                        <p class="dash-hero__sub">Visão completa de instrutores e alunos</p>
-                    </div>
-                    <div class="dash-hero__right">
-                        <span class="dash-hero__pulse">
-                            <span class="dash-hero__pulse-dot"></span>
-                            GERENTE
-                        </span>
-                        <a href="{{ route('instructors.create') }}" class="btn-save"
-                            style="text-decoration:none; display:inline-flex; align-items:center; gap:7px;">
-                            + Novo Instrutor
-                        </a>
-                    </div>
+<div class="dash-hero">
+    <div class="dash-hero__ring"></div>
+    <div class="dash-hero__inner">
+        <div>
+            <div class="dash-hero__eyebrow">Gerenciamento</div>
+            <h2 class="dash-hero__title">Painel Geral</h2>
+            <p class="dash-hero__sub">Visão completa de instrutores e alunos</p>
+        </div>
+        <div class="dash-hero__right">
+            <span class="dash-hero__pulse">
+                <span class="dash-hero__pulse-dot"></span>
+                GERENTE
+            </span>
+            <a href="{{ route('instructors.create') }}" class="btn-save"
+                style="text-decoration:none; display:inline-flex; align-items:center; gap:7px;">
+                + Novo Instrutor
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="mgr-grid">
+    @forelse($instructors as $instructor)
+    <div class="mgr-card">
+
+        {{-- esquerda--}}
+        <div class="mgr-card__left">
+            <div class="mgr-card__left-top">
+
+                <div class="mgr-inst-big-avatar">
+                    {{ mb_strtoupper(mb_substr($instructor->user->name, 0, 2)) }}
                 </div>
+
+                <div class="mgr-inst-label">Instrutor</div>
+                <div class="mgr-inst-name">{{ $instructor->user->name }}</div>
+
+                <span class="mgr-inst-specialty">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="2"  y="10" width="3"  height="4" rx="1"/>
+                        <rect x="19" y="10" width="3"  height="4" rx="1"/>
+                        <rect x="5"  y="8"  width="3"  height="8" rx="1"/>
+                        <rect x="16" y="8"  width="3"  height="8" rx="1"/>
+                        <rect x="8"  y="11" width="8"  height="2" rx="1"/>
+                    </svg>
+                    {{ !empty($instructor->specialty) ? $instructor->specialty : 'Personal Trainer' }}
+                </span>
+
+                <div class="mgr-inst-badge">{{ $instructor->students->count() }} aluno(s)</div>
             </div>
 
-            @forelse($instructors as $instructor)
-            <div style="margin-bottom:32px;">
-                <div class="exercises-header">
-                    <div class="exercises-header__left">
-                        <span class="exercises-header__tag">Instrutor</span>
-                        <h3 class="exercises-header__name">{{ $instructor->user->name }}</h3>
-                        <span class="exercises-header__badge">{{ $instructor->students->count() }} aluno(s)</span>
-                    </div>
-                    <div style="display:flex; gap:8px;">
-                        <a href="{{ route('instructors.edit', $instructor->id) }}" class="btn-ghost">✏️ Editar</a>
-                    </div>
-                </div>
+            <div class="mgr-inst-divider"></div>
 
-                @forelse($instructor->students as $student)
-                <div style="margin-bottom:24px; padding-left:16px; border-left:2px solid var(--border);">
-                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
-                        <div>
-                            <span style="font-size:14px; font-weight:700; color:var(--text-white);">{{ $student->user->name }}</span>
-                            <span style="font-size:12px; color:var(--text-muted); margin-left:8px;">{{ $student->user->email }}</span>
-                            @if($student->is_defaulter)
-                            <span style="font-size:11px; font-weight:700; color:#ff4d6a; padding:2px 8px; border:1px solid rgba(255,77,106,.3); border-radius:20px; margin-left:8px;">DEVEDOR</span>
-                            @endif
-                        </div>
-                        <a href="{{ route('workouts.create', ['student_id' => $student->id]) }}" class="btn-save" style="text-decoration:none; font-size:12px; padding:6px 12px;">
+            <a href="{{ route('instructors.edit', $instructor->id) }}" class="mgr-inst-edit">
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="none"
+                    style="stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;">
+                    <path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z"/>
+                </svg>
+                Editar
+            </a>
+        </div>
+
+        {{--DIREITA: alunos--}}
+        <div class="mgr-card__right">
+            <div class="mgr-right-header">
+                <span class="mgr-right-title">Alunos</span>
+                <span class="mgr-right-count">{{ $instructor->students->count() }} vinculado(s)</span>
+            </div>
+
+            @forelse($instructor->students as $student)
+            <div class="mgr-student">
+
+                <div class="mgr-student-row">
+                    <div class="mgr-student-av">{{ mb_strtoupper(mb_substr($student->user->name, 0, 2)) }}</div>
+                    <div class="mgr-student-info">
+                        <div class="mgr-student-name">{{ $student->user->name }}</div>
+                        <div class="mgr-student-email">{{ $student->user->email }}</div>
+                    </div>
+                    <div class="mgr-student-right">
+                        @if($student->is_defaulter)
+                            <span class="mgr-badge-bad">Devedor</span>
+                        @else
+                            <span class="mgr-badge-ok">Em dia</span>
+                        @endif
+                        <a href="{{ route('workouts.create', ['student_id' => $student->id]) }}" class="mgr-btn-criar">
                             + Criar treino
                         </a>
                     </div>
+                </div>
 
-                    @forelse($student->workouts as $workout)
-                    <div style="margin-bottom:12px;">
-                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; flex-wrap:wrap; gap:6px;">
-                            <span style="font-size:13px; font-weight:600; color:var(--text-white);">{{ $workout->name }}</span>
-                            <div style="display:flex; gap:6px; align-items:center;">
-                                <button
-                                    type="button"
-                                    class="btn-ghost"
-                                    style="font-size:11px; padding:4px 12px;"
-                                    onclick="toggleWorkout('workout-{{ $workout->id }}')"
-                                    id="btn-workout-{{ $workout->id }}"
-                                >
-                                    Ver exercícios ▾
-                                </button>
-                                <a href="{{ route('workouts.edit', [$workout->id, 'student_id' => $student->id]) }}" class="btn-ghost" style="font-size:11px; padding:4px 10px;">✏️ Editar</a>
-                                <form action="{{ route('workouts.destroy', $workout->id) }}" method="POST" style="margin:0;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <input type="hidden" name="student_id" value="{{ $student->id }}">
-                                    <button type="submit" class="btn-del" style="font-size:11px; padding:4px 10px;">🗑</button>
-                                </form>
-                            </div>
+                @forelse($student->workouts as $workout)
+                <div class="mgr-workouts">
+
+                    {{-- Linha do treino --}}
+                    <div class="mgr-workout-row">
+                        <div class="mgr-workout-icon">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="2"  y="10" width="3"  height="4" rx="1"/>
+                                <rect x="19" y="10" width="3"  height="4" rx="1"/>
+                                <rect x="5"  y="8"  width="3"  height="8" rx="1"/>
+                                <rect x="16" y="8"  width="3"  height="8" rx="1"/>
+                                <rect x="8"  y="11" width="8"  height="2" rx="1"/>
+                            </svg>
                         </div>
 
-                        <div id="workout-{{ $workout->id }}" style="display:none;">
-                            <ul class="exercise-grid" style="margin:0;">
-                                @forelse($workout->workoutExercises as $we)
-                                <li class="exercise-grid-card">
-                                    <div class="exercise-grid-card__body">
-                                        <div class="exercise-grid-card__name">{{ $we->exercise->name }}</div>
-                                        <div class="chips">
-                                            <span class="chip chip--series">{{ $we->sets }} séries</span>
-                                            <span class="chip chip--reps">{{ $we->reps }} reps</span>
-                                            <span class="chip chip--rest">{{ $we->rest_time ?? 0 }}s</span>
-                                        </div>
-                                    </div>
-                                </li>
-                                @empty
-                                <p style="font-size:13px; color:var(--text-muted); opacity:.6;">Nenhum exercício neste treino.</p>
-                                @endforelse
-                            </ul>
+                        <span class="mgr-workout-name">{{ $workout->name }}</span>
+
+                        <div class="mgr-workout-btns">
+
+                            <button type="button"
+                                class="mgr-btn-view"
+                                onclick="toggleWorkoutMgr('workout-{{ $workout->id }}', this)">
+                                <svg class="icon-eye-open" viewBox="0 0 24 24">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                                <span class="btn-view-label">Ver exercícios</span>
+                            </button>
+
+                            <a href="{{ route('workouts.edit', [$workout->id, 'student_id' => $student->id]) }}"
+                                class="mgr-btn-sm mgr-btn-edit-workout">
+                                <svg width="10" height="10" viewBox="0 0 14 14" fill="none"
+                                    style="stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; display:inline-block; vertical-align:middle; margin-right:2px;">
+                                    <path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z"/>
+                                </svg>
+                                Editar
+                            </a>
+
+                            <form action="{{ route('workouts.destroy', $workout->id) }}" method="POST" style="margin:0;">
+                                @csrf
+                                @method('DELETE')
+                                <input type="hidden" name="student_id" value="{{ $student->id }}">
+                                <button type="submit" class="mgr-btn-del" title="Deletar treino">
+                                    <svg width="11" height="11" viewBox="0 0 14 16" fill="none"
+                                        style="stroke:#f87171; stroke-width:1.8; stroke-linecap:round;">
+                                        <path d="M1 3.5h12M4.5 3.5V2a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v1.5M5.5 7v5M8.5 7v5M2.5 3.5l.9 10a.5.5 0 00.5.5h6.2a.5.5 0 00.5-.5l.9-10"/>
+                                    </svg>
+                                </button>
+                            </form>
                         </div>
                     </div>
-                    @empty
-                    <p style="font-size:13px; color:var(--text-muted); opacity:.6;">Nenhum treino cadastrado.</p>
-                    @endforelse
+
+                    {{-- Tabela de exercícios colapsável --}}
+                    <div id="workout-{{ $workout->id }}" style="display:none;">
+                        @if($workout->workoutExercises->count())
+                        <div class="mgr-exercises-wrap">
+
+                           
+                            <div class="mgr-ex-head">
+                                <span>Exercício</span>
+                                <span>Grupo Musc.</span>
+                                <span>Séries</span>
+                                <span>Reps</span>
+                                <span>Desc.</span>
+                            </div>
+
+                            @foreach($workout->workoutExercises as $we)
+                          
+                            <div class="mgr-ex-row">
+                                <span class="mgr-ex-name">{{ $we->exercise->name }}</span>
+                                <span class="mgr-ex-group">{{ $we->exercise->muscle_group ?? '—' }}</span>
+                                <span><span class="chip-xs chip-xs--s">{{ $we->sets }}x</span></span>
+                                <span><span class="chip-xs chip-xs--r">{{ $we->reps }}</span></span>
+                                <span><span class="chip-xs chip-xs--t">{{ $we->rest_time ?? 0 }}s</span></span>
+                            </div>
+                            @endforeach
+
+                        </div>
+                        @else
+                        <div class="mgr-no-workouts">Nenhum exercício neste treino.</div>
+                        @endif
+                    </div>
+
                 </div>
                 @empty
-                <p style="font-size:13px; color:var(--text-muted); opacity:.6; padding-left:16px;">Nenhum aluno vinculado.</p>
+                <div class="mgr-no-workouts">Nenhum treino cadastrado.</div>
                 @endforelse
+
             </div>
             @empty
-            <div class="empty-state">
-                <p>Nenhum instrutor cadastrado.</p>
-            </div>
+            <div class="mgr-no-students">Nenhum aluno vinculado.</div>
             @endforelse
+        </div>
 
-            {{-- ══════════════════════════════════════════════════════════════
-                 VISÃO DO INSTRUTOR
-            ══════════════════════════════════════════════════════════════ --}}
+    </div>
+    @empty
+    <div class="empty-state"><p>Nenhum instrutor cadastrado.</p></div>
+    @endforelse
+</div>
+
+            {{-- VISÃO DO INSTRUTOR--}}
             @elseif(Auth::user()->isInstructor())
 
             <div class="dash-hero">
@@ -143,24 +222,21 @@
                 </div>
             </div>
 
-            {{-- Código de convite --}}
             <div class="invite-box">
-    <div>
-        <p class="invite-code-label">Seu código de convite</p>
-        <p class="invite-code">{{ $instructor->invite_code ?? '—' }}</p>
-    </div>
-
-    <form action="{{ route('instructors.regenerate-code', $instructor->id) }}" method="POST" style="margin:0;">
-        @csrf
-        <button type="submit" class="btn-ghost">Regenerar código</button>
-    </form>
-</div>
+                <div>
+                    <p class="invite-code-label">Seu código de convite</p>
+                    <p class="invite-code">{{ $instructor->invite_code ?? '—' }}</p>
+                </div>
+                <form action="{{ route('instructors.regenerate-code', $instructor->id) }}" method="POST" style="margin:0;">
+                    @csrf
+                    <button type="submit" class="btn-ghost">Regenerar código</button>
+                </form>
+            </div>
 
             <div class="students-grid">
                 @forelse($instructor->students as $student)
                 <div class="student-card {{ $student->is_defaulter ? 'student-card--bad' : 'student-card--ok' }}">
 
-                    {{-- Cabeçalho do aluno --}}
                     <div class="student-card__header">
                         <div class="student-avatar">{{ mb_substr($student->user->name, 0, 2) }}</div>
                         <div style="flex:1; min-width:0;">
@@ -174,7 +250,6 @@
                         @endif
                     </div>
 
-                    {{-- Treinos --}}
                     <div class="student-card__workouts">
                         @forelse($student->workouts as $workout)
                         <div class="workout-block">
@@ -186,16 +261,15 @@
                                         type="button"
                                         class="btn-workout-action"
                                         style="font-size:11px; padding:4px 12px;"
-                                        onclick="toggleWorkout('workout-{{ $workout->id }}')"
-                                        id="btn-workout-{{ $workout->id }}"
+                                        onclick="toggleWorkout('workout-inst-{{ $workout->id }}')"
+                                        id="btn-workout-inst-{{ $workout->id }}"
                                     >
                                         Ver exercícios ▾
                                     </button>
                                 </div>
                             </div>
 
-                            {{-- Tabela colapsável --}}
-                            <div id="workout-{{ $workout->id }}" style="display:none; margin-top:10px;">
+                            <div id="workout-inst-{{ $workout->id }}" style="display:none; margin-top:10px;">
                                 @if($workout->workoutExercises->count())
                                 <div class="ex-table">
                                     <div class="ex-table__head">
@@ -220,7 +294,6 @@
                                 @endif
                             </div>
 
-                            {{-- Ações --}}
                             <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
                                 <a href="{{ route('workouts.edit', [$workout->id, 'student_id' => $student->id]) }}"
                                    class="btn-workout-action">
@@ -244,7 +317,6 @@
                         @endforelse
                     </div>
 
-                    {{-- Footer do card --}}
                     <div style="padding:14px 16px; border-top:1px solid rgba(255,255,255,.06); display:flex; justify-content:flex-end;">
                         <a href="{{ route('workouts.create', ['student_id' => $student->id]) }}"
                            class="btn-save" style="text-decoration:none; font-size:12px; padding:7px 16px;">
@@ -257,9 +329,7 @@
                 @endforelse
             </div>
 
-            {{-- ══════════════════════════════════════════════════════════════
-                 VISÃO DO ALUNO SEM MATRÍCULA
-            ══════════════════════════════════════════════════════════════ --}}
+            {{-- VISÃO DO ALUNO SEM MATRÍCULA--}}
             @elseif(isset($enrolled) && !$enrolled)
 
             <div class="dash-hero">
@@ -292,9 +362,7 @@
                 </a>
             </div>
 
-            {{-- ══════════════════════════════════════════════════════════════
-                 VISÃO DO ALUNO COM MATRÍCULA
-            ══════════════════════════════════════════════════════════════ --}}
+            {{-- VISÃO DO ALUNO COM MATRÍCULA --}}
             @else
 
             <div class="dash-hero">
@@ -434,8 +502,31 @@
     </div>
 
 <script>
-function toggleWorkout(id) {
+function toggleWorkoutMgr(id, btn) {
     const el = document.getElementById(id);
+    if (!el) return;
+    const isOpen = el.style.display !== 'none';
+    el.style.display = isOpen ? 'none' : 'block';
+
+    const label = btn.querySelector('.btn-view-label');
+    const eye   = btn.querySelector('.icon-eye-open');
+
+    if (isOpen) {
+        if (label) label.textContent = 'Ver exercícios';
+        if (eye) eye.innerHTML = `
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>`;
+    } else {
+        if (label) label.textContent = 'Ocultar';
+        if (eye) eye.innerHTML = `
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>`;
+    }
+}
+
+function toggleWorkout(id) {
+    const el  = document.getElementById(id);
     const btn = document.getElementById('btn-' + id);
     if (!el) return;
     const isOpen = el.style.display !== 'none';

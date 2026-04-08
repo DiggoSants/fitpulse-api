@@ -17,13 +17,48 @@ class DashboardController extends Controller
 
         // ── GERENTE ───────────────────────────────────────────────────────────
         if ($user->isManager()) {
+            // Carrega todos os alunos com suas relações necessárias
+            $students = Student::with([
+                'user',
+                'instructor.user',
+                'enrollments.plan',
+            ])->get();
+
+            $studentsData = $students->map(function ($student) {
+                $activeEnrollment = $student->activeEnrollment();
+
+                if (!$activeEnrollment) {
+                    $status = 'sem_matricula';
+                } elseif ($student->is_defaulter) {
+                    $status = 'inadimplente';
+                } else {
+                    $status = 'ativo';
+                }
+
+                return [
+                    'id'         => $student->id,
+                    'name'       => $student->user->name,
+                    'email'      => $student->user->email,
+                    'status'     => $status,
+                    'instructor' => $student->instructor
+                        ? $student->instructor->user->name
+                        : null,
+                    'plan'       => $activeEnrollment
+                        ? $activeEnrollment->plan->name
+                        : null,
+                    'plan_end'   => $activeEnrollment
+                        ? $activeEnrollment->end_date->format('d/m/Y')
+                        : null,
+                ];
+            });
+
             $instructors = Instructor::with([
                 'user',
                 'students.user',
                 'students.workouts.workoutExercises.exercise',
             ])->get();
 
-            return view('instructors.dashboard', compact('instructors'));
+            return view('dashboard', compact('studentsData', 'instructors'));
         }
 
         // ── INSTRUTOR ─────────────────────────────────────────────────────────
@@ -34,18 +69,16 @@ class DashboardController extends Controller
                 'students.workouts.workoutExercises.exercise',
             ])->where('user_id', $user->id)->firstOrFail();
 
-            return view('instructors.dashboard', compact('instructor'));
+            return view('dashboard', compact('instructor'));
         }
 
         // ── ALUNO ─────────────────────────────────────────────────────────────
         $student = Student::where('user_id', $user->id)->first();
 
-        // Aluno sem matrícula ativa — dashboard limitado
         if (!$student || !$student->isEnrolled()) {
             return view('dashboard', ['enrolled' => false]);
         }
 
-        // Aluno com matrícula ativa — dashboard completo
         $workout = Workout::where('student_id', $student->id)
             ->latest()
             ->first();

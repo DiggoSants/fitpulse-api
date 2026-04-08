@@ -1,5 +1,7 @@
 <x-app-layout>
-  @vite(['resources/css/app.css','resources/js/app.js'])
+    @push('styles')
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    @endpush
 
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -21,7 +23,7 @@
                     <div>
                         <div class="dash-hero__eyebrow">Gerenciamento</div>
                         <h2 class="dash-hero__title">Painel Geral</h2>
-                        <p class="dash-hero__sub">Visão completa de instrutores e alunos</p>
+                        <p class="dash-hero__sub">Visão completa da academia</p>
                     </div>
                     <div class="dash-hero__right">
                         <span class="dash-hero__pulse">
@@ -36,6 +38,51 @@
                 </div>
             </div>
 
+            {{-- ── LISTAGEM DE ALUNOS COM STATUS ── --}}
+            <div style="margin-bottom:40px;">
+                <div style="margin-bottom:12px;">
+                    <p class="section-label">ALUNOS</p>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Instrutor</th>
+                            <th>Plano</th>
+                            <th>Vencimento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($studentsData as $s)
+                        <tr>
+                            <td>{{ $s['name'] }}</td>
+                            <td>{{ $s['email'] }}</td>
+                            <td>
+                                @if($s['status'] === 'ativo')
+                                <span style="color:#4ade80; font-weight:700;">Ativo</span>
+                                @elseif($s['status'] === 'inadimplente')
+                                <span style="color:#ff4d6a; font-weight:700;">Inadimplente</span>
+                                @else
+                                <span style="color:#888; font-weight:700;">Sem matrícula</span>
+                                @endif
+                            </td>
+                            <td>{{ $s['instructor'] ?? '—' }}</td>
+                            <td>{{ $s['plan'] ?? '—' }}</td>
+                            <td>{{ $s['plan_end'] ?? '—' }}</td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="6">Nenhum aluno cadastrado.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- ── INSTRUTORES E TREINOS ── --}}
             @forelse($instructors as $instructor)
             <div style="margin-bottom:32px;">
                 <div class="exercises-header">
@@ -127,6 +174,19 @@
                         </span>
                     </div>
                 </div>
+            </div>
+
+            {{-- Código de convite do instrutor --}}
+            <div style="margin-bottom:24px; padding:16px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:10px;">
+                <p class="section-label" style="margin-bottom:8px;">MEU CÓDIGO DE CONVITE</p>
+                <p style="font-size:24px; font-weight:700; letter-spacing:4px; color:var(--text-white);">
+                    {{ $instructor->invite_code ?? 'Não gerado' }}
+                </p>
+                <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">Passe este código para seus alunos na hora da matrícula.</p>
+                <form action="{{ route('instructors.regenerate-code', $instructor->id) }}" method="POST" style="margin-top:12px;">
+                    @csrf
+                    <button type="submit" class="btn-ghost">🔄 Regenerar Código</button>
+                </form>
             </div>
 
             @forelse($instructor->students as $student)

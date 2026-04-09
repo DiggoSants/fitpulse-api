@@ -6,7 +6,7 @@
             <p class="workout-form-kicker">Gerenciamento</p>
             <h1 class="workout-form-title">Novo Instrutor</h1>
         </div>
-        <a href="{{ route('instructors.index') }}" class="workout-form-back">← Voltar</a>
+        <a href="{{ route('dashboard') }}" class="workout-form-back">← Voltar</a>
     </div>
 
     @if($errors->any())
@@ -43,15 +43,13 @@
                                 onchange="selectUser({{ $user->id }})"
                             >
                             <label
-                                for="user_{{ $user->id }}"
-                                style="display:flex; align-items:center; gap:14px; padding:14px 16px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface); cursor:pointer; transition:border-color .2s, background .2s;"
-                            >
-                                <div class="radio-indicator" style="width:18px; height:18px; border-radius:50%; border:2px solid rgba(255,255,255,0.2); flex-shrink:0; transition:all .2s; display:flex; align-items:center; justify-content:center;"></div>
+                                for="user_{{ $user->id }}"class="user-option__label" style="display:flex; align-items:center; gap:14px; padding:14px 16px; cursor:pointer;">
+                                <div class="radio-indicator" class="radio-indicator" style="width:18px; height:18px; flex-shrink:0; transition:all .2s; display:flex; align-items:center; justify-content:center;"></div>
                                 <div class="student-avatar" style="width:36px; height:36px; font-size:12px; flex-shrink:0;">
                                     {{ strtoupper(substr($user->name, 0, 2)) }}
                                 </div>
                                 <div style="flex:1; min-width:0;">
-                                    <p style="font-size:14px; font-weight:700; color:var(--text-white); margin:0 0 2px;">{{ $user->name }}</p>
+                                    <p style="font-size:14px; font-weight:700; margin:0 0 2px;" class="user-option__name">{{ $user->name }}</p>
                                     <p style="font-size:12px; color:var(--text-muted); margin:0;">{{ $user->email }}</p>
                                 </div>
                             </label>
@@ -80,7 +78,7 @@
 
             <div class="profile-form-row" style="margin-top: 8px;">
                 <button type="submit" class="btn-save">Salvar</button>
-                <a href="{{ route('instructors.index') }}" class="btn-cancel">Cancelar</a>
+                <a href="{{ route('dashboard') }}" class="btn-cancel">Cancelar</a>
             </div>
 
         </form>
@@ -90,19 +88,18 @@
 
 <script>
 function selectUser(id) {
-    document.querySelectorAll('.user-option label').forEach(label => {
-        label.style.borderColor = 'var(--border)';
-        label.style.background = 'var(--surface)';
-        label.querySelector('.radio-indicator').style.borderColor = 'rgba(255,255,255,0.2)';
-        label.querySelector('.radio-indicator').style.background = 'transparent';
+    document.querySelectorAll('.user-option__label').forEach(label => {
+        label.style.borderColor = '';
+        label.style.background = '';
+        label.querySelector('.radio-indicator').style.borderColor = '';
+        label.querySelector('.radio-indicator').style.background = '';
     });
-    const selected = document.querySelector('#wrap-' + id + ' label');
+    const selected = document.querySelector('#wrap-' + id + ' .user-option__label');
     selected.style.borderColor = 'var(--red)';
     selected.style.background = 'var(--red-dim)';
     selected.querySelector('.radio-indicator').style.borderColor = 'var(--red)';
     selected.querySelector('.radio-indicator').style.background = 'var(--red)';
 }
-
 // Inicializa estado se vier de old()
 document.addEventListener('DOMContentLoaded', function() {
     const checked = document.querySelector('input[name="user_id"]:checked');

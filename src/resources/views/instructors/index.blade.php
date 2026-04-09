@@ -40,9 +40,9 @@
 
                 @if($instructor->specialty)
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <span style="font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.08em;">Especialidade</span>
-                    <span style="font-size:12px; font-weight:600; color:rgba(255,255,255,0.65);">{{ $instructor->specialty }}</span>
-                </div>
+                 <span class="exercises-header__tag">Especialidade</span>
+                 <span class="inst-specialty-val">{{ $instructor->specialty }}</span>
+               </div>
                 @endif
 
                 <div style="display:flex; gap:8px;">
@@ -59,7 +59,12 @@
                         style="flex:1; justify-content:center;"
                         onclick="openDeleteModal({{ $instructor->id }}, '{{ addslashes($instructor->user->name) }}')"
                     >
-                        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                       <svg width="12" height="12" viewBox="0 0 24 24" style="stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;">
+                       <polyline points="3 6 5 6 21 6"/>
+                       <path d="M19 6l-1 14H6L5 6"/>
+                       <path d="M10 11v6M14 11v6"/>
+                       <path d="M9 6V4h6v2"/>
+                      </svg>
                         Deletar
                     </button>
                 </div>

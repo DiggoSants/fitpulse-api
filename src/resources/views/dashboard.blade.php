@@ -157,13 +157,13 @@
                                         <td>{{ $s['plan'] ?? '—' }}</td>
                                         <td>{{ $s['plan_end'] ?? '—' }}</td>
                                     </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" style="text-align:center; padding:20px;">
-                                            Nenhum aluno cadastrado.
-                                        </td>
-                                    </tr>
-                                @endforelse
+                               @empty
+                                <tr id="empty-students-row">
+                                  <td colspan="6" style="text-align:center; padding:28px; color:var(--text-muted); font-size:13px;">
+                                     Nenhum aluno cadastrado.
+                                  </td>
+                                </tr>
+                             @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -773,27 +773,48 @@
         }
 
         function searchStudents() {
-            const input = document.getElementById('studentSearch');
-            const query = input ? input.value.toLowerCase().trim() : '';
+    const input = document.getElementById('studentSearch');
+    const query = input ? input.value.toLowerCase().trim() : '';
 
-            document.querySelectorAll('.student-row').forEach(row => {
-                const name = row.dataset.name || '';
-                const email = row.dataset.email || '';
+    const activeFilter = document.querySelector('.mgr-filter.is-active');
+    const filterType = activeFilter ? activeFilter.textContent.trim().toLowerCase() : 'todos';
 
-                const activeFilter = document.querySelector('.mgr-filter.is-active');
-                const filterType = activeFilter ? activeFilter.textContent.trim().toLowerCase() : 'todos';
+    let visibleCount = 0;
 
-                let filterOk = true;
+    document.querySelectorAll('.student-row').forEach(row => {
+        const name  = row.dataset.name  || '';
+        const email = row.dataset.email || '';
 
-                if (filterType === 'ativo') filterOk = row.dataset.status === 'ativo';
-                else if (filterType === 'devendo') filterOk = row.dataset.status === 'inadimplente';
-                else if (filterType === 'sem matrícula') filterOk = row.dataset.status === 'sem_matricula';
+        let filterOk = true;
+        if (filterType === 'ativo')              filterOk = row.dataset.status === 'ativo';
+        else if (filterType === 'devendo')       filterOk = row.dataset.status === 'inadimplente';
+        else if (filterType === 'sem matrícula') filterOk = row.dataset.status === 'sem_matricula';
 
-                const textOk = name.includes(query) || email.includes(query);
+        const textOk = name.includes(query) || email.includes(query);
+        const show   = filterOk && textOk;
 
-                row.style.display = (filterOk && textOk) ? '' : 'none';
-            });
-        }
+        row.style.display = show ? '' : 'none';
+        if (show) visibleCount++;
+    });
+
+    let emptyRow = document.getElementById('empty-students-row');
+    if (!emptyRow) {
+        const tbody = document.querySelector('.mgr-table tbody');
+        emptyRow = document.createElement('tr');
+        emptyRow.id = 'empty-students-row';
+        emptyRow.innerHTML = `<td colspan="6" style="text-align:center; padding:28px; color:var(--text-muted); font-size:13px;"></td>`;
+        tbody.appendChild(emptyRow);
+    }
+
+    const label = filterType === 'devendo'          ? 'Nenhum aluno devendo.'
+                : filterType === 'ativo'             ? 'Nenhum aluno ativo.'
+                : filterType === 'sem matrícula'     ? 'Nenhum aluno sem matrícula.'
+                : query                              ? 'Nenhum aluno encontrado.'
+                : 'Nenhum aluno cadastrado.';
+
+    emptyRow.querySelector('td').textContent = label;
+    emptyRow.style.display = visibleCount === 0 ? '' : 'none';
+}
 
         function toggleWorkoutMgr(id, row) {
             const el = document.getElementById(id);

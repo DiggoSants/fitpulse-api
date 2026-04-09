@@ -17,12 +17,15 @@ class DashboardController extends Controller
 
         // ── GERENTE ───────────────────────────────────────────────────────────
         if ($user->isManager()) {
-            $students = Student::with([
-                'user',
-                'instructor.user',
-                'enrollments.plan',
-            ])->get();
-
+         $students = Student::with([
+    'user',
+    'instructor.user',
+    'enrollments.plan',
+])->whereHas('user', function ($q) {
+    $q->whereDoesntHave('manager')
+      ->whereDoesntHave('instructor');
+})->get();
+        
             $studentsData = $students->map(function ($student) {
                 $activeEnrollment = $student->activeEnrollment();
 

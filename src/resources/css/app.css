@@ -5057,4 +5057,309 @@ div[x-show="confirmingUserDeletion"] button:not([class*="red"]):not([class*="dan
     transform:scale(.97);
 }
 
+.user-option__label {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: var(--radius-md);
+    background: rgba(255,255,255,0.06);
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+}
 
+.user-option__label:hover {
+    border-color: rgba(214,21,50,0.35);
+    background: rgba(255,255,255,0.09);
+}
+
+[data-theme="light"] .user-option__label {
+    background: #f5f5f5;
+    border-color: rgba(0,0,0,0.18);
+}
+
+[data-theme="light"] .user-option__label:hover {
+    background: #efefef;
+    border-color: rgba(214,21,50,0.40);
+}
+
+[data-theme="light"] .radio-indicator {
+    border-color: rgba(0,0,0,0.30);
+}
+.radio-indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.25);
+    flex-shrink: 0;
+    transition: all .2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-theme="light"] .radio-indicator {
+    border-color: rgba(0,0,0,0.30);
+}
+/* INSTRUCTOR INDEX — CARDS */
+.inst-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: border-color .2s, transform .2s, box-shadow .2s;
+}
+
+.inst-card:hover {
+    border-color: rgba(214,21,50,0.28);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.2);
+}
+
+.inst-card__top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.inst-card__avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #c1121f;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    text-transform: uppercase;
+}
+
+.inst-card__info { flex: 1; min-width: 0; }
+
+.inst-card__name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #f0f0f0;
+    margin: 0 0 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.inst-card__email {
+    font-size: 12px;
+    color: rgba(255,255,255,0.38);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.inst-card__count {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 99px;
+    background: rgba(214,21,50,0.14);
+    border: 1px solid rgba(214,21,50,0.22);
+    color: #f87171;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.inst-card__body {
+    padding: 14px 20px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.inst-card__specialty {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.inst-card__specialty-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: rgba(255,255,255,0.28);
+}
+
+.inst-card__specialty-val {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.60);
+}
+
+.inst-card__actions {
+    display: flex;
+    gap: 8px;
+}
+
+.inst-card__btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 99px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .18s, border-color .18s, transform .15s;
+}
+
+.inst-card__btn--edit {
+    background: rgba(34,197,94,0.08);
+    border: 1px solid rgba(34,197,94,0.22);
+    color: #4ade80;
+}
+
+.inst-card__btn--edit:hover {
+    background: rgba(34,197,94,0.16);
+    border-color: rgba(34,197,94,0.45);
+}
+
+.inst-card__btn--del {
+    background: rgba(214,21,50,0.08);
+    border: 1px solid rgba(214,21,50,0.22);
+    color: #f87171;
+}
+
+.inst-card__btn--del:hover {
+    background: rgba(214,21,50,0.18);
+    border-color: rgba(214,21,50,0.45);
+}
+
+/* MODO CLARO */
+[data-theme="light"] .inst-card {
+    background: #fff;
+    border-color: rgba(0,0,0,0.08);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+[data-theme="light"] .inst-card:hover {
+    border-color: rgba(214,21,50,0.25);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.10);
+}
+
+[data-theme="light"] .inst-card__top {
+    border-bottom-color: rgba(0,0,0,0.06);
+}
+
+[data-theme="light"] .inst-card__name { color: #111; }
+[data-theme="light"] .inst-card__email { color: rgba(0,0,0,0.40); }
+
+[data-theme="light"] .inst-card__count {
+    background: rgba(214,21,50,0.08);
+    border-color: rgba(214,21,50,0.15);
+    color: #b91c1c;
+}
+
+[data-theme="light"] .inst-card__specialty-label { color: rgba(0,0,0,0.30); }
+[data-theme="light"] .inst-card__specialty-val { color: rgba(0,0,0,0.60); }
+
+[data-theme="light"] .inst-card__btn--edit {
+    background: rgba(22,163,74,0.07);
+    border-color: rgba(22,163,74,0.22);
+    color: #15803d;
+}
+
+[data-theme="light"] .inst-card__btn--edit:hover {
+    background: rgba(22,163,74,0.14);
+    border-color: rgba(22,163,74,0.40);
+}
+
+[data-theme="light"] .inst-card__btn--del {
+    background: rgba(214,21,50,0.06);
+    border-color: rgba(214,21,50,0.18);
+    color: #b91c1c;
+}
+
+[data-theme="light"] .inst-card__btn--del:hover {
+    background: rgba(214,21,50,0.12);
+    border-color: rgba(214,21,50,0.35);
+}
+[data-theme="light"] .inst-wrap {
+    background: #f0f0f0;
+}
+/* ── FIXES LIGHT MODE — INSTRUCTORS ── */
+
+[data-theme="light"] .inst-wrap {
+    padding: 1.5rem 1.5rem;
+}
+
+/* Lixo claro no light mode */
+[data-theme="light"] .btn-del {
+    background: rgba(214,21,50,0.07);
+    border-color: rgba(214,21,50,0.22);
+    color: #b91c1c;
+}
+
+[data-theme="light"] .btn-del svg {
+    stroke: #b91c1c;
+}
+
+/* Especialidade visível no light mode */
+[data-theme="light"] .student-card [style*="rgba(255,255,255,0.65)"] {
+    color: rgba(0,0,0,0.65) !important;
+}
+
+/* Label ESPECIALIDADE no light mode */
+[data-theme="light"] .student-card [style*="var(--text-muted)"] {
+    color: rgba(0,0,0,0.40) !important;
+}
+.inst-specialty-val {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.65);
+}
+
+[data-theme="light"] .inst-specialty-val {
+    color: rgba(0,0,0,0.65);
+}
+.nav-dropdown-menu {
+    background: #1a1a1a;
+    border: 1px solid rgba(255,255,255,0.10);
+}
+
+.nav-dropdown-menu a,
+.nav-dropdown-menu button {
+    color: rgba(255,255,255,0.75) !important;
+}
+
+.nav-dropdown-menu a:hover,
+.nav-dropdown-menu button:hover {
+    background: rgba(255,255,255,0.07) !important;
+    color: #fff !important;
+}
+
+[data-theme="light"] .nav-dropdown-menu {
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.10);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+[data-theme="light"] .nav-dropdown-menu a,
+[data-theme="light"] .nav-dropdown-menu button {
+    color: #111 !important;
+}
+
+[data-theme="light"] .nav-dropdown-menu a:hover,
+[data-theme="light"] .nav-dropdown-menu button:hover {
+    background: rgba(0,0,0,0.05) !important;
+    color: #111 !important;
+}

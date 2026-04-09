@@ -17,7 +17,6 @@ class DashboardController extends Controller
 
         // ── GERENTE ───────────────────────────────────────────────────────────
         if ($user->isManager()) {
-            // Carrega todos os alunos com suas relações necessárias
             $students = Student::with([
                 'user',
                 'instructor.user',
@@ -58,7 +57,21 @@ class DashboardController extends Controller
                 'students.workouts.workoutExercises.exercise',
             ])->get();
 
-            return view('dashboard', compact('studentsData', 'instructors'));
+            $totalStudents = $students->count();
+            $activeStudents = $studentsData->where('status', 'ativo')->count();
+            $defaulterStudents = $studentsData->where('status', 'inadimplente')->count();
+            $studentsWithoutEnrollment = $studentsData->where('status', 'sem_matricula')->count();
+            $totalInstructors = $instructors->count();
+
+            return view('dashboard', compact(
+                'studentsData',
+                'instructors',
+                'totalStudents',
+                'activeStudents',
+                'defaulterStudents',
+                'studentsWithoutEnrollment',
+                'totalInstructors'
+            ));
         }
 
         // ── INSTRUTOR ─────────────────────────────────────────────────────────

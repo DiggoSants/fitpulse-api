@@ -83,19 +83,19 @@
         <div class="plan-modal__top" style="padding:22px 24px 18px;">
             <p class="plan-modal__kicker">Atenção</p>
             <h2 class="plan-modal__name" style="font-size:28px; margin-bottom:8px;">Deletar Instrutor</h2>
-            <p style="font-size:13px; color:rgba(255,255,255,0.45); position:relative; z-index:1; margin:0;">
-                Tem certeza que deseja remover <strong style="color:#fff;" id="delete-modal-name"></strong>? Esta ação não pode ser desfeita.
-            </p>
+           <p class="delete-modal-text">
+             Tem certeza que deseja remover <strong id="delete-modal-name"></strong>? Esta ação não pode ser desfeita.
+        </p>
             <button class="plan-modal__close" onclick="closeDeleteModal()">✕</button>
         </div>
-        <div style="padding:18px 24px 22px; display:flex; gap:10px;">
-            <form id="delete-form" method="POST" style="margin:0;">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn-delete">Sim, deletar</button>
-            </form>
-            <button type="button" class="btn-cancel" onclick="closeDeleteModal()">Cancelar</button>
-        </div>
+        <div class="delete-modal-actions">
+           <form id="delete-form" method="POST" style="margin:0;">
+               @csrf
+              @method('DELETE')
+             <button type="submit" class="btn-delete">Sim, deletar</button>
+          </form>
+         <button type="button" class="btn-cancel" onclick="closeDeleteModal()">Cancelar</button>
+       </div>
     </div>
 </div>
 

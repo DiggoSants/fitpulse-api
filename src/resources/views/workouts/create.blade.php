@@ -45,7 +45,7 @@
                     </div>
 
                     <a href="{{ route('exercises.create') }}"
-                        style="display:inline-block; margin-bottom:15px; color:#4ade80;">
+                        style="display:inline-block; margin-bottom:15px; color:var(--red-light);">
                         + Adicionar novo exercício
                     </a>
 

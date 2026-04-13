@@ -74,23 +74,25 @@
     </div>
 
     {{-- Context bar --}}
-    <div class="nav-context-bar">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="nav-context-inner">
-                <span class="nav-ctx-crumb">FitPulse</span>
-                <span class="nav-ctx-sep">/</span>
-                <span class="nav-ctx-crumb nav-ctx-crumb--active">
-                    @if(request()->routeIs('dashboard'))
-                        Painel
-                    @elseif(request()->routeIs('profile.*'))
-                        Perfil
-                    @else
-                        {{ ucfirst(request()->segment(1) ?? 'Página') }}
-                    @endif
-                </span>
-            </div>
+<div class="nav-context-bar">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="nav-context-inner">
+            <span class="nav-ctx-crumb">FitPulse</span>
+            <span class="nav-ctx-sep">/</span>
+            <span class="nav-ctx-crumb nav-ctx-crumb--active">
+                @if(request()->routeIs('dashboard'))
+                    Painel
+                @elseif(request()->routeIs('profile.*'))
+                    Perfil
+                @elseif(request()->routeIs('enrollment.*'))
+                    Matrícula
+                @else
+                    {{ ucfirst(request()->segment(1) ?? 'Página') }}
+                @endif
+            </span>
         </div>
     </div>
+</div>
 
     {{-- Menu mobile --}}
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden nav-mobile-menu">

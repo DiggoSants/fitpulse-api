@@ -12,11 +12,14 @@ class Enrollment extends Model
         'plan_id',
         'start_date',
         'end_date',
+        'status',
+        'cancelled_at',
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'end_date'   => 'date',
+        'start_date'   => 'date',
+        'end_date'     => 'date',
+        'cancelled_at' => 'datetime',
     ];
 
     public function student()
@@ -31,6 +34,15 @@ class Enrollment extends Model
 
     public function isActive(): bool
     {
-        return $this->end_date->isFuture() || $this->end_date->isToday();
+        return $this->status === 'active'
+            && ($this->end_date->isFuture() || $this->end_date->isToday());
+    }
+
+    public function cancel(): void
+    {
+        $this->update([
+            'status'       => 'cancelled',
+            'cancelled_at' => now(),
+        ]);
     }
 }

@@ -61,4 +61,13 @@ Route::middleware(['auth', 'verified', 'role:manager,instructor'])->group(functi
         ->name('instructors.regenerate-code');
 });
 
+// ── Relatórios (só gerentes) ──────────────────────────────────────────────────
+use App\Http\Controllers\ReportController;
+
+Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
+    Route::get('/reports/plans/comparative',   [ReportController::class, 'plansComparative'])->name('reports.plans.comparative');
+    Route::get('/reports/plans/cancellations', [ReportController::class, 'plansCancellations'])->name('reports.plans.cancellations');
+    Route::get('/reports/plans/loyalty',       [ReportController::class, 'plansLoyalty'])->name('reports.plans.loyalty');
+});
+
 require __DIR__ . '/auth.php';

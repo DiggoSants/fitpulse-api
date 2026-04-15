@@ -70,4 +70,12 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
     Route::get('/reports/plans/loyalty',       [ReportController::class, 'plansLoyalty'])->name('reports.plans.loyalty');
 });
 
+// ── Planos (só gerentes) ──────────────────────────────────────────────────────
+use App\Http\Controllers\PlanController;
+
+Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
+    Route::apiResource('plans', PlanController::class);
+    Route::post('/plans/{id}/restore', [PlanController::class, 'restore'])->name('plans.restore');
+});
+
 require __DIR__ . '/auth.php';

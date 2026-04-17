@@ -78,4 +78,12 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
     Route::post('/plans/{id}/restore', [PlanController::class, 'restore'])->name('plans.restore');
 });
 
+// ── Renovação de planos ───────────────────────────────────────────────────────
+use App\Http\Controllers\RenewalController;
+
+Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
+    Route::post('/plans/renew',     [RenewalController::class, 'renew'])->name('plans.renew');
+    Route::get('/plans/renewals',   [RenewalController::class, 'history'])->name('plans.renewals');
+});
+
 require __DIR__ . '/auth.php';

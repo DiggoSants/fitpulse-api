@@ -32,6 +32,11 @@ class Enrollment extends Model
         return $this->belongsTo(Plan::class);
     }
 
+    public function renewals()
+    {
+        return $this->hasMany(PlanRenewal::class, 'old_enrollment_id');
+    }
+
     public function isActive(): bool
     {
         return $this->status === 'active'

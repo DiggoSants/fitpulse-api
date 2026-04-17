@@ -35,9 +35,15 @@ class Student extends Model
         return $this->hasMany(Enrollment::class);
     }
 
+    public function renewals()
+    {
+        return $this->hasMany(PlanRenewal::class);
+    }
+
     public function activeEnrollment()
     {
         return $this->enrollments()
+            ->where('status', 'active')
             ->where('end_date', '>=', now()->toDateString())
             ->latest('start_date')
             ->first();

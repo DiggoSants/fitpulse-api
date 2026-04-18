@@ -7,6 +7,7 @@ use App\Models\Student;
 use App\Models\Instructor;
 use App\Models\Workout;
 use App\Models\WorkoutExercise;
+use App\Models\Plan; // ADICIONADO
 
 class DashboardController extends Controller
 {
@@ -17,15 +18,15 @@ class DashboardController extends Controller
 
         // ── GERENTE ───────────────────────────────────────────────────────────
         if ($user->isManager()) {
-         $students = Student::with([
-    'user',
-    'instructor.user',
-    'enrollments.plan',
-])->whereHas('user', function ($q) {
-    $q->whereDoesntHave('manager')
-      ->whereDoesntHave('instructor');
-})->get();
-        
+            $students = Student::with([
+                'user',
+                'instructor.user',
+                'enrollments.plan',
+            ])->whereHas('user', function ($q) {
+                $q->whereDoesntHave('manager')
+                  ->whereDoesntHave('instructor');
+            })->get();
+
             $studentsData = $students->map(function ($student) {
                 $activeEnrollment = $student->activeEnrollment();
 
@@ -60,11 +61,15 @@ class DashboardController extends Controller
                 'students.workouts.workoutExercises.exercise',
             ])->get();
 
-            $totalStudents = $students->count();
-            $activeStudents = $studentsData->where('status', 'ativo')->count();
-            $defaulterStudents = $studentsData->where('status', 'inadimplente')->count();
+            // ADICIONADO: busca todos os planos para exibir na aba Planos
+            $plans = Plan::orderBy('status')->orderBy('name')->get();
+
+            $totalStudents             = $students->count();
+            $activeStudents            = $studentsData->where('status', 'ativo')->count();
+            $defaulterStudents         = $studentsData->where('status', 'inadimplente')->count();
             $studentsWithoutEnrollment = $studentsData->where('status', 'sem_matricula')->count();
-            $totalInstructors = $instructors->count();
+            $totalInstructors          = $instructors->count();
+            $totalPlans                = $plans->count(); // ADICIONADO
 
             return view('dashboard', compact(
                 'studentsData',
@@ -73,7 +78,9 @@ class DashboardController extends Controller
                 'activeStudents',
                 'defaulterStudents',
                 'studentsWithoutEnrollment',
-                'totalInstructors'
+                'totalInstructors',
+                'plans',      // ADICIONADO
+                'totalPlans'  // ADICIONADO
             ));
         }
 

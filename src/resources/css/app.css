@@ -6042,3 +6042,348 @@ div[x-show="confirmingUserDeletion"] button:not([class*="red"]):not([class*="dan
         width: 100%;
     }
 }
+/* REPORT CARDS — Seção de Relatórios (Dashboard Gerente) */
+
+.report-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.report-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    text-decoration: none;
+    transition: transform .18s, border-color .18s, box-shadow .18s;
+}
+
+.report-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+}
+
+/* Variantes de cor no hover */
+.report-card--red:hover   { border-color: rgba(214, 21, 50, 0.45); }
+.report-card--pink:hover  { border-color: rgba(248, 113, 113, 0.45); }
+.report-card--green:hover { border-color: rgba(74, 222, 128, 0.45); }
+
+/* Corpo */
+.report-card__body {
+    flex: 1;
+    padding: 24px 22px 16px;
+}
+
+/* Ícone */
+.report-card__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+    flex-shrink: 0;
+}
+
+.report-card--red   .report-card__icon { background: rgba(214, 21, 50, 0.12);  border: 1px solid rgba(214, 21, 50, 0.22); }
+.report-card--pink  .report-card__icon { background: rgba(248, 113, 113, 0.10); border: 1px solid rgba(248, 113, 113, 0.22); }
+.report-card--green .report-card__icon { background: rgba(74, 222, 128, 0.10);  border: 1px solid rgba(74, 222, 128, 0.22); }
+
+/* Título e descrição */
+.report-card__title {
+    font-size: 15px;
+    font-weight: 800;
+    font-family: 'Montserrat', sans-serif;
+    color: var(--text-white);
+    line-height: 1.3;
+    margin: 0 0 6px;
+}
+
+.report-card__desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.55;
+    margin: 0;
+}
+
+/* Rodapé */
+.report-card__footer {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 22px;
+    border-top: 1px solid var(--border);
+}
+
+.report-card__footer-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+/* ── Modo claro ─────────────────────────────────────────────── */
+
+[data-theme="light"] .report-card {
+    background: #fff;
+    border-color: rgba(0, 0, 0, 0.10);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .report-card__title        { color: #111; }
+[data-theme="light"] .report-card__desc         { color: rgba(0, 0, 0, 0.48); }
+[data-theme="light"] .report-card__footer       { border-top-color: rgba(0, 0, 0, 0.08); }
+[data-theme="light"] .report-card__footer-label { color: rgba(0, 0, 0, 0.38); }
+
+[data-theme="light"] .report-card--red:hover   { border-color: rgba(214, 21, 50, 0.35); box-shadow: 0 8px 24px rgba(214, 21, 50, 0.08); }
+[data-theme="light"] .report-card--pink:hover  { border-color: rgba(214, 21, 50, 0.30); box-shadow: 0 8px 24px rgba(214, 21, 50, 0.06); }
+[data-theme="light"] .report-card--green:hover { border-color: rgba(22, 163, 74, 0.35);  box-shadow: 0 8px 24px rgba(22, 163, 74, 0.06); }
+
+[data-theme="light"] .report-card--red   .report-card__icon { background: rgba(214, 21, 50, 0.07); border-color: rgba(214, 21, 50, 0.15); }
+[data-theme="light"] .report-card--pink  .report-card__icon { background: rgba(214, 21, 50, 0.07); border-color: rgba(214, 21, 50, 0.15); }
+[data-theme="light"] .report-card--green .report-card__icon { background: rgba(22, 163, 74, 0.07);  border-color: rgba(22, 163, 74, 0.15); }
+
+/* ── Responsivo ─────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+    .report-cards-grid { grid-template-columns: 1fr; }
+}
+
+        /* ── CARD DE PLANO (seção gerente) ───────────────────────── */
+        .dash-plan-card {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 20px 22px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            transition: border-color .18s, transform .18s, background .18s;
+            flex-wrap: wrap;
+        }
+
+        .dash-plan-card:hover {
+            border-color: rgba(214,21,50,0.22);
+            background: rgba(255,255,255,0.06);
+            transform: translateY(-2px);
+        }
+
+        .dash-plan-card__left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+
+        .dash-plan-card__name {
+            font-size: 15px;
+            font-weight: 800;
+            color: #f5f5f5;
+            margin: 0;
+        }
+
+        .dash-plan-card__desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin: 2px 0 0;
+        }
+
+        .dash-plan-card__benefits {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .dash-plan-card__benefit-chip {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 99px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.09);
+            color: rgba(255,255,255,0.50);
+        }
+
+        .dash-plan-card__right {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .dash-plan-card__price {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 30px;
+            letter-spacing: 1px;
+            color: #fff;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .dash-plan-card__duration {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin: 3px 0 0;
+            text-align: right;
+        }
+
+        /* light mode */
+        [data-theme="light"] .dash-plan-card {
+            background: #fff;
+            border-color: rgba(0,0,0,0.08);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+        }
+        [data-theme="light"] .dash-plan-card:hover {
+            border-color: rgba(214,21,50,0.18);
+            background: #fff;
+        }
+        [data-theme="light"] .dash-plan-card__name { color: #111; }
+        [data-theme="light"] .dash-plan-card__price { color: #111; }
+        [data-theme="light"] .dash-plan-card__benefit-chip {
+            background: rgba(0,0,0,0.04);
+            border-color: rgba(0,0,0,0.09);
+            color: rgba(0,0,0,0.45);
+        }
+
+        /* ── AÇÕES RÁPIDAS DO ALUNO ──────────────────────────────── */
+        .student-quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .student-action-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 18px;
+            border-radius: 16px;
+            border: 1px solid;
+            text-decoration: none;
+            transition: transform .18s, border-color .18s, background .18s, box-shadow .18s;
+        }
+
+        .student-action-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+        }
+
+        .student-action-card--blue {
+            background: rgba(59,130,246,0.07);
+            border-color: rgba(59,130,246,0.18);
+            color: #93c5fd;
+        }
+
+        .student-action-card--blue:hover {
+            background: rgba(59,130,246,0.12);
+            border-color: rgba(59,130,246,0.35);
+        }
+
+        .student-action-card--green {
+            background: rgba(34,197,94,0.07);
+            border-color: rgba(34,197,94,0.18);
+            color: #86efac;
+        }
+
+        .student-action-card--green:hover {
+            background: rgba(34,197,94,0.12);
+            border-color: rgba(34,197,94,0.35);
+        }
+
+        .student-action-card__icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .student-action-card--blue .student-action-card__icon {
+            background: rgba(59,130,246,0.14);
+            border: 1px solid rgba(59,130,246,0.22);
+        }
+
+        .student-action-card--green .student-action-card__icon {
+            background: rgba(34,197,94,0.14);
+            border: 1px solid rgba(34,197,94,0.22);
+        }
+
+        .student-action-card__content { flex: 1; min-width: 0; }
+
+        .student-action-card__label {
+            font-size: 14px;
+            font-weight: 700;
+            margin: 0 0 2px;
+        }
+
+        .student-action-card__hint {
+            font-size: 11px;
+            opacity: .55;
+            margin: 0;
+        }
+
+        /* light mode */
+        [data-theme="light"] .student-action-card--blue {
+            background: rgba(59,130,246,0.06);
+            border-color: rgba(59,130,246,0.15);
+            color: #1d4ed8;
+        }
+        [data-theme="light"] .student-action-card--blue:hover {
+            background: rgba(59,130,246,0.10);
+            border-color: rgba(59,130,246,0.28);
+        }
+        [data-theme="light"] .student-action-card--blue .student-action-card__icon {
+            background: rgba(59,130,246,0.08);
+            border-color: rgba(59,130,246,0.16);
+        }
+        [data-theme="light"] .student-action-card--green {
+            background: rgba(22,163,74,0.06);
+            border-color: rgba(22,163,74,0.15);
+            color: #15803d;
+        }
+        [data-theme="light"] .student-action-card--green:hover {
+            background: rgba(22,163,74,0.10);
+            border-color: rgba(22,163,74,0.28);
+        }
+        [data-theme="light"] .student-action-card--green .student-action-card__icon {
+            background: rgba(22,163,74,0.08);
+            border-color: rgba(22,163,74,0.16);
+        }
+
+        /* ── RESPONSIVO ──────────────────────────────────────────── */
+        @media (max-width: 640px) {
+            .student-quick-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .student-action-card {
+                padding: 14px 16px;
+            }
+
+            .student-action-card__label { font-size: 13px; }
+
+            .dash-plan-card {
+                flex-direction: column;
+            }
+
+            .dash-plan-card__right {
+                align-items: flex-start;
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .dash-plan-card__duration { text-align: left; }
+        }
+
+        @media (max-width: 400px) {
+            .student-action-card__icon { width: 36px; height: 36px; border-radius: 10px; }
+            .dash-plan-card__price { font-size: 24px; }
+        }

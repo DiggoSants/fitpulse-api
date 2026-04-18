@@ -8,6 +8,10 @@ use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\WorkoutController;
 use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\EnrollmentController;
+use App\Http\Controllers\PlanController;
+use App\Http\Controllers\RenewalController;
+use App\Http\Controllers\BillingController;
+use App\Http\Controllers\ReportController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -17,7 +21,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-// ── Matrícula (só após login, sem exigir matrícula prévia) ────────────────────
+// ── Matrícula ────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/enrollment', [EnrollmentController::class, 'index'])->name('enrollment.index');
     Route::post('/enrollment', [EnrollmentController::class, 'store'])->name('enrollment.store');
@@ -35,23 +39,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('students', StudentController::class);
 });
 
-// ── Exercícios (requer matrícula) ─────────────────────────────────────────────
+// ── Exercícios ────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
     Route::resource('exercises', ExerciseController::class);
 });
 
-// ── Treinos (requer matrícula) ────────────────────────────────────────────────
+// ── Treinos ───────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
     Route::resource('workouts', WorkoutController::class)->only([
-        'create',
-        'store',
-        'edit',
-        'update',
-        'destroy'
+        'create', 'store', 'edit', 'update', 'destroy'
     ]);
 });
 
-// ── Instrutores (só gerentes) ─────────────────────────────────────────────────
+// ── Instrutores ───────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
     Route::resource('instructors', InstructorController::class);
 });
@@ -61,41 +61,31 @@ Route::middleware(['auth', 'verified', 'role:manager,instructor'])->group(functi
         ->name('instructors.regenerate-code');
 });
 
-// ── Relatórios (só gerentes) ──────────────────────────────────────────────────
-use App\Http\Controllers\ReportController;
-
+// ── Relatórios ────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
     Route::get('/reports/plans/comparative',   [ReportController::class, 'plansComparative'])->name('reports.plans.comparative');
     Route::get('/reports/plans/cancellations', [ReportController::class, 'plansCancellations'])->name('reports.plans.cancellations');
     Route::get('/reports/plans/loyalty',       [ReportController::class, 'plansLoyalty'])->name('reports.plans.loyalty');
 });
 
-// ── Planos (só gerentes) ──────────────────────────────────────────────────────
-use App\Http\Controllers\PlanController;
+// ── Renovação de planos (ANTES do resource de planos para evitar conflito de rota) ──
+Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
+    Route::get('/plans/renewals', [RenewalController::class, 'history'])->name('plans.renewals');
+    Route::post('/plans/renew',   [RenewalController::class, 'renew'])->name('plans.renew');
+});
 
+// ── Planos (só gerentes) ──────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
-    Route::apiResource('plans', PlanController::class);
+    Route::resource('plans', PlanController::class);
     Route::post('/plans/{id}/restore', [PlanController::class, 'restore'])->name('plans.restore');
 });
 
-// ── Renovação de planos ───────────────────────────────────────────────────────
-use App\Http\Controllers\RenewalController;
-
-Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
-    Route::post('/plans/renew',     [RenewalController::class, 'renew'])->name('plans.renew');
-    Route::get('/plans/renewals',   [RenewalController::class, 'history'])->name('plans.renewals');
-});
-
 // ── Mensalidade ───────────────────────────────────────────────────────────────
-use App\Http\Controllers\BillingController;
-
-// Aluno processa e consulta seus pagamentos
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
-    Route::post('/billing/process', [BillingController::class, 'process'])->name('billing.process');
     Route::get('/billing',          [BillingController::class, 'index'])->name('billing.index');
+    Route::post('/billing/process', [BillingController::class, 'process'])->name('billing.process');
 });
 
-// Gerente vê todos os pagamentos
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
     Route::get('/billing/all', [BillingController::class, 'all'])->name('billing.all');
 });

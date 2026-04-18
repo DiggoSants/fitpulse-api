@@ -86,4 +86,18 @@ Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
     Route::get('/plans/renewals',   [RenewalController::class, 'history'])->name('plans.renewals');
 });
 
+// ── Mensalidade ───────────────────────────────────────────────────────────────
+use App\Http\Controllers\BillingController;
+
+// Aluno processa e consulta seus pagamentos
+Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
+    Route::post('/billing/process', [BillingController::class, 'process'])->name('billing.process');
+    Route::get('/billing',          [BillingController::class, 'index'])->name('billing.index');
+});
+
+// Gerente vê todos os pagamentos
+Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
+    Route::get('/billing/all', [BillingController::class, 'all'])->name('billing.all');
+});
+
 require __DIR__ . '/auth.php';

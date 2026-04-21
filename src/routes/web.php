@@ -8,10 +8,11 @@ use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\WorkoutController;
 use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\EnrollmentController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\RenewalController;
 use App\Http\Controllers\BillingController;
-use App\Http\Controllers\ReportController;
+use App\Http\Controllers\AccessController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -21,7 +22,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-// ── Matrícula ────────────────────────────────────────────────────────────────
+// ── Matrícula ─────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/enrollment', [EnrollmentController::class, 'index'])->name('enrollment.index');
     Route::post('/enrollment', [EnrollmentController::class, 'store'])->name('enrollment.store');
@@ -61,7 +62,7 @@ Route::middleware(['auth', 'verified', 'role:manager,instructor'])->group(functi
         ->name('instructors.regenerate-code');
 });
 
-// ── Relatórios ────────────────────────────────────────────────────────────────
+// ── Relatórios (só gerentes) ──────────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
     Route::get('/reports/plans/comparative',   [ReportController::class, 'plansComparative'])->name('reports.plans.comparative');
     Route::get('/reports/plans/cancellations', [ReportController::class, 'plansCancellations'])->name('reports.plans.cancellations');
@@ -88,6 +89,14 @@ Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
 
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
     Route::get('/billing/all', [BillingController::class, 'all'])->name('billing.all');
+});
+
+// ── Controle de acesso (só gerentes) ─────────────────────────────────────────
+Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
+    Route::get('/access/students',  [AccessController::class, 'students'])->name('access.students');
+    Route::post('/access/block',    [AccessController::class, 'block'])->name('access.block');
+    Route::post('/access/unblock',  [AccessController::class, 'unblock'])->name('access.unblock');
+    Route::post('/access/status',   [AccessController::class, 'updateStatus'])->name('access.status');
 });
 
 require __DIR__ . '/auth.php';

@@ -1,64 +1,77 @@
 <x-app-layout>
+    @push('styles')
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    @endpush
 
-@push('styles')
-<link rel="stylesheet" href="{{ asset('css/app.css') }}">
-@endpush
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 exercise-library-shell">
 
-<div class="py-6">
-<div class="max-w-7xl mx-auto sm:px-6 lg:px-8" style="max-width:768px;">
+           <div class="exercise-library-header">
+    <div class="exercise-library-header__left">
+        <p class="workout-form-kicker">BIBLIOTECA</p>
+        <h1 class="exercise-library-header__title">Exercícios</h1>
+        <p class="exercise-library-header__sub">
+            Gerencie a biblioteca de exercícios disponíveis para montar treinos.
+        </p>
+    </div>
 
-    <div class="dashboard-welcome">
-        <div>
-            <p class="section-label" style="margin-bottom:4px;">BIBLIOTECA</p>
-            <h1 style="font-size:22px; font-weight:700; color:var(--text-white); margin:0;">Exercícios</h1>
-        </div>
-        <a href="/exercises/create" class="btn-save" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:#fff; stroke-width:2; stroke-linecap:round;">
-                <line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/>
+    <div class="exercise-library-header__actions">
+        <a href="/workouts/create" class="workout-form-back">← Voltar</a>
+
+        <a href="/exercises/create" class="btn-save exercise-library-header__new">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <line x1="7" y1="1" x2="7" y2="13" />
+                <line x1="1" y1="7" x2="13" y2="7" />
             </svg>
             Novo Exercício
         </a>
     </div>
+</div>
 
-    <ul class="exercise-list">
+           <ul class="exercise-library-list">
     @foreach($exercises as $exercise)
-    <li class="exercise-card">
+        <li class="exercise-library-card">
+            <div class="exercise-library-card__main">
+                <div class="exercise-library-card__icon">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="2" y="9" width="4" height="6" rx="1" />
+                        <rect x="18" y="9" width="4" height="6" rx="1" />
+                        <rect x="7" y="11" width="10" height="2" rx="1" />
+                    </svg>
+                </div>
 
-        <div class="exercise-thumb">
-            <svg viewBox="0 0 24 24">
-                <rect x="2" y="9" width="4" height="6" rx="1"/>
-                <rect x="18" y="9" width="4" height="6" rx="1"/>
-                <rect x="7" y="11" width="10" height="2" rx="1"/>
-            </svg>
-        </div>
+                <div class="exercise-library-card__content">
+                    <div class="exercise-library-card__top">
+                        <h2 class="exercise-library-card__title">{{ $exercise->name }}</h2>
+                        <span class="exercise-library-card__badge">{{ $exercise->muscle_group }}</span>
+                    </div>
 
-        <div class="exercise-info">
-            <div class="exercise-name">{{ $exercise->name }}</div>
-            <div class="exercise-muscle">{{ $exercise->muscle_group }}</div>
-        </div>
+                    @if(!empty($exercise->description))
+                        <p class="exercise-library-card__desc">{{ $exercise->description }}</p>
+                    @else
+                        <p class="exercise-library-card__desc">Sem descrição cadastrada.</p>
+                    @endif
+                </div>
+            </div>
 
-        <div style="display:flex; align-items:center; gap:8px;">
-            <a href="/exercises/{{ $exercise->id }}/edit"
-               style="font-size:12px; font-weight:600; color:var(--text-muted); text-decoration:none; padding:6px 12px; border:1px solid var(--border); border-radius:var(--radius-pill); transition:color .2s, border-color .2s;"
-               onmouseover="this.style.borderColor='rgba(214,21,50,.4)'; this.style.color='var(--red-light)'"
-               onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--text-muted)'">
-               ✏️ Editar
-            </a>
+            <div class="exercise-library-card__actions">
+                <a href="/exercises/{{ $exercise->id }}/edit"
+                   class="exercise-library-btn exercise-library-btn--edit">
+                    Editar
+                </a>
 
-            <form action="/exercises/{{ $exercise->id }}" method="POST" style="margin:0;">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn-delete" style="font-size:12px; padding:6px 12px;">
-                    🗑 Deletar
-                </button>
-            </form>
-        </div>
-
-    </li>
+                <form action="/exercises/{{ $exercise->id }}" method="POST" style="margin:0;">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="exercise-library-btn exercise-library-btn--delete">
+                        🗑 Deletar
+                    </button>
+                </form>
+            </div>
+        </li>
     @endforeach
-    </ul>
+</ul>
 
-</div>
-</div>
-
+        </div>
+    </div>
 </x-app-layout>

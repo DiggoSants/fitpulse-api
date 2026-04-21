@@ -10,13 +10,33 @@ use App\Models\Billing;
 
 class BillingController extends Controller
 {
+    // Exibe a tela de mensalidade com plano ativo e histórico de pagamentos
+    public function index()
+    {
+        /** @var \App\Models\User $user */
+        $user    = Auth::user();
+        $student = Student::where('user_id', $user->id)->firstOrFail();
+
+        $activeEnrollment = $student->activeEnrollment();
+
+        $payments = Billing::with(['plan', 'enrollment'])
+            ->where('student_id', $student->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('billing.index', compact('activeEnrollment', 'payments'));
+    }
+
+    // Processa o pagamento e redireciona de volta com mensagem
     public function process(Request $request)
     {
         $request->validate([
-            'payment_method' => ['required', 'in:credit_card,pix,boleto'],
+            'payment_method' => ['required', 'in:credit_card,pix,boleto,card'],
+            'enrollment_id'  => ['required', 'exists:enrollments,id'],
         ], [
-            'payment_method.required' => 'Informe o método de pagamento',
-            'payment_method.in'       => 'Método inválido. Use: credit_card, pix ou boleto',
+            'payment_method.required' => 'Informe o método de pagamento.',
+            'payment_method.in'       => 'Método inválido.',
+            'enrollment_id.required'  => 'Matrícula não identificada.',
         ]);
 
         /** @var \App\Models\User $user */
@@ -25,10 +45,8 @@ class BillingController extends Controller
 
         $enrollment = $student->activeEnrollment();
 
-        if (!$enrollment) {
-            return response()->json([
-                'message' => 'Nenhuma matrícula ativa encontrada.',
-            ], 422);
+        if (!$enrollment || $enrollment->id != $request->enrollment_id) {
+            return back()->with('error', 'Nenhuma matrícula ativa encontrada.');
         }
 
         $existingBilling = Billing::where('enrollment_id', $enrollment->id)
@@ -36,33 +54,30 @@ class BillingController extends Controller
             ->first();
 
         if ($existingBilling) {
-            return response()->json([
-                'message' => 'Já existe um pagamento ' . ($existingBilling->isPending() ? 'pendente' : 'confirmado') . ' para esta matrícula.',
-                'data'    => $existingBilling,
-            ], 422);
+            $label = $existingBilling->status === 'pending' ? 'pendente' : 'confirmado';
+            return back()->with('error', "Já existe um pagamento {$label} para esta matrícula.");
         }
 
-        // ── SIMULAÇÃO DE PAGAMENTO ────────────────────────────────────────────
-        // Boleto sempre fica pendente 
-        // Pix é sempre confirmado imediatamente
-        // Cartão tem 90% de chance de confirmar e 10% de rejeitar
-        $status = match ($request->payment_method) {
-            'boleto'      => 'pending',
-            'pix'         => 'confirmed',
-            'credit_card' => (rand(1, 10) <= 9) ? 'confirmed' : 'rejected',
+        // Simulação de pagamento
+        $method = $request->payment_method;
+        $status = match ($method) {
+            'boleto'                   => 'pending',
+            'pix'                      => 'confirmed',
+            'credit_card', 'card'      => (rand(1, 10) <= 9) ? 'confirmed' : 'rejected',
+            default                    => 'pending',
         };
 
-        $billing = DB::transaction(function () use ($student, $enrollment, $status) {
+        DB::transaction(function () use ($student, $enrollment, $status, $method) {
             $billing = Billing::create([
                 'student_id'    => $student->id,
                 'plan_id'       => $enrollment->plan_id,
                 'enrollment_id' => $enrollment->id,
                 'amount'        => $enrollment->plan->price,
                 'status'        => $status,
+                'payment_method'=> $method,
                 'paid_at'       => $status === 'confirmed' ? now() : null,
             ]);
 
-            // Se rejeitado, marca o aluno como devedor
             if ($status === 'rejected') {
                 $student->update(['is_defaulter' => true]);
             }
@@ -70,8 +85,6 @@ class BillingController extends Controller
             if ($status === 'confirmed') {
                 $student->update(['is_defaulter' => false]);
             }
-
-            return $billing;
         });
 
         $messages = [
@@ -80,42 +93,8 @@ class BillingController extends Controller
             'rejected'  => 'Pagamento recusado. Verifique seus dados.',
         ];
 
-        return response()->json([
-            'message' => $messages[$status],
-            'data'    => [
-                'billing_id'     => $billing->id,
-                'amount'         => $billing->amount,
-                'status'         => $billing->status,
-                'paid_at'        => $billing->paid_at?->format('d/m/Y H:i'),
-                'payment_method' => $request->payment_method,
-            ],
-        ], 201);
+        return redirect()->route('billing.index')->with('success', $messages[$status]);
     }
-
-    public function index()
-    {
-        /** @var \App\Models\User $user */
-        $user    = Auth::user();
-        $student = Student::where('user_id', $user->id)->firstOrFail();
-
-        $billings = Billing::with(['plan', 'enrollment'])
-            ->where('student_id', $student->id)
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($billing) {
-                return [
-                    'id'         => $billing->id,
-                    'plan_name'  => $billing->plan->name,
-                    'amount'     => $billing->amount,
-                    'status'     => $billing->status,
-                    'paid_at'    => $billing->paid_at?->format('d/m/Y H:i'),
-                    'created_at' => $billing->created_at->format('d/m/Y H:i'),
-                ];
-            });
-
-        return response()->json(['data' => $billings]);
-    }
-
 
     public function all(Request $request)
     {

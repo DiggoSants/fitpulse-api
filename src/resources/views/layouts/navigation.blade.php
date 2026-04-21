@@ -25,6 +25,18 @@
 
                    {{ __('Painel') }}
                    </x-nav-link>
+
+                   @if(Auth::user()->isManager())
+                   <x-nav-link :href="route('access.index')" :active="request()->routeIs('access.*')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" 
+                    fill="none" stroke="currentColor" stroke-width="2" 
+                    stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-right:8px;">
+                     <rect x="3" y="11" width="18" height="11" rx="2"/>
+                     <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>{{ __('Acessos') }}
+                </x-nav-link>
+                @endif
+ 
                 </div>
             </div>
 
@@ -98,8 +110,13 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden nav-mobile-menu">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Painel') }}
-            </x-responsive-nav-link>
+                {{ __('Painel') }}</x-responsive-nav-link>
+                @if(Auth::user()->isManager())
+                <x-responsive-nav-link
+                 :href="route('access.index')" :active="request()->routeIs('access.*')">
+                 {{ __('Controle de Acesso') }}
+                </x-responsive-nav-link>
+                @endif
         </div>
         <div class="pt-4 pb-1" style="border-top:1px solid rgba(255,255,255,0.08);">
             <div class="px-4">

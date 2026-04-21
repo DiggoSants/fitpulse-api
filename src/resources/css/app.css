@@ -6387,3 +6387,49 @@ div[x-show="confirmingUserDeletion"] button:not([class*="red"]):not([class*="dan
             .student-action-card__icon { width: 36px; height: 36px; border-radius: 10px; }
             .dash-plan-card__price { font-size: 24px; }
         }
+.access-badge-delinquent {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 99px;
+    white-space: nowrap;
+    background: rgba(251, 191, 36, 0.12);
+    border: 1px solid rgba(251, 191, 36, 0.25);
+    color: #fbbf24;
+}
+ 
+[data-theme="light"] .access-badge-delinquent {
+    background: rgba(217, 119, 6, 0.08);
+    border-color: rgba(217, 119, 6, 0.22);
+    color: #92400e;
+}
+ /* Banner pagamento pendente — light mode */
+[data-theme="light"] .banner-delinquent {
+    background: rgba(217,119,6,0.08) !important;
+    border-color: rgba(217,119,6,0.25) !important;
+}
+[data-theme="light"] .banner-delinquent .banner-delinquent__title {
+    color: #92400e !important;
+}
+[data-theme="light"] .banner-delinquent .banner-delinquent__text {
+    color: rgba(0,0,0,0.50) !important;
+}
+[data-theme="light"] .banner-delinquent .banner-delinquent__btn {
+    color: #92400e !important;
+    border-color: rgba(217,119,6,0.35) !important;
+}
+[data-theme="light"] .banner-delinquent .banner-delinquent__btn:hover {
+    background: rgba(217,119,6,0.10) !important;
+}
+
+/* Badge PAGAMENTO PENDENTE no hero — light mode */
+[data-theme="light"] .dash-hero__pulse--delinquent {
+    background: rgba(217,119,6,0.10) !important;
+    border-color: rgba(217,119,6,0.28) !important;
+    color: #92400e !important;
+}
+[data-theme="light"] .dash-hero__pulse--delinquent .dash-hero__pulse-dot {
+    background: #d97706 !important;
+}

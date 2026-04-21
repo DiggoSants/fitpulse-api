@@ -73,6 +73,7 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
     Route::get('/plans/renewals', [RenewalController::class, 'history'])->name('plans.renewals');
     Route::post('/plans/renew',   [RenewalController::class, 'renew'])->name('plans.renew');
+    
 });
 
 // ── Planos (só gerentes) ──────────────────────────────────────────────────────
@@ -93,6 +94,7 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
 
 // ── Controle de acesso (só gerentes) ─────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
+    Route::get('/access', function () {return view('access.index');})->name('access.index');
     Route::get('/access/students',  [AccessController::class, 'students'])->name('access.students');
     Route::post('/access/block',    [AccessController::class, 'block'])->name('access.block');
     Route::post('/access/unblock',  [AccessController::class, 'unblock'])->name('access.unblock');

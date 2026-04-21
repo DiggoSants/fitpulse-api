@@ -74,6 +74,11 @@ class Student extends Model
     public function paymentStatus(): ?string
     {
         return $this->billings()->latest()->first()?->status;
+        return match($status) {
+        'confirmed' => 'paid',
+        'pending'   => 'pending',
+        default     => $status,
+    };
     }
 
 

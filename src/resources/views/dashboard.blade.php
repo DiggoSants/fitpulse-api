@@ -378,11 +378,7 @@
                                                     <p class="dash-plan-card__desc">{{ $plan->description }}</p>
                                                 @endif
                                             </div>
-                                            @if($plan->status === 'inactive')
-                                                <span class="mgr-badge-bad">Inativo</span>
-                                            @else
-                                                <span class="mgr-badge-ok">Ativo</span>
-                                            @endif
+                                           
                                         </div>
 
                                         @if($plan->benefits)
@@ -404,10 +400,17 @@
                                             <p class="dash-plan-card__price">R$ {{ number_format($plan->price, 2, ',', '.') }}</p>
                                             <p class="dash-plan-card__duration">{{ $plan->duration_days }} dias</p>
                                         </div>
+                                        
                                         <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; margin-top:12px;">
+                                             @if($plan->status === 'inactive')
+                                                <span class="mgr-badge-bad">Inativo</span>
+                                            @else
+                                                <span class="mgr-badge-ok">Ativo</span>
+                                            @endif
                                             <a href="{{ route('plans.edit', $plan->id) }}"
                                                class="mgr-btn-sm mgr-btn-edit-workout"
                                                style="text-decoration:none;">
+                                               
                                                 <svg width="10" height="10" viewBox="0 0 14 14" fill="none"
                                                      style="stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; display:inline-block; vertical-align:middle; margin-right:2px;">
                                                     <path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z"/>
@@ -698,10 +701,23 @@
                             <p class="dash-hero__sub">Pronto para mais um dia?</p>
                         </div>
                         <div class="dash-hero__right">
-                            <span class="dash-hero__pulse">
-                                <span class="dash-hero__pulse-dot"></span>
-                                FITPULSE ATIVO
-                            </span>
+                            @php $st = Auth::user()->student?->status ?? 'active'; @endphp
+@if($st === 'active')
+    <span class="dash-hero__pulse">
+        <span class="dash-hero__pulse-dot"></span>
+        FITPULSE ATIVO
+    </span>
+@elseif($st === 'blocked')
+    <span class="dash-hero__pulse" style="background:rgba(214,21,50,.14);border-color:rgba(214,21,50,.28);color:#f87171;">
+        <span class="dash-hero__pulse-dot" style="background:#d61532;animation:none;"></span>
+        ACESSO BLOQUEADO
+    </span>
+@else
+    <span class="dash-hero__pulse dash-hero__pulse--delinquent" style="background:rgba(251,191,36,.10);border-color:rgba(251,191,36,.25);color:#fbbf24;">
+        <span class="dash-hero__pulse-dot" style="background:#fbbf24;animation:none;"></span>
+        PAGAMENTO PENDENTE
+    </span>
+@endif
                             <a href="{{ route('workouts.create') }}" class="btn-save"
                                style="text-decoration:none; display:inline-flex; align-items:center; gap:7px;">
                                 <svg width="11" height="11" viewBox="0 0 12 12" fill="none"
@@ -714,7 +730,41 @@
                         </div>
                     </div>
                 </div>
-
+                 {{-- ── BANNER STATUS DE ACESSO (logo após o hero, antes das ações rápidas) ── --}}
+@php $studentAccess = Auth::user()->student; @endphp
+@if($studentAccess && $studentAccess->status !== 'active')
+    <div class="banner-delinquent" style="
+        display:flex;
+        align-items:center;
+        gap:14px;
+        padding:14px 20px;
+        border-radius:14px;
+        margin-bottom:16px;
+        {{ $studentAccess->status === 'blocked'
+            ? 'background:rgba(214,21,50,0.08);border:1px solid rgba(214,21,50,0.22);'
+            : 'background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.22);' }}
+    ">
+        @if($studentAccess->status === 'blocked')
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <div style="flex:1;min-width:0;">
+                <span style="font-size:12px;font-weight:800;color:#f87171;text-transform:uppercase;letter-spacing:.08em;">Acesso Bloqueado</span>
+                <p style="font-size:12px;color:rgba(255,255,255,.50);margin:2px 0 0;">Entre em contato com a administração para mais informações.</p>
+            </div>
+           
+        @else
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <div style="flex:1;min-width:0;">
+                <span class="banner-delinquent__title" style="font-size:12px;font-weight:800;color:#fbbf24;text-transform:uppercase;letter-spacing:.08em;">Pagamento Pendente</span>
+                <p  class="banner-delinquent__text" style="font-size:12px;color:rgba(255,255,255,.50);margin:2px 0 0;">Regularize sua situação para manter o acesso ativo.</p>
+            </div>
+            <a href="{{ route('billing.index') }}" class="banner-delinquent__btn" style="font-size:11px;font-weight:700;color:#fbbf24;text-decoration:none;border:1px solid rgba(251,191,36,.30);padding:5px 12px;border-radius:99px;white-space:nowrap;transition:background .18s;" onmouseover="this.style.background='rgba(251,191,36,.12)'" onmouseout="this.style.background='transparent'">Regularizar</a>
+        @endif
+    </div>
+@endif
                 {{-- AÇÕES RÁPIDAS DO ALUNO: Renovar + Pagar mensalidade --}}
                 <div class="student-quick-actions">
                     <a href="{{ route('plans.renewals') }}" class="student-action-card student-action-card--blue">

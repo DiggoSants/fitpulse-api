@@ -82,8 +82,8 @@ class BillingController extends Controller
                 $student->update(['is_defaulter' => true]);
             }
 
-            if ($status === 'confirmed') {
-                $student->update(['is_defaulter' => false]);
+           if ($status === 'confirmed') {
+            $student->update(['is_defaulter' => false, 'renewed_at' => now()]);
             }
         });
 

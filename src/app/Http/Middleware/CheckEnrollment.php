@@ -26,6 +26,16 @@ class CheckEnrollment
                 ->with('info', 'Você precisa se matricular para acessar esta funcionalidade.');
         }
 
+        if ($student->isBlocked()) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Seu acesso está bloqueado. Entre em contato com a academia.');
+        }
+
+        if ($student->isDelinquent()) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Seu acesso está suspenso por inadimplência. Regularize seu pagamento.');
+        }
+
         return $next($request);
     }
 }

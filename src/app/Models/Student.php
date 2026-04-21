@@ -13,6 +13,13 @@ class Student extends Model
         'rfid_tag',
         'birth_date',
         'is_defaulter',
+        'status',
+        'renewed_at',
+    ];
+
+    protected $casts = [
+        'is_defaulter' => 'boolean',
+        'renewed_at'   => 'datetime',
     ];
 
     public function user()
@@ -40,6 +47,11 @@ class Student extends Model
         return $this->hasMany(PlanRenewal::class);
     }
 
+    public function billings()
+    {
+        return $this->hasMany(Billing::class);
+    }
+
     public function activeEnrollment()
     {
         return $this->enrollments()
@@ -52,5 +64,55 @@ class Student extends Model
     public function isEnrolled(): bool
     {
         return $this->activeEnrollment() !== null;
+    }
+
+    public function hasAccess(): bool
+    {
+        return $this->status === 'active';
+    }
+
+    public function paymentStatus(): ?string
+    {
+        return $this->billings()->latest()->first()?->status;
+    }
+
+
+    public function isActive(): bool
+    {
+        return $this->status === 'active';
+    }
+
+    public function isBlocked(): bool
+    {
+        return $this->status === 'blocked';
+    }
+
+    public function isDelinquent(): bool
+    {
+        return $this->status === 'delinquent';
+    }
+
+    public function block(): void
+    {
+        $this->update([
+            'status'       => 'blocked',
+            'is_defaulter' => true,
+        ]);
+    }
+
+    public function markDelinquent(): void
+    {
+        $this->update([
+            'status'       => 'delinquent',
+            'is_defaulter' => true,
+        ]);
+    }
+
+    public function activate(): void
+    {
+        $this->update([
+            'status'       => 'active',
+            'is_defaulter' => false,
+        ]);
     }
 }

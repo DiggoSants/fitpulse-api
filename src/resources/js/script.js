@@ -628,3 +628,14 @@ document.addEventListener("DOMContentLoaded", () => {
     applyTheme(current === "light" ? "dark" : "light");
   });
 });
+// ── WhatsApp float: esconde dentro do modal explorar ──
+const exploreModal = document.getElementById('exploreModal');
+const wppFloat     = document.querySelector('.whatsapp-float');
+
+if (exploreModal && wppFloat) {
+  const obs = new MutationObserver(() => {
+    wppFloat.style.display = exploreModal.classList.contains('is-open') ? 'none' : 'grid';
+  });
+  obs.observe(exploreModal, { attributes: true, attributeFilter: ['class'] });
+}
+

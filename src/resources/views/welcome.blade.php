@@ -72,10 +72,6 @@
           @endif
         @endauth
       @endif
-      <a class="cta--solid" href="#matricula">
-        <i class="fa-solid fa-dumbbell cta-icon" aria-hidden="true"></i>
-        <span class="matricula-text">MATRICULE-SE JÁ</span>
-      </a>
     </div>
 
   </div>
@@ -267,7 +263,7 @@
                 <li><i class="fa-solid fa-check"></i> 1 unidade</li>
                 <li class="es-plano__no"><i class="fa-solid fa-xmark"></i> Aulas coletivas</li>
               </ul>
-              <a href="#matricula" class="es-plano__btn">QUERO ESSE</a>
+              <a href="{{ route('register') }}" class="es-plano__btn">QUERO ESSE</a>
             </div>
             <div class="es-plano es-plano--featured">
               <div class="es-plano__badge">MAIS ESCOLHIDO</div>
@@ -279,7 +275,7 @@
                 <li><i class="fa-solid fa-check"></i> Todas as unidades</li>
                 <li><i class="fa-solid fa-check"></i> Acompanhamento</li>
               </ul>
-              <a href="#matricula" class="es-plano__btn">ASSINAR AGORA</a>
+              <a href="{{ route('register') }}" class="es-plano__btn">ASSINAR AGORA</a>
             </div>
             <div class="es-plano">
               <div class="es-plano__name">BLACK</div>
@@ -290,7 +286,7 @@
                 <li><i class="fa-solid fa-check"></i> Personal trainer</li>
                 <li><i class="fa-solid fa-check"></i> Nutrição básica</li>
               </ul>
-              <a href="#matricula" class="es-plano__btn">QUERO ESSE</a>
+              <a href="{{ route('register') }}" class="es-plano__btn">QUERO ESSE</a>
             </div>
           </div>
           <button class="es-next-btn" data-goto="5">VER HORÁRIOS <i class="fa-solid fa-arrow-right"></i></button>
@@ -413,7 +409,7 @@
               <p class="es-kicker">OFERTA ESPECIAL</p>
               <h3>1º MÊS<br><span>SEM TAXA</span><br>DE MATRÍCULA</h3>
               <p>Válido para novas matrículas em qualquer unidade.</p>
-              <a href="#matricula" class="es-plano__btn" style="margin-top:16px;display:inline-block">MATRICULE-SE AGORA</a>
+              <a href="{{ route('register') }}" class="es-plano__btn" style="margin-top:16px;display:inline-block">MATRICULE-SE AGORA</a>
             </div>
           </div>
         </div>
@@ -500,7 +496,7 @@
         <div class="offer-card">
           <h4>Nós oferecemos</h4>
           <p>Treinos completos, acompanhamento e um ambiente feito pra evoluir.</p>
-          <a class="offer-link" href="#matricula">MATRICULE-SE →</a>
+          <a class="offer-link" href="{{ route('register') }}">MATRICULE-SE →</a>
         </div>
         <img class="about-img-main" src="{{ asset('img\Fit couple standing.jpg') }}" alt="Pessoas treinando">
         <button class="about-video" type="button" id="openVideo"
@@ -957,7 +953,7 @@
     </div>
  
     <div class="instr-modal__footer">
-      <a href="#matricula" class="instr-modal__cta-btn" id="instrClose2">
+      <a href="{{ route('register') }}" class="instr-modal__cta-btn" id="instrClose2">
         <i class="fa-solid fa-dumbbell"></i> Treinar com este instrutor
       </a>
     </div>
@@ -1056,5 +1052,12 @@
     </a>
   </div>
 </footer>
+<a href="https://wa.me/5585999999999"
+   target="_blank"
+   rel="noopener"
+   class="whatsapp-float"
+   aria-label="Falar no WhatsApp">
+  <i class="fa-brands fa-whatsapp"></i>
+</a>
 </body>
 </html>

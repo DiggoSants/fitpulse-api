@@ -7,6 +7,7 @@ use App\Models\Student;
 use App\Models\Instructor;
 use App\Models\Workout;
 use App\Models\WorkoutExercise;
+use App\Models\Plan; // ADICIONADO
 
 class DashboardController extends Controller
 {
@@ -17,12 +18,14 @@ class DashboardController extends Controller
 
         // ── GERENTE ───────────────────────────────────────────────────────────
         if ($user->isManager()) {
-            // Carrega todos os alunos com suas relações necessárias
             $students = Student::with([
                 'user',
                 'instructor.user',
                 'enrollments.plan',
-            ])->get();
+            ])->whereHas('user', function ($q) {
+                $q->whereDoesntHave('manager')
+                  ->whereDoesntHave('instructor');
+            })->get();
 
             $studentsData = $students->map(function ($student) {
                 $activeEnrollment = $student->activeEnrollment();
@@ -58,7 +61,27 @@ class DashboardController extends Controller
                 'students.workouts.workoutExercises.exercise',
             ])->get();
 
-            return view('dashboard', compact('studentsData', 'instructors'));
+            // ADICIONADO: busca todos os planos para exibir na aba Planos
+            $plans = Plan::orderBy('status')->orderBy('name')->get();
+
+            $totalStudents             = $students->count();
+            $activeStudents            = $studentsData->where('status', 'ativo')->count();
+            $defaulterStudents         = $studentsData->where('status', 'inadimplente')->count();
+            $studentsWithoutEnrollment = $studentsData->where('status', 'sem_matricula')->count();
+            $totalInstructors          = $instructors->count();
+            $totalPlans                = $plans->count(); // ADICIONADO
+
+            return view('dashboard', compact(
+                'studentsData',
+                'instructors',
+                'totalStudents',
+                'activeStudents',
+                'defaulterStudents',
+                'studentsWithoutEnrollment',
+                'totalInstructors',
+                'plans',      // ADICIONADO
+                'totalPlans'  // ADICIONADO
+            ));
         }
 
         // ── INSTRUTOR ─────────────────────────────────────────────────────────

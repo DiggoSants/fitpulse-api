@@ -7,6 +7,7 @@ use App\Models\Plan;
 
 class PlanController extends Controller
 {
+    // Lista todos os planos (usada internamente pelo dashboard via $plans)
     public function index()
     {
         $plans = Plan::withCount([
@@ -19,6 +20,13 @@ class PlanController extends Controller
         return response()->json(['data' => $plans]);
     }
 
+    // NOVO: abre a página de criar plano (resources/views/plans/create.blade.php)
+    public function create()
+    {
+        return view('plans.create');
+    }
+
+    // Salva o novo plano e redireciona para o dashboard
     public function store(Request $request)
     {
         $request->validate([
@@ -27,27 +35,25 @@ class PlanController extends Controller
             'price'         => ['required', 'numeric', 'min:0'],
             'duration_days' => ['required', 'integer', 'min:1'],
             'benefits'      => ['nullable', 'string'],
+            'status'        => ['nullable', 'in:active,inactive'],
         ], [
-            'name.required'          => 'O nome do plano é obrigatório',
-            'price.required'         => 'O preço é obrigatório',
-            'price.min'              => 'O preço não pode ser negativo',
-            'duration_days.required' => 'A duração é obrigatória',
-            'duration_days.min'      => 'A duração deve ser de pelo menos 1 dia',
+            'name.required'          => 'O nome do plano é obrigatório.',
+            'price.required'         => 'O preço é obrigatório.',
+            'price.min'              => 'O preço não pode ser negativo.',
+            'duration_days.required' => 'A duração é obrigatória.',
+            'duration_days.min'      => 'A duração deve ser de pelo menos 1 dia.',
         ]);
 
-        $plan = Plan::create([
+        Plan::create([
             'name'          => $request->name,
             'description'   => $request->description,
             'price'         => $request->price,
             'duration_days' => $request->duration_days,
             'benefits'      => $request->benefits,
-            'status'        => 'active',
+            'status'        => $request->status ?? 'active',
         ]);
 
-        return response()->json([
-            'message' => 'Plano criado com sucesso!',
-            'data'    => $plan,
-        ], 201);
+        return redirect()->route('dashboard')->with('success', 'Plano criado com sucesso!');
     }
 
     public function show($id)
@@ -62,6 +68,14 @@ class PlanController extends Controller
         return response()->json(['data' => $plan]);
     }
 
+    // NOVO: abre a página de editar plano (resources/views/plans/edit.blade.php)
+    public function edit($id)
+    {
+        $plan = Plan::findOrFail($id);
+        return view('plans.edit', compact('plan'));
+    }
+
+    // Salva a edição e redireciona para o dashboard
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -70,9 +84,10 @@ class PlanController extends Controller
             'price'         => ['sometimes', 'numeric', 'min:0'],
             'duration_days' => ['sometimes', 'integer', 'min:1'],
             'benefits'      => ['nullable', 'string'],
+            'status'        => ['nullable', 'in:active,inactive'],
         ], [
-            'price.min'          => 'O preço não pode ser negativo',
-            'duration_days.min'  => 'A duração deve ser de pelo menos 1 dia',
+            'price.min'          => 'O preço não pode ser negativo.',
+            'duration_days.min'  => 'A duração deve ser de pelo menos 1 dia.',
         ]);
 
         $plan = Plan::findOrFail($id);
@@ -83,14 +98,13 @@ class PlanController extends Controller
             'price',
             'duration_days',
             'benefits',
+            'status',
         ]));
 
-        return response()->json([
-            'message' => 'Plano atualizado com sucesso!',
-            'data'    => $plan,
-        ]);
+        return redirect()->route('dashboard')->with('success', 'Plano atualizado com sucesso!');
     }
 
+    // Inativação lógica (preserva histórico)
     public function destroy($id)
     {
         $plan = Plan::findOrFail($id);
@@ -101,31 +115,27 @@ class PlanController extends Controller
             ->count();
 
         if ($activeStudents > 0) {
-            return response()->json([
-                'message' => "Este plano possui {$activeStudents} aluno(s) ativo(s) e não pode ser inativado.",
-            ], 422);
+            return back()->withErrors([
+                'plan' => "Este plano possui {$activeStudents} aluno(s) ativo(s) e não pode ser inativado.",
+            ]);
         }
 
         $plan->update(['status' => 'inactive']);
 
-        return response()->json([
-            'message' => 'Plano inativado com sucesso! O histórico foi preservado.',
-        ]);
+        return redirect()->route('dashboard')->with('success', 'Plano inativado com sucesso! O histórico foi preservado.');
     }
 
+    // Reativa um plano inativo
     public function restore($id)
     {
         $plan = Plan::findOrFail($id);
 
         if ($plan->status === 'active') {
-            return response()->json(['message' => 'Este plano já está ativo.'], 422);
+            return back()->withErrors(['plan' => 'Este plano já está ativo.']);
         }
 
         $plan->update(['status' => 'active']);
 
-        return response()->json([
-            'message' => 'Plano reativado com sucesso!',
-            'data'    => $plan,
-        ]);
+        return redirect()->route('dashboard')->with('success', 'Plano reativado com sucesso!');
     }
 }

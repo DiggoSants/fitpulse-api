@@ -68,6 +68,7 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
     Route::get('/reports/plans/comparative',   [ReportController::class, 'plansComparative'])->name('reports.plans.comparative');
     Route::get('/reports/plans/cancellations', [ReportController::class, 'plansCancellations'])->name('reports.plans.cancellations');
     Route::get('/reports/plans/loyalty',       [ReportController::class, 'plansLoyalty'])->name('reports.plans.loyalty');
+    Route::get('/reports/users/delinquency',   [ReportController::class, 'usersDelinquency'])->name('reports.users.delinquency'); // ← FALTA ESSA
     Route::get('/reports/frequency/heatmap',   [FrequencyController::class, 'heatmap'])->name('reports.frequency.heatmap');
 });
 
@@ -82,6 +83,7 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
     Route::resource('plans', PlanController::class);
     Route::post('/plans/{id}/restore', [PlanController::class, 'restore'])->name('plans.restore');
 });
+
 
 // ── Mensalidade ───────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {

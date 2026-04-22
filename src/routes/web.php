@@ -13,6 +13,7 @@ use App\Http\Controllers\PlanController;
 use App\Http\Controllers\RenewalController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\AccessController;
+use App\Http\Controllers\FrequencyController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -40,19 +41,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('students', StudentController::class);
 });
 
-// ── Exercícios (requer matrícula) ─────────────────────────────────────────────
+// ── Exercícios ────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
     Route::resource('exercises', ExerciseController::class);
 });
 
-// ── Treinos (requer matrícula) ────────────────────────────────────────────────
+// ── Treinos ───────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
     Route::resource('workouts', WorkoutController::class)->only([
-        'create',
-        'store',
-        'edit',
-        'update',
-        'destroy'
+        'create', 'store', 'edit', 'update', 'destroy'
     ]);
 });
 
@@ -71,24 +68,25 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
     Route::get('/reports/plans/comparative',   [ReportController::class, 'plansComparative'])->name('reports.plans.comparative');
     Route::get('/reports/plans/cancellations', [ReportController::class, 'plansCancellations'])->name('reports.plans.cancellations');
     Route::get('/reports/plans/loyalty',       [ReportController::class, 'plansLoyalty'])->name('reports.plans.loyalty');
+    Route::get('/reports/frequency/heatmap',   [FrequencyController::class, 'heatmap'])->name('reports.frequency.heatmap');
+});
+
+// ── Renovação de planos (ANTES do resource para evitar conflito de rota) ──────
+Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
+    Route::get('/plans/renewals', [RenewalController::class, 'history'])->name('plans.renewals');
+    Route::post('/plans/renew',   [RenewalController::class, 'renew'])->name('plans.renew');
 });
 
 // ── Planos (só gerentes) ──────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
-    Route::apiResource('plans', PlanController::class);
+    Route::resource('plans', PlanController::class);
     Route::post('/plans/{id}/restore', [PlanController::class, 'restore'])->name('plans.restore');
-});
-
-// ── Renovação de planos ───────────────────────────────────────────────────────
-Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
-    Route::post('/plans/renew',   [RenewalController::class, 'renew'])->name('plans.renew');
-    Route::get('/plans/renewals', [RenewalController::class, 'history'])->name('plans.renewals');
 });
 
 // ── Mensalidade ───────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
-    Route::post('/billing/process', [BillingController::class, 'process'])->name('billing.process');
     Route::get('/billing',          [BillingController::class, 'index'])->name('billing.index');
+    Route::post('/billing/process', [BillingController::class, 'process'])->name('billing.process');
 });
 
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
@@ -101,6 +99,11 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
     Route::post('/access/block',    [AccessController::class, 'block'])->name('access.block');
     Route::post('/access/unblock',  [AccessController::class, 'unblock'])->name('access.unblock');
     Route::post('/access/status',   [AccessController::class, 'updateStatus'])->name('access.status');
+});
+
+// ── Frequência ────────────────────────────────────────────────────────────────
+Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
+    Route::post('/frequency/register', [FrequencyController::class, 'register'])->name('frequency.register');
 });
 
 require __DIR__ . '/auth.php';

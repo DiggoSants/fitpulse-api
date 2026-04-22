@@ -52,6 +52,11 @@ class Student extends Model
         return $this->hasMany(Billing::class);
     }
 
+    public function frequencies()
+    {
+        return $this->hasMany(Frequency::class);
+    }
+
     public function activeEnrollment()
     {
         return $this->enrollments()
@@ -76,6 +81,10 @@ class Student extends Model
         return $this->billings()->latest()->first()?->status;
     }
 
+    public function lastFrequency(): ?string
+    {
+        return $this->frequencies()->latest()->first()?->created_at?->format('d/m/Y H:i');
+    }
 
     public function isActive(): bool
     {

@@ -6433,3 +6433,609 @@ div[x-show="confirmingUserDeletion"] button:not([class*="red"]):not([class*="dan
 [data-theme="light"] .dash-hero__pulse--delinquent .dash-hero__pulse-dot {
     background: #d97706 !important;
 }
+/* ═══════════════════════════════════════════════════════════════════
+   FREQUENCY.CSS — Registro de presença + Heatmap
+   Importar no layout: <link rel="stylesheet" href="{{ asset('css/frequency.css') }}">
+═══════════════════════════════════════════════════════════════════ */
+
+/* ── CARD DE PRESENÇA (dashboard do aluno) ────────────────────── */
+
+.freq-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 22px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    transition: border-color .2s, background .2s;
+}
+
+.freq-card:hover {
+    border-color: rgba(214,21,50,0.22);
+    background: rgba(255,255,255,0.06);
+}
+
+.freq-card__left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    flex: 1;
+}
+
+.freq-card__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(214,21,50,0.10);
+    border: 1px solid rgba(214,21,50,0.20);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #f87171;
+}
+
+.freq-card__info {
+    min-width: 0;
+}
+
+.freq-card__title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #f5f5f5;
+    margin: 0 0 3px;
+}
+
+.freq-card__sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.40);
+    margin: 0;
+}
+
+.freq-card__right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+}
+
+.freq-card__stats {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    padding: 10px 18px;
+}
+
+.freq-card__stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    min-width: 44px;
+}
+
+.freq-card__stat-divider {
+    width: 1px;
+    height: 28px;
+    background: rgba(255,255,255,0.08);
+    flex-shrink: 0;
+}
+
+.freq-card__stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 1px;
+    color: #fff;
+    line-height: 1;
+}
+
+.freq-card__stat-label {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: rgba(255,255,255,0.32);
+    white-space: nowrap;
+}
+
+/* Botão registrar */
+.freq-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 20px;
+    border-radius: 99px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background .18s, border-color .18s, transform .15s, opacity .18s;
+    white-space: nowrap;
+}
+
+.freq-btn--active {
+    background: var(--red);
+    color: #fff;
+    border-color: var(--red);
+    box-shadow: 0 6px 18px rgba(214,21,50,0.30);
+}
+
+.freq-btn--active:hover {
+    opacity: .88;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(214,21,50,0.40);
+}
+
+.freq-btn--active:active {
+    transform: scale(.97);
+}
+
+.freq-btn--done {
+    background: rgba(34,197,94,0.10);
+    color: #4ade80;
+    border-color: rgba(34,197,94,0.25);
+    cursor: default;
+}
+
+/* Toast de sucesso */
+.freq-toast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 18px;
+    border-radius: 12px;
+    background: rgba(34,197,94,0.10);
+    border: 1px solid rgba(34,197,94,0.22);
+    color: #4ade80;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    transition: opacity .3s ease, transform .3s ease;
+}
+
+/* Light mode — freq card */
+[data-theme="light"] .freq-card {
+    background: #fff;
+    border-color: rgba(0,0,0,0.08);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+[data-theme="light"] .freq-card:hover {
+    border-color: rgba(214,21,50,0.20);
+    background: #fff;
+}
+
+[data-theme="light"] .freq-card__icon {
+    background: rgba(214,21,50,0.07);
+    border-color: rgba(214,21,50,0.14);
+    color: #b91c1c;
+}
+
+[data-theme="light"] .freq-card__title {
+    color: #111;
+}
+
+[data-theme="light"] .freq-card__sub {
+    color: rgba(0,0,0,0.42);
+}
+
+[data-theme="light"] .freq-card__stat-value {
+    color: #111;
+}
+
+[data-theme="light"] .freq-card__stat-label {
+    color: rgba(0,0,0,0.35);
+}
+
+[data-theme="light"] .freq-card__stats {
+    background: rgba(0,0,0,0.03);
+    border-color: rgba(0,0,0,0.08);
+}
+
+[data-theme="light"] .freq-card__stat-divider {
+    background: rgba(0,0,0,0.10);
+}
+
+[data-theme="light"] .freq-card__stat-value {
+    color: #111;
+}
+
+[data-theme="light"] .freq-card__stat-label {
+    color: rgba(0,0,0,0.35);
+}
+
+[data-theme="light"] .freq-btn--done {
+    background: rgba(22,163,74,0.08);
+    color: #15803d;
+    border-color: rgba(22,163,74,0.22);
+}
+
+[data-theme="light"] .freq-toast {
+    background: rgba(22,163,74,0.08);
+    border-color: rgba(22,163,74,0.22);
+    color: #15803d;
+}
+
+/* Responsivo */
+@media (max-width: 640px) {
+    .freq-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .freq-card__right {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .freq-card__stats {
+        flex: 1;
+        justify-content: center;
+    }
+}
+
+
+/* ── HEATMAP (relatório gerente) ─────────────────────────────── */
+
+/* Cards de resumo */
+.hm-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.hm-summary-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 18px 20px;
+}
+
+.hm-summary-card__label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: rgba(255,255,255,0.38);
+    margin-bottom: 8px;
+}
+
+.hm-summary-card__value {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    letter-spacing: 1px;
+    line-height: 1;
+    color: #f5f5f5;
+    margin-bottom: 4px;
+}
+
+.hm-summary-card__sub {
+    display: block;
+    font-size: 12px;
+    color: rgba(255,255,255,0.32);
+}
+
+.hm-summary-card--red   .hm-summary-card__value { color: #f87171; }
+.hm-summary-card--green .hm-summary-card__value { color: #4ade80; }
+
+/* Wrapper */
+.hm-wrap {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 24px;
+    overflow: hidden;
+}
+
+.hm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+/* Legenda */
+.hm-legend {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hm-legend__label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    font-weight: 600;
+}
+
+.hm-legend__bar {
+    display: flex;
+    gap: 3px;
+}
+
+.hm-legend__cell {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    background: rgba(214,21,50, calc(0.12 + var(--intensity) * 0.78));
+    border: 1px solid rgba(214,21,50, calc(0.20 + var(--intensity) * 0.40));
+}
+
+/* Grid principal */
+.hm-grid {
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(214,21,50,0.35) rgba(255,255,255,0.05);
+}
+
+.hm-grid::-webkit-scrollbar        { height: 5px; }
+.hm-grid::-webkit-scrollbar-thumb  { background: rgba(214,21,50,0.40); border-radius: 99px; }
+.hm-grid::-webkit-scrollbar-track  { background: rgba(255,255,255,0.04); border-radius: 99px; }
+
+/* Linha de horas no topo */
+.hm-hour-row,
+.hm-row {
+    display: grid;
+    grid-template-columns: 52px repeat(24, 1fr);
+    gap: 3px;
+    min-width: 660px;
+    margin-bottom: 3px;
+}
+
+.hm-hour-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.28);
+    text-align: center;
+    padding: 2px 0 6px;
+    letter-spacing: .04em;
+}
+
+/* Label do dia */
+.hm-day-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.50);
+    display: flex;
+    align-items: center;
+    padding-right: 8px;
+    white-space: nowrap;
+}
+
+/* Célula do heatmap */
+.hm-cell {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    cursor: pointer;
+    background: rgba(214,21,50, calc(0.06 + var(--intensity, 0) * 0.84));
+    border: 1px solid rgba(214,21,50, calc(0.08 + var(--intensity, 0) * 0.42));
+    transition: transform .12s ease, box-shadow .12s ease;
+    min-width: 14px;
+    min-height: 14px;
+}
+
+.hm-cell:hover {
+    transform: scale(1.25);
+    box-shadow: 0 0 8px rgba(214,21,50, calc(0.30 + var(--intensity, 0) * 0.50));
+    z-index: 2;
+    position: relative;
+}
+
+/* Tooltip */
+.hm-tooltip {
+    position: fixed;
+    background: #1a1a1a;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #f0f0f0;
+    pointer-events: none;
+    z-index: 9999;
+    white-space: nowrap;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    line-height: 1.6;
+}
+
+.hm-tooltip strong {
+    color: #fff;
+    font-size: 13px;
+}
+
+.hm-tooltip span {
+    color: #f87171;
+    font-weight: 700;
+}
+
+/* Skeleton */
+.hm-skeleton-wrap { padding: 4px 0; }
+
+.hm-skeleton-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.hm-skeleton-row {
+    display: grid;
+    grid-template-columns: 52px repeat(24, 1fr);
+    gap: 3px;
+    min-width: 660px;
+}
+
+.hm-skeleton-label {
+    height: 20px;
+    width: 44px;
+    border-radius: 6px;
+}
+
+.hm-skeleton-cell {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    min-width: 14px;
+    min-height: 14px;
+}
+
+/* Empty */
+.hm-empty {
+    text-align: center;
+    padding: 4rem 1rem;
+    color: var(--text-muted);
+}
+
+.hm-empty p {
+    font-size: 14px;
+}
+
+/* Light mode — heatmap */
+[data-theme="light"] .hm-summary-card {
+    background: #fff;
+    border-color: rgba(0,0,0,0.08);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+[data-theme="light"] .hm-summary-card__label {
+    color: rgba(0,0,0,0.42);
+}
+
+[data-theme="light"] .hm-summary-card__value {
+    color: #111;
+}
+
+[data-theme="light"] .hm-summary-card__sub {
+    color: rgba(0,0,0,0.38);
+}
+
+[data-theme="light"] .hm-summary-card--red   .hm-summary-card__value { color: #b91c1c; }
+[data-theme="light"] .hm-summary-card--green .hm-summary-card__value { color: #15803d; }
+
+[data-theme="light"] .hm-wrap {
+    background: #fff;
+    border-color: rgba(0,0,0,0.08);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+[data-theme="light"] .hm-legend__label {
+    color: rgba(0,0,0,0.40);
+}
+
+[data-theme="light"] .hm-hour-label {
+    color: rgba(0,0,0,0.32);
+}
+
+[data-theme="light"] .hm-day-label {
+    color: rgba(0,0,0,0.55);
+}
+
+[data-theme="light"] .hm-cell {
+    background: rgba(214,21,50, calc(0.05 + var(--intensity, 0) * 0.75));
+    border-color: rgba(214,21,50, calc(0.08 + var(--intensity, 0) * 0.35));
+}
+
+[data-theme="light"] .hm-grid {
+    scrollbar-color: rgba(214,21,50,0.35) rgba(0,0,0,0.05);
+}
+
+[data-theme="light"] .hm-grid::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.05);
+}
+
+[data-theme="light"] .hm-tooltip {
+    background: #fff;
+    border-color: rgba(0,0,0,0.12);
+    color: #111;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.14);
+}
+
+[data-theme="light"] .hm-tooltip strong { color: #111; }
+[data-theme="light"] .hm-tooltip span   { color: #b91c1c; }
+
+/* Responsivo */
+@media (max-width: 900px) {
+    .hm-summary {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .hm-wrap {
+        padding: 16px 12px;
+    }
+
+    .hm-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* Toast de erro */
+.freq-toast--error {
+    background: rgba(214,21,50,0.10);
+    border-color: rgba(214,21,50,0.22);
+    color: #f87171;
+}
+
+[data-theme="light"] .freq-toast--error {
+    background: rgba(214,21,50,0.07);
+    border-color: rgba(214,21,50,0.18);
+    color: #b91c1c;
+}
+/* ── Bolinhas de frequência semanal ─────────────────────────── */
+.freq-day__dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(128,128,128,0.10);
+    border: 1px solid rgba(128,128,128,0.20);
+    color: var(--text-muted);
+}
+
+.freq-day__dot--present {
+    background: rgba(74,222,128,0.14);
+    border-color: rgba(74,222,128,0.35);
+    color: #16a34a;
+}
+
+.freq-day__dot--today {
+    background: rgba(214,21,50,0.14);
+    border-color: rgba(214,21,50,0.35);
+    color: #d61532;
+}
+
+[data-theme="light"] .freq-day__dot--present {
+    background: rgba(74,222,128,0.20);
+    border-color: rgba(22,163,74,0.45);
+    color: #15803d;
+}
+
+[data-theme="light"] .freq-day__dot--today {
+    background: rgba(214,21,50,0.12);
+    border-color: rgba(214,21,50,0.38);
+    color: #b91c1c;
+}
+
+.freq-day__label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+}

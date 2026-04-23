@@ -117,17 +117,19 @@ class AccessController extends Controller
           ->whereDoesntHave('instructor');
     })
     ->get()
-    ->map(function ($student) {
-        return [
-            'id'             => $student->id,
-            'name'           => $student->user->name,
-            'email'          => $student->user->email,
-            'status'         => $student->status,
-            'is_defaulter'   => $student->is_defaulter,
-            'payment_status' => $student->paymentStatus(),
-            'renewed_at'     => $student->renewed_at?->format('d/m/Y H:i'),
-        ];
-    });
+   ->map(function ($student) {
+    $lastBilling = $student->billings->first();
+    return [
+        'id'             => $student->id,
+        'name'           => $student->user->name,
+        'email'          => $student->user->email,
+        'status'         => $student->status,
+        'is_defaulter'   => $student->is_defaulter,
+        'payment_status' => $student->paymentStatus(),
+        'payment_amount' => $lastBilling ? number_format($lastBilling->amount, 2, ',', '.') : null,
+        'renewed_at'     => $student->renewed_at?->format('d/m/Y H:i'),
+    ];
+});
 
     return response()->json(['data' => $students]);
 }

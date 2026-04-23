@@ -11,13 +11,26 @@ use App\Models\Billing;
 class BillingController extends Controller
 {
     // Exibe a tela de mensalidade com plano ativo e histórico de pagamentos
-    public function index()
-    {
-        /** @var \App\Models\User $user */
-        $user    = Auth::user();
-        $student = Student::where('user_id', $user->id)->firstOrFail();
+public function index()
+{
+    $user    = Auth::user();
+    $student = Student::where('user_id', $user->id)->firstOrFail();
 
-        $activeEnrollment = $student->activeEnrollment();
+    // Auto-sync: tem billing confirmado mas status ainda é delinquent
+    if ($student->isDelinquent()) {
+        $hasConfirmed = $student->billings()
+            ->where('status', 'confirmed')
+            ->exists();
+
+        if ($hasConfirmed) {
+            $student->update([
+                'status'       => 'active',
+                'is_defaulter' => false,
+            ]);
+        }
+    }
+
+    $activeEnrollment = $student->activeEnrollment();
 
         $payments = Billing::with(['plan', 'enrollment'])
             ->where('student_id', $student->id)
@@ -82,9 +95,13 @@ class BillingController extends Controller
                 $student->update(['is_defaulter' => true]);
             }
 
-           if ($status === 'confirmed') {
-            $student->update(['is_defaulter' => false, 'renewed_at' => now()]);
-            }
+            if ($status === 'confirmed') {
+                $student->update([
+                  'is_defaulter' => false,
+                  'status'       => 'active',
+                   'renewed_at'   => now(),
+    ]);
+}
         });
 
         $messages = [

@@ -13,8 +13,9 @@ class ReportController extends Controller
         $plans = Plan::active()
             ->withCount([
                 'enrollments as active_students_count' => function ($query) {
-                    $query->where('status', 'active')
-                        ->where('end_date', '>=', now()->toDateString());
+                    $query->select(\DB::raw('COUNT(DISTINCT student_id)'))
+                          ->where('status', 'active')
+                          ->where('end_date', '>=', now()->toDateString());
                 }
             ])
             ->get()
@@ -65,30 +66,26 @@ class ReportController extends Controller
 
     public function plansLoyalty()
     {
-        // Busca todas as matrículas ativas e agrupa por aluno,
-        // mantendo apenas a matrícula mais antiga de cada um (start_date menor)
-        // para calcular o tempo real de fidelidade.
         $enrollments = Enrollment::with(['student.user', 'plan'])
             ->where('status', 'active')
             ->where('end_date', '>=', now()->toDateString())
-            ->orderBy('start_date', 'asc') // mais antigas primeiro para o groupBy manter a 1ª
+            ->orderBy('start_date', 'asc')
             ->get()
-            ->groupBy('student_id')        // agrupa por aluno — remove duplicatas de renovação
+            ->groupBy('student_id')
             ->map(function ($group) {
-                // Pega a matrícula mais antiga do aluno
-                $oldest = $group->first();
-                // Pega o plano atual (matrícula mais recente)
+                $oldest  = $group->first();
                 $current = $group->last();
 
-                $daysActive = (int) now()->startOfDay()
-                    ->diffInDays($oldest->start_date->startOfDay());
+             
+                $daysActive = (int) $oldest->start_date->startOfDay()
+                    ->diffInDays(now()->startOfDay());
 
                 return [
                     'student_name'  => $oldest->student->user->name,
                     'student_email' => $oldest->student->user->email,
-                    'plan_name'     => $current->plan->name,   // plano atual
-                    'start_date'    => $oldest->start_date->format('d/m/Y'), // desde quando é aluno
-                    'end_date'      => $current->end_date->format('d/m/Y'),  // vencimento atual
+                    'plan_name'     => $current->plan->name,
+                    'start_date'    => $oldest->start_date->format('d/m/Y'),
+                    'end_date'      => $current->end_date->format('d/m/Y'),
                     'days_active'   => $daysActive,
                 ];
             })

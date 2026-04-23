@@ -36,6 +36,7 @@ class EnrollmentController extends Controller
             'plan_id.exists'       => 'Plano inválido',
             'invite_code.required' => 'Insira o código do seu instrutor',
         ]);
+
         $instructor = Instructor::where('invite_code', strtoupper($request->invite_code))->first();
 
         if (!$instructor) {
@@ -47,6 +48,14 @@ class EnrollmentController extends Controller
         /** @var \App\Models\User $user */
         $user    = Auth::user();
         $student = Student::where('user_id', $user->id)->firstOrFail();
+
+       
+        Enrollment::where('student_id', $student->id)
+            ->where('status', 'active')
+            ->update([
+                'status'       => 'cancelled',
+                'cancelled_at' => now(),
+            ]);
 
         $plan      = Plan::findOrFail($request->plan_id);
         $startDate = Carbon::today();

@@ -135,7 +135,7 @@
                         <span class="mgr-tab__count" id="tab-count-blocked">—</span>
                     </button>
                     <button type="button" class="mgr-tab" onclick="filterAccess('delinquent', this)">
-                        devendo
+                        Devendo
                         <span class="mgr-tab__count" id="tab-count-delinquent">—</span>
                     </button>
                 </div>
@@ -218,7 +218,8 @@
 
                 @if($student)
                     <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px;">
-                        <div style="
+
+                        <div class="access-status-card {{ $student->status === 'blocked' ? 'access-status-card--blocked' : ($student->status === 'delinquent' ? 'access-status-card--delinquent' : '') }}" style="
                             padding:28px 28px 24px;
                             border-radius:20px;
                             border:1px solid;
@@ -252,28 +253,28 @@
                                         </svg>
                                     @endif
                                 </div>
+
                                 <div style="flex:1;min-width:0;">
-                                    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;margin-bottom:6px;
+                                    <div class="access-situation-label" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.10em;margin-bottom:6px;
                                         {{ $student->status === 'active' ? 'color:rgba(74,222,128,.60);' : ($student->status === 'blocked' ? 'color:rgba(248,113,113,.60);' : 'color:rgba(251,191,36,.60);') }}
                                     ">Situação atual</div>
+
                                     @if($student->status === 'active')
                                         <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:3px;color:#4ade80;line-height:1;">ACESSO ATIVO</div>
-                                        <p style="font-size:13px;color:rgba(255,255,255,.55);margin:6px 0 0;">Seu acesso está liberado. Aproveite todos os recursos da plataforma.</p>
+                                        <p style="font-size:13px;color:var(--text-muted);margin:6px 0 0;">Seu acesso está liberado. Aproveite todos os recursos da plataforma.</p>
                                     @elseif($student->status === 'blocked')
                                         <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:3px;color:#f87171;line-height:1;">ACESSO BLOQUEADO</div>
-                                        <p style="font-size:13px;color:rgba(255,255,255,.55);margin:6px 0 0;">Seu acesso foi bloqueado. Entre em contato com a administração para mais informações.</p>
+                                        <p style="font-size:13px;color:var(--text-muted);margin:6px 0 0;">Seu acesso foi bloqueado. Entre em contato com a administração para mais informações.</p>
                                     @else
                                         <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:3px;color:#fbbf24;line-height:1;">PAGAMENTO PENDENTE</div>
-                                        <p style="font-size:13px;color:rgba(255,255,255,.55);margin:6px 0 0;">Existe um pagamento pendente. Regularize sua situação para reativar o acesso.</p>
+                                        <p style="font-size:13px;color:var(--text-muted);margin:6px 0 0;">Existe um pagamento pendente. Regularize sua situação para reativar o acesso.</p>
                                     @endif
                                 </div>
                             </div>
-                            @if($student->status !== 'active')
-                                <div style="margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:10px;flex-wrap:wrap;">
-                                    @if($student->status === 'delinquent')
-                                        <a href="{{ route('billing.index') }}" class="btn-save" style="text-decoration:none;">Regularizar Pagamento</a>
-                                    @endif
-                                    <a href="{{ route('dashboard') }}" class="btn-cancel" style="text-decoration:none;display:inline-flex;align-items:center;padding:10px 20px;">Voltar ao Painel</a>
+
+                            @if($student->status === 'delinquent')
+                                <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">
+                                    <a href="{{ route('billing.index') }}" class="btn-save" style="text-decoration:none;">Regularizar Pagamento</a>
                                 </div>
                             @endif
                         </div>
@@ -322,6 +323,25 @@
 
     <style>
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Card de status do aluno — light mode ── */
+        [data-theme="light"] .access-status-card {
+            background: rgba(34,197,94,0.05) !important;
+            border-color: rgba(34,197,94,0.18) !important;
+        }
+        [data-theme="light"] .access-status-card--blocked {
+            background: rgba(214,21,50,0.05) !important;
+            border-color: rgba(214,21,50,0.18) !important;
+        }
+        [data-theme="light"] .access-status-card--delinquent {
+            background: rgba(251,191,36,0.05) !important;
+            border-color: rgba(251,191,36,0.18) !important;
+        }
+
+        /* ── Label "Situação atual" — light mode ── */
+        [data-theme="light"] .access-situation-label {
+            color: rgba(0,0,0,0.40) !important;
+        }
 
         /* Modal — modo escuro */
         #status-modal-box {
@@ -415,33 +435,32 @@
         let allStudents = [];
         let currentFilter = 'all';
 
-       function showToast(msg, type = 'success') {
-    const t = document.getElementById('access-toast');
-    const isOk = type === 'success';
-    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('access-toast');
+            const isOk = type === 'success';
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
 
-    if (isLight) {
-        t.style.background = isOk ? '#dcfce7' : '#fee2e2';
-        t.style.border     = `1px solid ${isOk ? '#86efac' : '#fca5a5'}`;
-        t.style.color      = isOk ? '#15803d' : '#b91c1c';
-        t.style.boxShadow  = '0 8px 24px rgba(0,0,0,0.15)';
-    } else {
-        t.style.background = isOk ? 'rgba(34,197,94,0.18)'  : 'rgba(214,21,50,0.18)';
-        t.style.border     = `1px solid ${isOk ? 'rgba(34,197,94,0.35)' : 'rgba(214,21,50,0.35)'}`;
-        t.style.color      = isOk ? '#4ade80' : '#f87171';
-        t.style.boxShadow  = '0 8px 24px rgba(0,0,0,0.3)';
-    }
+            if (isLight) {
+                t.style.background = isOk ? '#dcfce7' : '#fee2e2';
+                t.style.border     = `1px solid ${isOk ? '#86efac' : '#fca5a5'}`;
+                t.style.color      = isOk ? '#15803d' : '#b91c1c';
+                t.style.boxShadow  = '0 8px 24px rgba(0,0,0,0.15)';
+            } else {
+                t.style.background = isOk ? 'rgba(34,197,94,0.18)'  : 'rgba(214,21,50,0.18)';
+                t.style.border     = `1px solid ${isOk ? 'rgba(34,197,94,0.35)' : 'rgba(214,21,50,0.35)'}`;
+                t.style.color      = isOk ? '#4ade80' : '#f87171';
+                t.style.boxShadow  = '0 8px 24px rgba(0,0,0,0.3)';
+            }
 
-    t.textContent  = msg;
-    t.style.display    = 'block';
-    t.style.opacity    = '1';
-    clearTimeout(t._timer);
-    t._timer = setTimeout(() => {
-        t.style.opacity = '0';
-        setTimeout(() => t.style.display = 'none', 300);
-    }, 3500);
-}
-        
+            t.textContent      = msg;
+            t.style.display    = 'block';
+            t.style.opacity    = '1';
+            clearTimeout(t._timer);
+            t._timer = setTimeout(() => {
+                t.style.opacity = '0';
+                setTimeout(() => t.style.display = 'none', 300);
+            }, 3500);
+        }
 
         async function loadStudents() {
             try {
@@ -460,12 +479,12 @@
             const active     = allStudents.filter(s => s.status === 'active').length;
             const blocked    = allStudents.filter(s => s.status === 'blocked').length;
             const delinquent = allStudents.filter(s => s.status === 'delinquent').length;
-            document.getElementById('count-active').textContent      = active;
-            document.getElementById('count-blocked').textContent     = blocked;
-            document.getElementById('count-delinquent').textContent  = delinquent;
-            document.getElementById('tab-count-all').textContent     = total;
-            document.getElementById('tab-count-active').textContent  = active;
-            document.getElementById('tab-count-blocked').textContent = blocked;
+            document.getElementById('count-active').textContent         = active;
+            document.getElementById('count-blocked').textContent        = blocked;
+            document.getElementById('count-delinquent').textContent     = delinquent;
+            document.getElementById('tab-count-all').textContent        = total;
+            document.getElementById('tab-count-active').textContent     = active;
+            document.getElementById('tab-count-blocked').textContent    = blocked;
             document.getElementById('tab-count-delinquent').textContent = delinquent;
         }
 
@@ -489,7 +508,7 @@
                     </td>
                     <td><span class="mgr-student-cell__email">${escHtml(s.email)}</span></td>
                     <td>${statusBadge(s.status)}</td>
-                    <td>${paymentBadge(s.payment_status)}</td>
+                    <td>${paymentBadge(s.payment_status, s.payment_amount)}</td>
                     <td style="font-size:12px;color:var(--text-muted);">${s.renewed_at ?? '—'}</td>
                     <td>${actionsHtml(s)}</td>
                 </tr>`;
@@ -499,13 +518,13 @@
         function statusBadge(status) {
             if (status === 'active')     return '<span class="mgr-badge-ok">Ativo</span>';
             if (status === 'blocked')    return '<span class="mgr-badge-bad">Bloqueado</span>';
-            if (status === 'delinquent') return '<span class="mgr-badge-neutral" style="background:rgba(251,191,36,.12);color:#fbbf24;border-color:rgba(251,191,36,.25);">devendo</span>';
+            if (status === 'delinquent') return '<span class="mgr-badge-neutral" style="background:rgba(251,191,36,.12);color:#fbbf24;border-color:rgba(251,191,36,.25);">Devendo</span>';
             return '<span class="mgr-badge-neutral">—</span>';
         }
 
-        function paymentBadge(ps) {
-            if (ps === 'paid')    return '<span class="mgr-badge-ok">Em dia</span>';
-            if (ps === 'pending') return '<span class="mgr-badge-neutral" style="background:rgba(251,191,36,.12);color:#fbbf24;border-color:rgba(251,191,36,.25);">Pendente</span>';
+        function paymentBadge(ps, amount) {
+            if (ps === 'paid')    return `<span class="mgr-badge-ok">R$ ${amount ?? '—'}</span>`;
+            if (ps === 'pending') return `<span class="mgr-badge-neutral" style="background:rgba(251,191,36,.12);color:#fbbf24;border-color:rgba(251,191,36,.25);">R$ ${amount ?? '—'}</span>`;
             return '<span class="mgr-badge-neutral">—</span>';
         }
 
@@ -629,7 +648,7 @@
         document.getElementById('status-modal-overlay').addEventListener('click', function(e) {
             if (e.target === this) closeStatusModal();
         });
-         
+
         loadStudents();
     </script>
     @endif

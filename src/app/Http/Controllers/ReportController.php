@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Plan;
 use App\Models\Enrollment;
+use App\Models\Student;
 
 class ReportController extends Controller
 {
@@ -30,7 +31,7 @@ class ReportController extends Controller
                 ];
             });
 
-        return view('reports.plans-comparative', compact('plans'));
+        return response()->json(['data' => $plans]);
     }
 
     public function plansCancellations(Request $request)
@@ -60,45 +61,113 @@ class ReportController extends Controller
                 ];
             });
 
-        return view('reports.plans-cancellations', compact('cancellations'));
+        return response()->json([
+            'data'    => $cancellations,
+            'filters' => [
+                'start_date' => $request->start_date,
+                'end_date'   => $request->end_date,
+            ],
+        ]);
     }
 
     public function plansLoyalty()
     {
-        // Busca todas as matrículas ativas e agrupa por aluno,
-        // mantendo apenas a matrícula mais antiga de cada um (start_date menor)
-        // para calcular o tempo real de fidelidade.
         $enrollments = Enrollment::with(['student.user', 'plan'])
             ->where('status', 'active')
             ->where('end_date', '>=', now()->toDateString())
-            ->orderBy('start_date', 'asc') // mais antigas primeiro para o groupBy manter a 1ª
             ->get()
-            ->groupBy('student_id')        // agrupa por aluno — remove duplicatas de renovação
-            ->map(function ($group) {
-                // Pega a matrícula mais antiga do aluno
-                $oldest = $group->first();
-                // Pega o plano atual (matrícula mais recente)
-                $current = $group->last();
-
-                $daysActive = (int) now()->startOfDay()
-                    ->diffInDays($oldest->start_date->startOfDay());
-
+            ->map(function ($enrollment) {
                 return [
-                    'student_name'  => $oldest->student->user->name,
-                    'student_email' => $oldest->student->user->email,
-                    'plan_name'     => $current->plan->name,   // plano atual
-                    'start_date'    => $oldest->start_date->format('d/m/Y'), // desde quando é aluno
-                    'end_date'      => $current->end_date->format('d/m/Y'),  // vencimento atual
-                    'days_active'   => $daysActive,
+                    'student_name'  => $enrollment->student->user->name,
+                    'student_email' => $enrollment->student->user->email,
+                    'plan_name'     => $enrollment->plan->name,
+                    'start_date'    => $enrollment->start_date->format('d/m/Y'),
+                    'end_date'      => $enrollment->end_date->format('d/m/Y'),
+                    'days_active'   => $enrollment->start_date->diffInDays(now()),
                 ];
             })
             ->sortByDesc('days_active')
             ->values();
 
-        $avgDays     = $enrollments->avg('days_active') ?? 0;
-        $maxDays     = $enrollments->max('days_active') ?? 0;
-        $totalActive = $enrollments->count();
+        return response()->json(['data' => $enrollments]);
+    }
 
-        return view('reports.plans-loyalty', compact('enrollments', 'avgDays', 'maxDays', 'totalActive'));
+    public function usersDelinquency()
+    {
+        // INADIMPLENTES 
+        $delinquents = Student::with(['user'])
+            ->where(function ($q) {
+                $q->where('status', 'delinquent')
+                    ->orWhere('is_defaulter', true);
+            })
+            ->get()
+            ->map(function ($student) {
+                return [
+                    'id'             => $student->id,
+                    'name'           => $student->user->name,
+                    'email'          => $student->user->email,
+                    'status'         => $student->status,
+                    'payment_status' => $student->paymentStatus(),
+                ];
+            });
+
+        //  CANCELADOS 
+        $cancelled = Enrollment::with(['student.user', 'plan'])
+            ->where('status', 'cancelled')
+            ->whereNotNull('cancelled_at')
+            ->latest('cancelled_at')
+            ->get()
+            ->map(function ($enrollment) {
+                return [
+                    'id'           => $enrollment->student->id,
+                    'name'         => $enrollment->student->user->name,
+                    'email'        => $enrollment->student->user->email,
+                    'plan_name'    => $enrollment->plan->name,
+                    'cancelled_at' => $enrollment->cancelled_at->format('d/m/Y H:i'),
+                ];
+            });
+
+        //  INATIVOS (30 dias sem frequência) 
+        $inactiveThreshold = now()->subDays(30);
+
+        $inactive = Student::with(['user', 'frequencies'])
+            ->where('status', 'active')
+            ->whereHas('enrollments', function ($q) {
+                $q->where('status', 'active')
+                    ->where('end_date', '>=', now()->toDateString());
+            })
+            ->get()
+            ->filter(function ($student) use ($inactiveThreshold) {
+                $lastFreq = $student->frequencies->sortByDesc('created_at')->first();
+                return !$lastFreq || $lastFreq->created_at->lt($inactiveThreshold);
+            })
+            ->map(function ($student) {
+                $lastFreq = $student->frequencies->sortByDesc('created_at')->first();
+                return [
+                    'id'             => $student->id,
+                    'name'           => $student->user->name,
+                    'email'          => $student->user->email,
+                    'last_frequency' => $lastFreq
+                        ? $lastFreq->created_at->format('d/m/Y H:i')
+                        : 'Nunca registrou presença',
+                    'days_inactive'  => $lastFreq
+                        ? (int) $lastFreq->created_at->diffInDays(now())
+                        : null,
+                ];
+            })
+            ->values();
+
+        return response()->json([
+            'data' => [
+                'delinquents' => $delinquents,
+                'cancelled'   => $cancelled,
+                'inactive'    => $inactive,
+            ],
+            'summary' => [
+                'total_delinquents' => $delinquents->count(),
+                'total_cancelled'   => $cancelled->count(),
+                'total_inactive'    => $inactive->count(),
+            ],
+        ]);
     }
 }

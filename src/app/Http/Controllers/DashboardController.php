@@ -7,7 +7,8 @@ use App\Models\Student;
 use App\Models\Instructor;
 use App\Models\Workout;
 use App\Models\WorkoutExercise;
-use App\Models\Plan; // ADICIONADO
+use App\Models\Plan;
+use App\Models\Frequency;
 
 class DashboardController extends Controller
 {
@@ -61,7 +62,6 @@ class DashboardController extends Controller
                 'students.workouts.workoutExercises.exercise',
             ])->get();
 
-            // ADICIONADO: busca todos os planos para exibir na aba Planos
             $plans = Plan::orderBy('status')->orderBy('name')->get();
 
             $totalStudents             = $students->count();
@@ -69,7 +69,7 @@ class DashboardController extends Controller
             $defaulterStudents         = $studentsData->where('status', 'inadimplente')->count();
             $studentsWithoutEnrollment = $studentsData->where('status', 'sem_matricula')->count();
             $totalInstructors          = $instructors->count();
-            $totalPlans                = $plans->count(); // ADICIONADO
+            $totalPlans                = $plans->count();
 
             return view('dashboard', compact(
                 'studentsData',
@@ -79,8 +79,8 @@ class DashboardController extends Controller
                 'defaulterStudents',
                 'studentsWithoutEnrollment',
                 'totalInstructors',
-                'plans',      // ADICIONADO
-                'totalPlans'  // ADICIONADO
+                'plans',
+                'totalPlans'
             ));
         }
 
@@ -106,14 +106,55 @@ class DashboardController extends Controller
             ->latest()
             ->first();
 
+        // Frequência do mês atual
+        $frequencyThisMonth = Frequency::where('student_id', $student->id)
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->count();
+
+        // Última presença
+        $lastFrequency = Frequency::where('student_id', $student->id)
+            ->latest()
+            ->first();
+
+        // Já registrou hoje?
+        $checkedInToday = Frequency::where('student_id', $student->id)
+            ->whereDate('created_at', today())
+            ->exists();
+
+        // ── NOVO: dias da semana com presença ────────────────────────────────
+        $startOfWeek = now()->startOfWeek(\Carbon\Carbon::SUNDAY);
+        $endOfWeek   = now()->endOfWeek(\Carbon\Carbon::SATURDAY);
+
+        $frequencyThisWeek = Frequency::where('student_id', $student->id)
+            ->whereBetween('created_at', [$startOfWeek, $endOfWeek])
+            ->get()
+            ->map(fn($f) => $f->created_at->dayOfWeek) // 0=Dom ... 6=Sab
+            ->unique()
+            ->values()
+            ->toArray();
+        // ─────────────────────────────────────────────────────────────────────
+
         if (!$workout) {
-            return view('dashboard', ['enrolled' => true, 'exercises' => collect()]);
+            return view('dashboard', compact(
+                'frequencyThisMonth',
+                'lastFrequency',
+                'checkedInToday',
+                'frequencyThisWeek'
+            ) + ['enrolled' => true, 'exercises' => collect()]);
         }
 
         $exercises = WorkoutExercise::with('exercise')
             ->where('workout_id', $workout->id)
             ->get();
 
-        return view('dashboard', compact('exercises', 'workout') + ['enrolled' => true]);
+        return view('dashboard', compact(
+            'exercises',
+            'workout',
+            'frequencyThisMonth',
+            'lastFrequency',
+            'checkedInToday',
+            'frequencyThisWeek'
+        ) + ['enrolled' => true]);
     }
 }

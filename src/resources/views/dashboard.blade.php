@@ -109,6 +109,14 @@
                     <button
                         type="button"
                         class="mgr-tab"
+                        onclick="showManagerSection('frequency-section', this)"
+                    >
+                        Frequência
+                    </button>
+
+                    <button
+                        type="button"
+                        class="mgr-tab"
                         onclick="showManagerSection('reports-section', this)"
                     >
                         Relatórios
@@ -378,11 +386,6 @@
                                                     <p class="dash-plan-card__desc">{{ $plan->description }}</p>
                                                 @endif
                                             </div>
-                                            @if($plan->status === 'inactive')
-                                                <span class="mgr-badge-bad">Inativo</span>
-                                            @else
-                                                <span class="mgr-badge-ok">Ativo</span>
-                                            @endif
                                         </div>
 
                                         @if($plan->benefits)
@@ -404,7 +407,13 @@
                                             <p class="dash-plan-card__price">R$ {{ number_format($plan->price, 2, ',', '.') }}</p>
                                             <p class="dash-plan-card__duration">{{ $plan->duration_days }} dias</p>
                                         </div>
+
                                         <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; margin-top:12px;">
+                                            @if($plan->status === 'inactive')
+                                                <span class="mgr-badge-bad">Inativo</span>
+                                            @else
+                                                <span class="mgr-badge-ok">Ativo</span>
+                                            @endif
                                             <a href="{{ route('plans.edit', $plan->id) }}"
                                                class="mgr-btn-sm mgr-btn-edit-workout"
                                                style="text-decoration:none;">
@@ -466,7 +475,7 @@
                 ══════════════════════════════════════════════════════════════ --}}
                 <div id="reports-section" class="mgr-section" style="display:none;">
                     <div style="margin-bottom:20px;">
-                        <p class="section-label">RELATÓRIOS DE PLANOS</p>
+                        <p class="section-label">RELATÓRIOS</p>
                     </div>
 
                     <div class="report-cards-grid">
@@ -525,6 +534,93 @@
                                 </svg>
                             </div>
                         </a>
+                    </div>
+                </div>
+
+                {{-- ══════════════════════════════════════════════════════════════
+                     SEÇÃO FREQUÊNCIA
+                ══════════════════════════════════════════════════════════════ --}}
+                <div id="frequency-section" class="mgr-section" style="display:none;">
+                    <div style="margin-bottom:20px;">
+                        <p class="section-label">FREQUÊNCIA</p>
+                    </div>
+
+                    {{-- CARDS RESUMO --}}
+                    <div class="hm-summary" id="hm-summary" style="margin-bottom:24px;">
+                        <div class="hm-summary-card">
+                            <span class="hm-summary-card__label">Total de registros</span>
+                            <strong class="hm-summary-card__value" id="hm-total">—</strong>
+                            <span class="hm-summary-card__sub">últimos 90 dias</span>
+                        </div>
+                        <div class="hm-summary-card hm-summary-card--red">
+                            <span class="hm-summary-card__label">Dia mais movimentado</span>
+                            <strong class="hm-summary-card__value" id="hm-peak-day">—</strong>
+                            <span class="hm-summary-card__sub">maior volume</span>
+                        </div>
+                        <div class="hm-summary-card hm-summary-card--green">
+                            <span class="hm-summary-card__label">Horário de pico</span>
+                            <strong class="hm-summary-card__value" id="hm-peak-hour">—</strong>
+                            <span class="hm-summary-card__sub">hora mais frequente</span>
+                        </div>
+                    </div>
+
+                    {{-- HEATMAP --}}
+                    <div class="hm-wrap">
+                        <div class="hm-header">
+                            <p class="section-label" style="margin:0;">MAPA DE CALOR — PRESENÇA POR DIA E HORA</p>
+                            <div class="hm-legend">
+                                <span class="hm-legend__label">Menos</span>
+                                <div class="hm-legend__bar">
+                                    <div class="hm-legend__cell" style="--intensity:0"></div>
+                                    <div class="hm-legend__cell" style="--intensity:0.25"></div>
+                                    <div class="hm-legend__cell" style="--intensity:0.5"></div>
+                                    <div class="hm-legend__cell" style="--intensity:0.75"></div>
+                                    <div class="hm-legend__cell" style="--intensity:1"></div>
+                                </div>
+                                <span class="hm-legend__label">Mais</span>
+                            </div>
+                        </div>
+
+                        {{-- Skeleton enquanto carrega --}}
+                        <div id="hm-skeleton" class="hm-skeleton-wrap">
+                            <div class="hm-skeleton-grid">
+                                @for($i = 0; $i < 7; $i++)
+                                    <div class="hm-skeleton-row">
+                                        <div class="sk hm-skeleton-label"></div>
+                                        @for($j = 0; $j < 24; $j++)
+                                            <div class="sk hm-skeleton-cell"></div>
+                                        @endfor
+                                    </div>
+                                @endfor
+                            </div>
+                        </div>
+
+                        {{-- Grid real (injetado via JS) --}}
+                        <div id="hm-grid" class="hm-grid" style="display:none;">
+                            {{-- horas no topo --}}
+                            <div class="hm-hour-row">
+                                <div class="hm-day-label"></div>
+                                @for($h = 0; $h < 24; $h++)
+                                    <div class="hm-hour-label">{{ sprintf('%02d', $h) }}</div>
+                                @endfor
+                            </div>
+                            {{-- linhas injetadas pelo JS --}}
+                            <div id="hm-rows"></div>
+                        </div>
+
+                        {{-- Tooltip --}}
+                        <div id="hm-tooltip" class="hm-tooltip" style="display:none;"></div>
+
+                        {{-- Empty state --}}
+                        <div id="hm-empty" class="hm-empty" style="display:none;">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+                                 style="stroke:var(--text-muted); stroke-width:1.1; margin:0 auto 14px; display:block; opacity:.20;">
+                                <rect x="3" y="3" width="18" height="18" rx="3"/>
+                                <path d="M3 9h18M9 21V9"/>
+                            </svg>
+                            <p>Nenhum registro de frequência ainda.</p>
+                            <p style="font-size:13px; margin-top:6px; opacity:.45;">Os dados aparecerão aqui conforme os alunos registrarem presença.</p>
+                        </div>
                     </div>
                 </div>
 
@@ -698,10 +794,23 @@
                             <p class="dash-hero__sub">Pronto para mais um dia?</p>
                         </div>
                         <div class="dash-hero__right">
-                            <span class="dash-hero__pulse">
-                                <span class="dash-hero__pulse-dot"></span>
-                                FITPULSE ATIVO
-                            </span>
+                            @php $st = Auth::user()->student?->status ?? 'active'; @endphp
+                            @if($st === 'active')
+                                <span class="dash-hero__pulse">
+                                    <span class="dash-hero__pulse-dot"></span>
+                                    FITPULSE ATIVO
+                                </span>
+                            @elseif($st === 'blocked')
+                                <span class="dash-hero__pulse" style="background:rgba(214,21,50,.14);border-color:rgba(214,21,50,.28);color:#f87171;">
+                                    <span class="dash-hero__pulse-dot" style="background:#d61532;animation:none;"></span>
+                                    ACESSO BLOQUEADO
+                                </span>
+                            @else
+                                <span class="dash-hero__pulse" style="background:rgba(251,191,36,.10);border-color:rgba(251,191,36,.25);color:#fbbf24;">
+                                    <span class="dash-hero__pulse-dot" style="background:#fbbf24;animation:none;"></span>
+                                    PAGAMENTO PENDENTE
+                                </span>
+                            @endif
                             <a href="{{ route('workouts.create') }}" class="btn-save"
                                style="text-decoration:none; display:inline-flex; align-items:center; gap:7px;">
                                 <svg width="11" height="11" viewBox="0 0 12 12" fill="none"
@@ -714,6 +823,146 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- ── BANNER STATUS DE ACESSO ── --}}
+                @php $studentAccess = Auth::user()->student; @endphp
+                @if($studentAccess && $studentAccess->status !== 'active')
+                    <div style="
+                        display:flex; align-items:center; gap:14px;
+                        padding:14px 20px; border-radius:14px; margin-bottom:16px;
+                        {{ $studentAccess->status === 'blocked'
+                            ? 'background:rgba(214,21,50,0.08);border:1px solid rgba(214,21,50,0.22);'
+                            : 'background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.22);' }}
+                    ">
+                        @if($studentAccess->status === 'blocked')
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                            <div style="flex:1;min-width:0;">
+                                <span style="font-size:12px;font-weight:800;color:#f87171;text-transform:uppercase;letter-spacing:.08em;">Acesso Bloqueado</span>
+                                <p style="font-size:12px;color:var(--text-muted);margin:2px 0 0;">Entre em contato com a administração para mais informações.</p>
+                            </div>
+                        @else
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                            <div style="flex:1;min-width:0;">
+                                <span style="font-size:12px;font-weight:800;color:#fbbf24;text-transform:uppercase;letter-spacing:.08em;">Pagamento Pendente</span>
+                                <p style="font-size:12px;color:var(--text-muted);margin:2px 0 0;">Regularize sua situação para manter o acesso ativo.</p>
+                            </div>
+                            <a href="{{ route('billing.index') }}" style="font-size:11px;font-weight:700;color:#fbbf24;text-decoration:none;border:1px solid rgba(251,191,36,.30);padding:5px 12px;border-radius:99px;white-space:nowrap;">Regularizar</a>
+                        @endif
+                    </div>
+                @endif
+
+                {{-- ── REGISTRO DE PRESENÇA ──────────────────────────────────────────── --}}
+                <div class="freq-card" style="flex-direction:column; align-items:stretch; gap:0; padding:0; overflow:hidden;">
+
+                    {{-- Topo: ícone + título + stats + botão --}}
+                    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:20px; padding:20px 24px 16px;">
+                        <div style="display:flex; align-items:center; gap:14px; flex:1;">
+                            <div class="freq-card__icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                     style="stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="freq-card__title">Registrar Presença</p>
+                                <p class="freq-card__sub" id="freq-sub">
+                                    @if(isset($checkedInToday) && $checkedInToday)
+                                        Você já registrou presença hoje
+                                    @else
+                                        Marque sua presença na academia
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+
+                        {{-- Stats + Botão do lado direito --}}
+                        <div style="display:flex; align-items:center; gap:16px; flex-shrink:0;">
+                            <div class="freq-card__stats" style="display:flex; align-items:center; gap:12px;">
+                                <div class="freq-card__stat">
+                                    <span class="freq-card__stat-value" id="freq-count">{{ $frequencyThisMonth ?? 0 }}</span>
+                                    <span class="freq-card__stat-label">este mês</span>
+                                </div>
+                                <div class="freq-card__stat-divider"></div>
+                                <div class="freq-card__stat">
+                                    <span class="freq-card__stat-value">
+                                        {{ isset($lastFrequency) && $lastFrequency ? $lastFrequency->created_at->format('d/m') : '—' }}
+                                    </span>
+                                    <span class="freq-card__stat-label">última vez</span>
+                                </div>
+                            </div>
+
+                            @if(isset($checkedInToday) && $checkedInToday)
+                                <button class="freq-btn freq-btn--done" disabled id="freq-btn" style="flex-shrink:0;">
+                                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
+                                         style="stroke:currentColor; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round;">
+                                        <polyline points="2,7 6,11 12,3"/>
+                                    </svg>
+                                    Presente
+                                </button>
+                            @else
+                                <button class="freq-btn freq-btn--active" id="freq-btn" onclick="registerFrequency()" style="flex-shrink:0;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                         style="stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round;">
+                                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                                        <circle cx="12" cy="9" r="2.5"/>
+                                    </svg>
+                                    Registrar
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- Divisor --}}
+                    <div style="height:1px; background:rgba(128,128,128,0.15); margin:0 24px;"></div>
+
+                    {{-- Dias da semana --}}
+                    <div style="padding:16px 24px;">
+                        <p style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+                                  color:var(--text-muted); margin-bottom:10px;">
+                            Presenças esta semana
+                        </p>
+                        @php
+                            $days = [
+                                ['label' => 'DOM', 'num' => 0],
+                                ['label' => 'SEG', 'num' => 1],
+                                ['label' => 'TER', 'num' => 2],
+                                ['label' => 'QUA', 'num' => 3],
+                                ['label' => 'QUI', 'num' => 4],
+                                ['label' => 'SEX', 'num' => 5],
+                                ['label' => 'SÁB', 'num' => 6],
+                            ];
+                            $todayNum = \Carbon\Carbon::now()->dayOfWeek;
+                        @endphp
+                        <div style="display:flex; gap:6px;">
+                            @foreach($days as $day)
+                                @php
+                                    $present = in_array($day['num'], $frequencyThisWeek ?? []);
+                                    $isToday = $day['num'] === $todayNum;
+                                @endphp
+                                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:5px;">
+                                    <span class="freq-day__label">{{ $day['label'] }}</span>
+                                    <div {{ $isToday && !$present ? 'data-today-dot' : '' }}
+                                         class="freq-day__dot {{ $present && $isToday ? 'freq-day__dot--today' : ($present ? 'freq-day__dot--present' : '') }}">
+                                        {{ $present ? '✓' : '·' }}
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    {{-- Divisor --}}
+                    <div style="height:1px; background:rgba(128,128,128,0.15); margin:0 24px;"></div>
+                </div>
+
+                {{-- Toast --}}
+                <div class="freq-toast" id="freq-toast" style="display:none;"></div>
 
                 {{-- AÇÕES RÁPIDAS DO ALUNO: Renovar + Pagar mensalidade --}}
                 <div class="student-quick-actions">
@@ -958,5 +1207,181 @@
             el.style.display = isOpen ? 'none' : 'block';
             if (btn) btn.textContent = isOpen ? 'Ver exercícios ▾' : 'Ocultar exercícios ▴';
         }
+
+        async function registerFrequency() {
+            const btn   = document.getElementById('freq-btn');
+            const sub   = document.getElementById('freq-sub');
+            const count = document.getElementById('freq-count');
+
+            btn.disabled      = true;
+            btn.style.opacity = '.6';
+
+            try {
+                const res = await fetch("{{ route('frequency.register') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept':       'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    btn.className = 'freq-btn freq-btn--done';
+                    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"
+                        style="stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;">
+                        <polyline points="2,7 6,11 12,3"/></svg> Presente`;
+
+                    if (sub)   sub.textContent   = 'Você já registrou presença hoje';
+                    if (count) count.textContent = parseInt(count.textContent || '0') + 1;
+
+                    document.querySelectorAll('[data-today-dot]').forEach(d => {
+                        d.style.background  = 'rgba(214,21,50,0.15)';
+                        d.style.border      = '1px solid rgba(214,21,50,0.35)';
+                        d.style.color       = '#f87171';
+                        d.textContent       = '✓';
+                    });
+
+                    showFreqToast('Presença registrada com sucesso!', 'success');
+
+                    // Recarregar a página após 1.5 segundos para atualizar os dados
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    btn.disabled      = false;
+                    btn.style.opacity = '1';
+                    showFreqToast(data.message || 'Erro ao registrar presença.', 'error');
+                }
+            } catch (e) {
+                btn.disabled      = false;
+                btn.style.opacity = '1';
+                showFreqToast('Erro de conexão. Tente novamente.', 'error');
+            }
+        }
+
+        function showFreqToast(msg, type) {
+            const toast         = document.getElementById('freq-toast');
+            toast.textContent   = msg;
+            toast.style.display = 'flex';
+            toast.className     = 'freq-toast' + (type === 'error' ? ' freq-toast--error' : '');
+
+            setTimeout(() => {
+                toast.style.opacity   = '0';
+                toast.style.transform = 'translateY(-6px)';
+                setTimeout(() => {
+                    toast.style.display   = 'none';
+                    toast.style.opacity   = '1';
+                    toast.style.transform = 'none';
+                }, 300);
+            }, 3500);
+        }
+
+        // ── HEATMAP ──────────────────────────────────────────────────────────
+        (function () {
+            const DAYS  = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+            const endpoint = "{{ route('reports.frequency.heatmap') }}";
+
+            async function loadHeatmap() {
+                try {
+                    const res  = await fetch(endpoint, {
+                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    const json = await res.json();
+                    const data = json.data ?? [];
+
+                    document.getElementById('hm-skeleton').style.display = 'none';
+
+                    if (!data.length || data.every(d => d.count === 0)) {
+                        document.getElementById('hm-empty').style.display = 'block';
+                        return;
+                    }
+
+                    const maxVal   = Math.max(...data.map(d => d.count), 1);
+                    const total    = data.reduce((s, d) => s + d.count, 0);
+
+                    // Peak day
+                    const dayTotals = {};
+                    data.forEach(d => { dayTotals[d.day_of_week] = (dayTotals[d.day_of_week] || 0) + d.count; });
+                    const peakDay = Object.entries(dayTotals).sort((a,b) => b[1]-a[1])[0];
+
+                    // Peak hour
+                    const hourTotals = {};
+                    data.forEach(d => { hourTotals[d.hour] = (hourTotals[d.hour] || 0) + d.count; });
+                    const peakHour = Object.entries(hourTotals).sort((a,b) => b[1]-a[1])[0];
+
+                    document.getElementById('hm-total').textContent     = total.toLocaleString('pt-BR');
+                    document.getElementById('hm-peak-day').textContent  = peakDay  ? DAYS[peakDay[0]]               : '—';
+                    document.getElementById('hm-peak-hour').textContent = peakHour ? sprintf(peakHour[0]) + ':00'   : '—';
+
+                    // Build rows
+                    const rowsEl = document.getElementById('hm-rows');
+                    DAYS.forEach((dayName, d) => {
+                        const row = document.createElement('div');
+                        row.className = 'hm-row';
+
+                        const lbl = document.createElement('div');
+                        lbl.className   = 'hm-day-label';
+                        lbl.textContent = dayName.substring(0, 3);
+                        row.appendChild(lbl);
+
+                        for (let h = 0; h < 24; h++) {
+                            const cell = data.find(x => x.day_of_week === d && x.hour === h);
+                            const count = cell ? cell.count : 0;
+                            const intensity = count / maxVal;
+
+                            const el = document.createElement('div');
+                            el.className = 'hm-cell';
+                            el.style.setProperty('--intensity', intensity);
+                            el.setAttribute('data-count', count);
+                            el.setAttribute('data-day', dayName);
+                            el.setAttribute('data-hour', sprintf(h) + ':00');
+
+                            el.addEventListener('mouseenter', showTooltip);
+                            el.addEventListener('mouseleave', hideTooltip);
+                            el.addEventListener('mousemove',  moveTooltip);
+
+                            row.appendChild(el);
+                        }
+
+                        rowsEl.appendChild(row);
+                    });
+
+                    document.getElementById('hm-grid').style.display = 'block';
+
+                } catch (e) {
+                    document.getElementById('hm-skeleton').style.display = 'none';
+                    document.getElementById('hm-empty').style.display    = 'block';
+                    console.error('Heatmap error:', e);
+                }
+            }
+
+            function sprintf(n) { return String(n).padStart(2, '0'); }
+
+            const tooltip = document.getElementById('hm-tooltip');
+
+            function showTooltip(e) {
+                const el    = e.currentTarget;
+                const count = el.getAttribute('data-count');
+                const day   = el.getAttribute('data-day');
+                const hour  = el.getAttribute('data-hour');
+                tooltip.innerHTML = `<strong>${day}</strong> às ${hour}<br><span>${count} registro${count != 1 ? 's' : ''}</span>`;
+                tooltip.style.display = 'block';
+                moveTooltip(e);
+            }
+
+            function hideTooltip()  { tooltip.style.display = 'none'; }
+
+            function moveTooltip(e) {
+                const x = e.clientX + 14;
+                const y = e.clientY - 38;
+                tooltip.style.left = x + 'px';
+                tooltip.style.top  = y + 'px';
+            }
+
+            loadHeatmap();
+        })();
     </script>
 </x-app-layout>

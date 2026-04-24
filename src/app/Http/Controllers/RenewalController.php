@@ -12,7 +12,6 @@ use App\Models\PlanRenewal;
 
 class RenewalController extends Controller
 {
-    // Exibe a tela de renovação com plano atual e lista de planos disponíveis
     public function history()
     {
         /** @var \App\Models\User $user */
@@ -31,7 +30,6 @@ class RenewalController extends Controller
         return view('plans.renew', compact('activeEnrollment', 'plans', 'renewals'));
     }
 
-    // Processa a renovação e redireciona com mensagem
     public function renew(Request $request)
     {
         $request->validate([
@@ -59,6 +57,12 @@ class RenewalController extends Controller
         }
 
         DB::transaction(function () use ($student, $plan, $currentEnrollment) {
+            // Cancela a matrícula anterior antes de criar a nova
+            $currentEnrollment->update([
+                'status'       => 'cancelled',
+                'cancelled_at' => now(),
+            ]);
+
             $startDate = $currentEnrollment->end_date->copy()->addDay();
             $endDate   = $startDate->copy()->addDays($plan->duration_days);
 

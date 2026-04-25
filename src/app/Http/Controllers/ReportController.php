@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Plan;
 use App\Models\Enrollment;
 use App\Models\Student;
+use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
@@ -14,7 +15,7 @@ class ReportController extends Controller
         $plans = Plan::active()
             ->withCount([
                 'enrollments as active_students_count' => function ($query) {
-                    $query->select(\DB::raw('COUNT(DISTINCT student_id)'))
+                    $query->select(DB::raw('COUNT(DISTINCT student_id)'))
                           ->where('status', 'active')
                           ->where('end_date', '>=', now()->toDateString());
                 }

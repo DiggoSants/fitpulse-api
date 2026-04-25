@@ -49,17 +49,18 @@ class FrequencyController extends Controller
         ], 201);
     }
 
-    public function heatmap()
-    {
-        $frequencies = Frequency::selectRaw('
-                DAYOFWEEK(created_at) - 1 as day_of_week,
-                HOUR(created_at) as hour,
-                COUNT(*) as count
-            ')
-            ->groupBy('day_of_week', 'hour')
-            ->orderBy('day_of_week')
-            ->orderBy('hour')
-            ->get()
+public function heatmap()
+{
+    $frequencies = Frequency::selectRaw('
+            DAYOFWEEK(created_at) - 1 as day_of_week,
+            HOUR(created_at) as hour,
+            COUNT(*) as count
+        ')
+        ->where('created_at', '>=', now()->subDays(90)) // ← adicionar esta linha
+        ->groupBy('day_of_week', 'hour')
+        ->orderBy('day_of_week')
+        ->orderBy('hour')
+        ->get()
             ->map(function ($item) {
                 $days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 

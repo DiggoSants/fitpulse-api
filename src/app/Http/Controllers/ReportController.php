@@ -33,7 +33,7 @@ class ReportController extends Controller
                 ];
             });
 
-        return response()->json(['data' => $plans]);
+        return view('reports.plans-comparative', compact('plans'));
     }
 
     public function plansCancellations(Request $request)
@@ -63,13 +63,7 @@ class ReportController extends Controller
                 ];
             });
 
-        return response()->json([
-            'data'    => $cancellations,
-            'filters' => [
-                'start_date' => $request->start_date,
-                'end_date'   => $request->end_date,
-            ],
-        ]);
+        return view('reports.plans-cancellations', compact('cancellations'));
     }
 
     public function plansLoyalty()
@@ -100,7 +94,7 @@ class ReportController extends Controller
             ->sortByDesc('days_active')
             ->values();
 
-        return response()->json(['data' => $enrollments]);
+        return view('reports.plans-loyalty', compact('enrollments'));
     }
 
     public function usersDelinquency()
@@ -168,25 +162,15 @@ class ReportController extends Controller
             })
             ->values();
 
-        return response()->json([
-            'data' => [
-                'delinquents' => $delinquents,
-                'cancelled'   => $cancelled,
-                'inactive'    => $inactive,
-            ],
-            'summary' => [
-                'total_delinquents' => $delinquents->count(),
-                'total_cancelled'   => $cancelled->count(),
-                'total_inactive'    => $inactive->count(),
-            ],
-        ]);
+        return view('reports.users-delinquency', compact('delinquents', 'cancelled', 'inactive'));
     }
 
     public function plansOccupation()
     {
         $occupation = Plan::withCount([
                 'enrollments as active_students_count' => function ($query) {
-                    $query->where('status', 'active')
+                    $query->select(DB::raw('COUNT(DISTINCT student_id)'))
+                          ->where('status', 'active')
                           ->where('end_date', '>=', now()->toDateString());
                 }
             ])
@@ -213,12 +197,6 @@ class ReportController extends Controller
             return $item;
         });
 
-        return response()->json([
-            'data'    => $occupation,
-            'summary' => [
-                'total_active_students' => $totalActive,
-                'total_plans'           => $occupation->count(),
-            ],
-        ]);
+        return view('reports.plans-occupation', compact('occupation', 'totalActive'));
     }
 }

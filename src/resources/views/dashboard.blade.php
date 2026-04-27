@@ -120,7 +120,7 @@
                         onclick="showManagerSection('reports-section', this)"
                     >
                         Relatórios
-                        <span class="mgr-tab__count">3</span>
+                        <span class="mgr-tab__count">4</span>
                     </button>
                 </div>
 
@@ -470,73 +470,109 @@
                     @endif
                 </div>
 
-                {{-- ══════════════════════════════════════════════════════════════
-                     SEÇÃO RELATÓRIOS
-                ══════════════════════════════════════════════════════════════ --}}
-                <div id="reports-section" class="mgr-section" style="display:none;">
-                    <div style="margin-bottom:20px;">
-                        <p class="section-label">RELATÓRIOS</p>
-                    </div>
+               {{-- ══════════════════════════════════════════════════════════════
+     SEÇÃO RELATÓRIOS
+══════════════════════════════════════════════════════════════ --}}
+<div id="reports-section" class="mgr-section" style="display:none;">
+    <div style="margin-bottom:20px;">
+        <p class="section-label">RELATÓRIOS</p>
+    </div>
 
-                    <div class="report-cards-grid">
-                        <a href="{{ route('reports.plans.comparative') }}" class="report-card report-card--red">
-                            <div class="report-card__body">
-                                <div class="report-card__icon">
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="stroke:#f87171; stroke-width:1.8; stroke-linecap:round;">
-                                        <rect x="3" y="3" width="18" height="18" rx="3"/>
-                                        <path d="M3 9h18M9 21V9"/>
-                                    </svg>
-                                </div>
-                                <p class="report-card__title">Comparativo de Planos</p>
-                                <p class="report-card__desc">Planos ativos lado a lado com preço, duração, benefícios e alunos matriculados.</p>
-                            </div>
-                            <div class="report-card__footer">
-                                <span class="report-card__footer-label">Abrir relatório</span>
-                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:var(--text-muted); stroke-width:2; stroke-linecap:round; stroke-linejoin:round;">
-                                    <path d="M2.5 7h9M7.5 3l4 4-4 4"/>
-                                </svg>
-                            </div>
-                        </a>
+    <div class="report-cards-grid">
 
-                        <a href="{{ route('reports.plans.cancellations') }}" class="report-card report-card--pink">
-                            <div class="report-card__body">
-                                <div class="report-card__icon">
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="stroke:#f87171; stroke-width:1.8; stroke-linecap:round;">
-                                        <circle cx="12" cy="12" r="9"/>
-                                        <path d="M15 9l-6 6M9 9l6 6"/>
-                                    </svg>
-                                </div>
-                                <p class="report-card__title">Cancelamentos</p>
-                                <p class="report-card__desc">Histórico de cancelamentos com data e filtro por período.</p>
-                            </div>
-                            <div class="report-card__footer">
-                                <span class="report-card__footer-label">Abrir relatório</span>
-                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:var(--text-muted); stroke-width:2; stroke-linecap:round; stroke-linejoin:round;">
-                                    <path d="M2.5 7h9M7.5 3l4 4-4 4"/>
-                                </svg>
-                            </div>
-                        </a>
-
-                        <a href="{{ route('reports.plans.loyalty') }}" class="report-card report-card--green">
-                            <div class="report-card__body">
-                                <div class="report-card__icon">
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="stroke:#4ade80; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;">
-                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                    </svg>
-                                </div>
-                                <p class="report-card__title">Fidelidade</p>
-                                <p class="report-card__desc">Ranking dos alunos mais fiéis por tempo de permanência ativo.</p>
-                            </div>
-                            <div class="report-card__footer">
-                                <span class="report-card__footer-label">Abrir relatório</span>
-                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:var(--text-muted); stroke-width:2; stroke-linecap:round; stroke-linejoin:round;">
-                                    <path d="M2.5 7h9M7.5 3l4 4-4 4"/>
-                                </svg>
-                            </div>
-                        </a>
-                    </div>
+        {{-- Comparativo de Planos --}}
+        <a href="{{ route('reports.plans.comparative') }}" class="report-card report-card--red">
+            <div class="report-card__body">
+                <div class="report-card__icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="stroke:#f87171;stroke-width:1.8;stroke-linecap:round;">
+                        <rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/>
+                    </svg>
                 </div>
+                <p class="report-card__title">Comparativo de Planos</p>
+                <p class="report-card__desc">Planos ativos lado a lado com preço, duração, benefícios e alunos matriculados.</p>
+            </div>
+            <div class="report-card__footer">
+                <span class="report-card__footer-label">Abrir relatório</span>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M2.5 7h9M7.5 3l4 4-4 4"/></svg>
+            </div>
+        </a>
 
+        {{-- Cancelamentos --}}
+        <a href="{{ route('reports.plans.cancellations') }}" class="report-card report-card--pink">
+            <div class="report-card__body">
+                <div class="report-card__icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="stroke:#f87171;stroke-width:1.8;stroke-linecap:round;">
+                        <circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/>
+                    </svg>
+                </div>
+                <p class="report-card__title">Cancelamentos</p>
+                <p class="report-card__desc">Histórico de cancelamentos com data e filtro por período.</p>
+            </div>
+            <div class="report-card__footer">
+                <span class="report-card__footer-label">Abrir relatório</span>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M2.5 7h9M7.5 3l4 4-4 4"/></svg>
+            </div>
+        </a>
+
+        {{-- Fidelidade --}}
+        <a href="{{ route('reports.plans.loyalty') }}" class="report-card report-card--green">
+            <div class="report-card__body">
+                <div class="report-card__icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="stroke:#4ade80;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                </div>
+                <p class="report-card__title">Fidelidade</p>
+                <p class="report-card__desc">Ranking dos alunos mais fiéis por tempo de permanência ativo.</p>
+            </div>
+            <div class="report-card__footer">
+                <span class="report-card__footer-label">Abrir relatório</span>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M2.5 7h9M7.5 3l4 4-4 4"/></svg>
+            </div>
+        </a>
+
+        {{-- Inadimplência & Churn --}}
+        <a href="{{ route('reports.users.delinquency') }}" class="report-card report-card--pink">
+            <div class="report-card__body">
+                <div class="report-card__icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="stroke:#f87171;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                </div>
+                <p class="report-card__title">Inadimplência & Churn</p>
+                <p class="report-card__desc">Alunos inadimplentes, cancelados e inativos há mais de 30 dias.</p>
+            </div>
+            <div class="report-card__footer">
+                <span class="report-card__footer-label">Abrir relatório</span>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M2.5 7h9M7.5 3l4 4-4 4"/></svg>
+            </div>
+        </a>
+
+        {{-- Ocupação por Modalidade --}}
+        <a href="{{ route('reports.plans.occupation') }}" class="report-card report-card--red">
+            <div class="report-card__body">
+                <div class="report-card__icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="stroke:#f87171;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                </div>
+                <p class="report-card__title">Ocupação por Modalidade</p>
+                <p class="report-card__desc">Distribuição de alunos ativos por tipo de plano com percentuais.</p>
+            </div>
+            <div class="report-card__footer">
+                <span class="report-card__footer-label">Abrir relatório</span>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M2.5 7h9M7.5 3l4 4-4 4"/></svg>
+            </div>
+        </a>
+
+
+
+    </div>
+</div>
                 {{-- ══════════════════════════════════════════════════════════════
                      SEÇÃO FREQUÊNCIA
                 ══════════════════════════════════════════════════════════════ --}}
@@ -1383,5 +1419,6 @@
 
             loadHeatmap();
         })();
+
     </script>
 </x-app-layout>

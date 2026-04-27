@@ -71,9 +71,8 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
     Route::get('/reports/users/delinquency',   [ReportController::class, 'usersDelinquency'])->name('reports.users.delinquency');
     Route::get('/reports/plans/occupation',    [ReportController::class, 'plansOccupation'])->name('reports.plans.occupation');
     Route::get('/reports/frequency/heatmap',   [FrequencyController::class, 'heatmap'])->name('reports.frequency.heatmap');
-    Route::get('/reports/frequency',           function () { return view('reports.frequency-heatmap'); })->name('reports.frequency.view');
+    Route::get('/reports/frequency',           fn() => view('reports.frequency-heatmap'))->name('reports.frequency.view');
 });
-
 // ── Renovação de planos (ANTES do resource para evitar conflito de rota) ──────
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
     Route::get('/plans/renewals', [RenewalController::class, 'history'])->name('plans.renewals');

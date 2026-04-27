@@ -1,0 +1,524 @@
+/* ENROLLMENT — MATRÍCULA */
+
+/* WRAPPER */
+
+.enrollment-wrap {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* CABEÇALHO DA PÁGINA */
+
+.enrollment-kicker {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.enrollment-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 8vw, 56px);
+    letter-spacing: 3px;
+    color: #fff;
+    line-height: 1;
+    margin: 0;
+}
+
+[data-theme="light"] .enrollment-title { color: #111; }
+
+.enrollment-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.enrollment-back {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    transition: color .2s, border-color .2s;
+    white-space: nowrap;
+    margin-top: 6px;
+}
+
+.enrollment-back:hover { color: #fff; border-color: rgba(255,255,255,0.25); }
+
+[data-theme="light"] .enrollment-back { color: rgba(0,0,0,0.45); border-color: rgba(0,0,0,0.12); }
+[data-theme="light"] .enrollment-back:hover { color: #111; border-color: rgba(0,0,0,0.25); }
+
+/* CARD DO FORMULÁRIO */
+
+.enrollment-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 32px 28px;
+    backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+[data-theme="light"] .enrollment-card {
+    background: #fff;
+    border-color: rgba(0,0,0,0.08);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+
+.enrollment-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .10em;
+    margin-bottom: 12px;
+}
+
+[data-theme="light"] .enrollment-section-label { color: rgba(0,0,0,0.40); }
+
+/* LISTA DE PLANOS */
+
+.plan-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.plan-option {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.plan-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.plan-option label {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    cursor: pointer;
+    transition: border-color .2s, background .2s, transform .15s;
+    user-select: none;
+}
+
+.plan-option label:hover {
+    border-color: rgba(214,21,50,0.35);
+    background: var(--surface-2);
+    transform: translateX(3px);
+}
+
+.plan-option label::before {
+    content: '';
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.20);
+    background: transparent;
+    flex-shrink: 0;
+    transition: border-color .2s, background .2s, box-shadow .2s;
+}
+
+.plan-option input[type="radio"]:checked + label {
+    border-color: var(--red);
+    background: var(--red-dim);
+}
+
+.plan-option input[type="radio"]:checked + label::before {
+    border-color: var(--red);
+    background: var(--red);
+    box-shadow: 0 0 0 3px rgba(214,21,50,0.20);
+}
+
+[data-theme="light"] .plan-option label { background: #f7f7f7; border-color: rgba(0,0,0,0.10); }
+[data-theme="light"] .plan-option label:hover { border-color: rgba(214,21,50,0.30); background: #fff; }
+[data-theme="light"] .plan-option label::before { border-color: rgba(0,0,0,0.20); }
+[data-theme="light"] .plan-option input[type="radio"]:checked + label { border-color: var(--red); background: rgba(214,21,50,0.06); }
+
+.plan-option__info { flex: 1; min-width: 0; }
+
+.plan-option__name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-white);
+    margin-bottom: 3px;
+}
+
+[data-theme="light"] .plan-option__name { color: #111; }
+
+.plan-option__meta {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.plan-option__price {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 1px;
+    color: var(--text-white);
+    flex-shrink: 0;
+}
+
+[data-theme="light"] .plan-option__price { color: #111; }
+
+/* BOTÃO VER DETALHES */
+
+.plan-option__details-btn {
+    align-self: flex-start;
+    margin-left: 54px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    transition: color .18s;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.plan-option__details-btn:hover { color: var(--red-light); }
+
+.plan-option__details-btn svg {
+    width: 12px; height: 12px;
+    stroke: currentColor; fill: none;
+    stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+
+[data-theme="light"] .plan-option__details-btn { color: rgba(0,0,0,0.35); }
+[data-theme="light"] .plan-option__details-btn:hover { color: #b91c1c; }
+
+/* ACTIONS */
+
+.enrollment-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* MENSAGEM INFO */
+
+.enrollment-info {
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    background: rgba(34,197,94,0.10);
+    border: 1px solid rgba(34,197,94,0.20);
+    font-size: 13px;
+    color: var(--green-light);
+    font-weight: 500;
+}
+
+[data-theme="light"] .enrollment-info { background: rgba(22,163,74,0.08); border-color: rgba(22,163,74,0.20); color: #15803d; }
+
+/* ERROS */
+
+.enrollment-errors {
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    background: var(--red-dim);
+    border: 1px solid rgba(214,21,50,0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.enrollment-errors p {
+    font-size: 13px;
+    color: var(--red-light);
+    font-weight: 500;
+    margin: 0;
+}
+
+[data-theme="light"] .enrollment-errors { background: rgba(214,21,50,0.06); border-color: rgba(214,21,50,0.18); }
+[data-theme="light"] .enrollment-errors p { color: #b91c1c; }
+
+/* EMPTY */
+
+.enrollment-empty {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+/* MODAL DE DETALHES DO PLANO - VOU IMPLEMENTR DEPOSI*/
+
+.plan-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .22s ease;
+}
+
+.plan-modal-overlay.is-open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.plan-modal {
+    background: #1a1a1a;
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 400px;
+    overflow: hidden;
+    position: relative;
+    transform: translateY(16px) scale(0.97);
+    opacity: 0;
+    transition: transform .25s cubic-bezier(.22,.68,0,1.2), opacity .22s ease;
+}
+
+.plan-modal-overlay.is-open .plan-modal {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+[data-theme="light"] .plan-modal {
+    background: #fff;
+    border-color: rgba(0,0,0,0.10);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+}
+
+.plan-modal__top {
+    background: linear-gradient(130deg, #1c0307 0%, #300a10 50%, #0e0203 100%);
+    border-bottom: 1px solid rgba(214,21,50,0.20);
+    padding: 24px 24px 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.plan-modal__top::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 100% at 100% 50%, rgba(214,21,50,0.18) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+[data-theme="light"] .plan-modal__top {
+    background: linear-gradient(130deg, #fce8eb 0%, #ffd6dc 50%, #f5f0f1 100%);
+    border-bottom-color: rgba(214,21,50,0.14);
+}
+
+.plan-modal__kicker {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 4px;
+    position: relative;
+    z-index: 1;
+}
+
+[data-theme="light"] .plan-modal__kicker { color: rgba(0,0,0,0.35); }
+
+.plan-modal__name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 3px;
+    color: #fff;
+    line-height: 1;
+    margin: 0 0 10px;
+    position: relative;
+    z-index: 1;
+}
+
+[data-theme="light"] .plan-modal__name { color: #111; }
+
+.plan-modal__price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+.plan-modal__price {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 40px;
+    letter-spacing: 1px;
+    color: #fff;
+    line-height: 1;
+}
+
+[data-theme="light"] .plan-modal__price { color: #111; }
+
+.plan-modal__price-period {
+    font-size: 13px;
+    color: rgba(255,255,255,0.40);
+    font-weight: 500;
+}
+
+[data-theme="light"] .plan-modal__price-period { color: rgba(0,0,0,0.40); }
+
+.plan-modal__duration-badge {
+    margin-left: auto;
+    align-self: center;
+    background: rgba(214,21,50,0.18);
+    border: 1px solid rgba(214,21,50,0.30);
+    border-radius: var(--radius-pill);
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #ff7080;
+    letter-spacing: .06em;
+    white-space: nowrap;
+    position: relative;
+    z-index: 1;
+}
+
+[data-theme="light"] .plan-modal__duration-badge {
+    background: rgba(214,21,50,0.08);
+    border-color: rgba(214,21,50,0.18);
+    color: #b91c1c;
+}
+
+.plan-modal__body {
+    padding: 22px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.plan-modal__features-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+
+[data-theme="light"] .plan-modal__features-label { color: rgba(0,0,0,0.38); }
+
+.plan-modal__features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.plan-modal__feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.80);
+}
+
+.plan-modal__feature--no {
+    color: rgba(255,255,255,0.28);
+    text-decoration: line-through;
+}
+
+[data-theme="light"] .plan-modal__feature { color: rgba(0,0,0,0.75); }
+[data-theme="light"] .plan-modal__feature--no { color: rgba(0,0,0,0.28); }
+
+.plan-modal__feature-icon {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+
+.plan-modal__feature-icon--yes {
+    background: rgba(34,197,94,0.15);
+    border: 1px solid rgba(34,197,94,0.25);
+}
+
+.plan-modal__feature-icon--yes svg {
+    width: 11px; height: 11px;
+    stroke: var(--green-light); fill: none;
+    stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+}
+
+.plan-modal__feature-icon--no {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.plan-modal__feature-icon--no svg {
+    width: 11px; height: 11px;
+    stroke: rgba(255,255,255,0.25); fill: none;
+    stroke-width: 2.5; stroke-linecap: round;
+}
+
+[data-theme="light"] .plan-modal__feature-icon--yes { background: rgba(22,163,74,0.10); border-color: rgba(22,163,74,0.22); }
+[data-theme="light"] .plan-modal__feature-icon--yes svg { stroke: #15803d; }
+[data-theme="light"] .plan-modal__feature-icon--no { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.08); }
+[data-theme="light"] .plan-modal__feature-icon--no svg { stroke: rgba(0,0,0,0.22); }
+
+.plan-modal__footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.plan-modal__close {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.50);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: background .18s, color .18s;
+    z-index: 2;
+    font-size: 14px;
+    line-height: 1;
+}
+
+.plan-modal__close:hover { background: rgba(255,255,255,0.16); color: #fff; }
+
+[data-theme="light"] .plan-modal__close { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.10); color: rgba(0,0,0,0.45); }
+[data-theme="light"] .plan-modal__close:hover { background: rgba(0,0,0,0.10); color: #111; }

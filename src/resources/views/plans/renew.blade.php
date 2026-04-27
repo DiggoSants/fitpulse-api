@@ -322,7 +322,6 @@
                             <button
                                 type="button"
                                 class="btn-save"
-                                style="flex:1;"
                                 onclick="selectPlan({{ $plan->id }}); closePlanModal('modal-{{ $plan->id }}');"
                             >
                                 Selecionar este plano

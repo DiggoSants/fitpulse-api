@@ -1104,3 +1104,133 @@
 [data-theme="light"] .dash-hero__pulse--delinquent .dash-hero__pulse-dot {
     background: #d97706 !important;
 }
+
+/* ── SELETOR DE TREINOS ─────────────────────────────────────── */
+.wkt-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.wkt-selector__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    border-radius: var(--radius-pill);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.09);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: background .18s, border-color .18s, color .18s, transform .15s;
+    white-space: nowrap;
+}
+
+.wkt-selector__pill:hover {
+    background: rgba(255,255,255,0.09);
+    border-color: rgba(255,255,255,0.18);
+    color: var(--text-white);
+    transform: translateY(-1px);
+}
+
+.wkt-selector__pill.is-active {
+    background: rgba(214,21,50,0.15);
+    border-color: rgba(214,21,50,0.35);
+    color: #f87171;
+}
+
+.wkt-selector__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border-radius: var(--radius-pill);
+    background: rgba(255,255,255,0.07);
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text-muted);
+    transition: background .18s, color .18s;
+}
+
+.wkt-selector__pill.is-active .wkt-selector__count {
+    background: rgba(214,21,50,0.20);
+    color: #f87171;
+}
+
+/* light mode */
+[data-theme="light"] .wkt-selector__pill {
+    background: rgba(0,0,0,0.04);
+    border-color: rgba(0,0,0,0.09);
+    color: rgba(0,0,0,0.45);
+}
+
+[data-theme="light"] .wkt-selector__pill:hover {
+    background: rgba(0,0,0,0.07);
+    border-color: rgba(0,0,0,0.16);
+    color: #111;
+}
+
+[data-theme="light"] .wkt-selector__pill.is-active {
+    background: rgba(214,21,50,0.08);
+    border-color: rgba(214,21,50,0.25);
+    color: #b91c1c;
+}
+
+[data-theme="light"] .wkt-selector__count {
+    background: rgba(0,0,0,0.05);
+    color: rgba(0,0,0,0.40);
+}
+
+[data-theme="light"] .wkt-selector__pill.is-active .wkt-selector__count {
+    background: rgba(214,21,50,0.12);
+    color: #b91c1c;
+}
+
+/* ── QUICK ACTIONS — 3 colunas ──────────────────────────────── */
+.student-quick-actions--three {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 768px) {
+    .student-quick-actions--three {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── CARD VERMELHO DE TREINOS ───────────────────────────────── */
+.student-action-card--workout {
+    background: rgba(214,21,50,0.07);
+    border-color: rgba(214,21,50,0.18);
+    color: #f87171;
+}
+
+.student-action-card--workout:hover {
+    background: rgba(214,21,50,0.12);
+    border-color: rgba(214,21,50,0.35);
+}
+
+.student-action-card--workout .student-action-card__icon {
+    background: rgba(214,21,50,0.14);
+    border: 1px solid rgba(214,21,50,0.22);
+}
+
+[data-theme="light"] .student-action-card--workout {
+    background: rgba(214,21,50,0.06);
+    border-color: rgba(214,21,50,0.15);
+    color: #b91c1c;
+}
+
+[data-theme="light"] .student-action-card--workout:hover {
+    background: rgba(214,21,50,0.10);
+    border-color: rgba(214,21,50,0.28);
+}
+
+[data-theme="light"] .student-action-card--workout .student-action-card__icon {
+    background: rgba(214,21,50,0.08);
+    border-color: rgba(214,21,50,0.16);
+}

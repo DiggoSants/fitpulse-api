@@ -31,6 +31,16 @@ class RenewalController extends Controller
             ->where('status', 'active')
             ->firstOrFail();
 
+        // Verifica se há pagamentos pendentes não quitados
+        $pendingBilling = Billing::where('student_id', $student->id)
+            ->where('status', 'pending')
+            ->first();
+
+        if ($pendingBilling) {
+            return back()
+                ->with('error', 'Você possui pagamentos pendentes. Complete o pagamento antes de renovar o plano.');
+        }
+
         $currentEnrollment = $student->enrollments()
             ->where('status', 'active')
             ->latest('end_date')

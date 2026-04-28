@@ -32,6 +32,30 @@ class WorkoutController extends Controller
         return $student;
     }
 
+    // ── INDEX (página de treinos do aluno) ────────────────────────────────────
+    public function index(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user    = Auth::user();
+        $student = Student::where('user_id', $user->id)->firstOrFail();
+
+        $allWorkouts = Workout::with('workoutExercises')
+            ->where('student_id', $student->id)
+            ->latest()
+            ->get();
+
+        $workoutId = $request->query('workout_id');
+        $workout   = $workoutId
+            ? Workout::where('student_id', $student->id)->where('id', $workoutId)->first()
+            : $allWorkouts->first();
+
+        $exercises = $workout
+            ? WorkoutExercise::with('exercise')->where('workout_id', $workout->id)->get()
+            : collect();
+
+        return view('workouts.index', compact('workout', 'exercises', 'allWorkouts'));
+    }
+
     public function create(Request $request)
     {
         $exercises = Exercise::all();
@@ -90,7 +114,14 @@ class WorkoutController extends Controller
             return back()->with('error', 'Preencha séries e reps de pelo menos um exercício')->withInput();
         }
 
-        return redirect()->route('dashboard');
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->isInstructor() || $user->isManager()) {
+            return redirect()->route('dashboard');
+        }
+
+        return redirect()->route('workouts.index')->with('success', 'Treino criado com sucesso!');
     }
 
     public function edit(Request $request, $id)
@@ -155,7 +186,14 @@ class WorkoutController extends Controller
             return back()->with('error', 'Preencha séries e reps de pelo menos um exercício')->withInput();
         }
 
-        return redirect()->route('dashboard');
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->isInstructor() || $user->isManager()) {
+            return redirect()->route('dashboard');
+        }
+
+        return redirect()->route('workouts.index')->with('success', 'Treino atualizado!');
     }
 
     public function destroy(Request $request, $id)
@@ -169,6 +207,13 @@ class WorkoutController extends Controller
         WorkoutExercise::where('workout_id', $id)->delete();
         $workout->delete();
 
-        return redirect()->route('dashboard');
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->isInstructor() || $user->isManager()) {
+            return redirect()->route('dashboard');
+        }
+
+        return redirect()->route('workouts.index')->with('success', 'Treino deletado!');
     }
 }

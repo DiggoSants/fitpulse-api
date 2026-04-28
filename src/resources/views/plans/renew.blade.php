@@ -143,6 +143,12 @@
                 <div class="enrollment-info">{{ session('success') }}</div>
             @endif
 
+            @if(session('error'))
+                <div class="enrollment-errors">
+                    <p>{{ session('error') }}</p>
+                </div>
+            @endif
+
             @if($errors->any())
                 <div class="enrollment-errors">
                     @foreach($errors->all() as $error)

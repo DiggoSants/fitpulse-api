@@ -20,6 +20,9 @@
                             <span class="dash-hero__pulse-dot"></span>
                             GERENTE
                         </span>
+                         <a href="{{ route('dashboard') }}" class="btn-ghost" style="text-decoration:none;">
+                            ← Voltar
+                        </a>
                     </div>
                 </div>
             </div>

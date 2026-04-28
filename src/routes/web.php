@@ -15,6 +15,7 @@ use App\Http\Controllers\BillingController;
 use App\Http\Controllers\AccessController;
 use App\Http\Controllers\FrequencyController;
 
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -41,7 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('students', StudentController::class);
 });
 
-// ── Exercícios ────────────────────────────────────────────────────────────────
+// ── Exercícios ─────────────────────────────────
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
     Route::resource('exercises', ExerciseController::class);
 });

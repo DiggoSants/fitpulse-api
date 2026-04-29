@@ -45,6 +45,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // ── Exercícios ─────────────────────────────────
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
     Route::resource('exercises', ExerciseController::class);
+    Route::get('/exercise-images', [ExerciseController::class, 'searchImages'])->name('exercise.images');
 });
 
 // ── Treinos ───────────────────────────────────────────────────────────────────
@@ -111,6 +112,28 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
 // ── Frequência ────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
     Route::post('/frequency/register', [FrequencyController::class, 'register'])->name('frequency.register');
+});
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/exercise-video', function (\Illuminate\Http\Request $request) {
+        $query = urlencode($request->q . ' exercício como executar corretamente');
+        $key   = env('YOUTUBE_API_KEY');
+
+        // videoDuration=short = vídeos de até 4 minutos
+        // order=relevance = mais relevante primeiro
+        $url = "https://www.googleapis.com/youtube/v3/search"
+             . "?part=snippet"
+             . "&q={$query}"
+             . "&type=video"
+             . "&maxResults=1"
+             . "&relevanceLanguage=pt"
+             . "&videoDuration=short"
+             . "&order=relevance"
+             . "&key={$key}";
+
+        $data    = json_decode(file_get_contents($url), true);
+        $videoId = $data['items'][0]['id']['videoId'] ?? null;
+        return response()->json(['video_id' => $videoId]);
+    })->name('exercise.video');
 });
 
 require __DIR__ . '/auth.php';

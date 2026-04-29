@@ -8,11 +8,13 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('frequencies', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('student_id')->constrained()->cascadeOnDelete();
-            $table->timestamps(); // created_at = timestamp da presença
-        });
+        if (!Schema::hasTable('frequencies')) {
+            Schema::create('frequencies', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('student_id')->constrained()->cascadeOnDelete();
+                $table->timestamps(); // created_at = timestamp da presença
+            });
+        }
     }
 
     public function down(): void

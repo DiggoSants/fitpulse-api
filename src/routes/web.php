@@ -84,7 +84,7 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
         return view('reports.frequency-heatmap');
     })->name('reports.frequency.view');
     Route::get('/reports/shop/products',       [ShopController::class, 'report'])->name('reports.shop.products');
-
+});
 // ── Renovação de planos (ANTES do resource para evitar conflito de rota) ──────
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
     Route::get('/plans/renewals', [RenewalController::class, 'history'])->name('plans.renewals');

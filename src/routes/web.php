@@ -14,6 +14,7 @@ use App\Http\Controllers\RenewalController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\AccessController;
 use App\Http\Controllers\FrequencyController;
+use App\Http\Controllers\ShopController;
 
 
 Route::get('/', function () {
@@ -51,7 +52,13 @@ Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
 // ── Treinos ───────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
     Route::resource('workouts', WorkoutController::class)->only([
-        'create', 'store', 'edit', 'update', 'destroy', 'index', 'show'
+        'create',
+        'store',
+        'edit',
+        'update',
+        'destroy',
+        'index',
+        'show'
     ]);
 });
 
@@ -73,7 +80,10 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
     Route::get('/reports/users/delinquency',   [ReportController::class, 'usersDelinquency'])->name('reports.users.delinquency');
     Route::get('/reports/plans/occupation',    [ReportController::class, 'plansOccupation'])->name('reports.plans.occupation');
     Route::get('/reports/frequency/heatmap',   [FrequencyController::class, 'heatmap'])->name('reports.frequency.heatmap');
-    Route::get('/reports/frequency',           fn() => view('reports.frequency-heatmap'))->name('reports.frequency.view');
+    Route::get('/reports/frequency',           function () {
+        return view('reports.frequency-heatmap');
+    })->name('reports.frequency.view');
+    Route::get('/reports/shop/products',       [ShopController::class, 'report'])->name('reports.shop.products');
 });
 // ── Renovação de planos (ANTES do resource para evitar conflito de rota) ──────
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
@@ -99,7 +109,9 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
 
 // ── Controle de acesso ────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/access', function () { return view('access.index'); })->name('access.index');
+    Route::get('/access', function () {
+        return view('access.index');
+    })->name('access.index');
 });
 
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
@@ -134,6 +146,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
         $videoId = $data['items'][0]['id']['videoId'] ?? null;
         return response()->json(['video_id' => $videoId]);
     })->name('exercise.video');
+});
+
+// ── Lojinha ───────────────────────────────────────────────────────────────────
+// Listagem — todos autenticados podem ver
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/products', [ShopController::class, 'index'])->name('products.index');
+});
+
+// Compra — alunos matriculados e gerentes
+Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
+    Route::post('/sales', [ShopController::class, 'sale'])->name('sales.store');
+});
+
+// Cadastro e gerenciamento — só gerentes
+Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
+    Route::post('/products',        [ShopController::class, 'store'])->name('products.store');
+    Route::put('/products/{id}',    [ShopController::class, 'update'])->name('products.update');
+    Route::delete('/products/{id}', [ShopController::class, 'destroy'])->name('products.destroy');
 });
 
 require __DIR__ . '/auth.php';

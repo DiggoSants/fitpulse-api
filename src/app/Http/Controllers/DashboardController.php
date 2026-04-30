@@ -97,60 +97,40 @@ class DashboardController extends Controller
 
         // ── ALUNO ─────────────────────────────────────────────────────────────
         $student = Student::where('user_id', $user->id)->first();
-
+ 
         if (!$student || !$student->isEnrolled()) {
             return view('dashboard', ['enrolled' => false]);
         }
-
-        $workout = Workout::where('student_id', $student->id)
-            ->latest()
-            ->first();
-
+ 
         // Frequência do mês atual
         $frequencyThisMonth = Frequency::where('student_id', $student->id)
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->count();
-
+ 
         // Última presença
         $lastFrequency = Frequency::where('student_id', $student->id)
             ->latest()
             ->first();
-
+ 
         // Já registrou hoje?
         $checkedInToday = Frequency::where('student_id', $student->id)
             ->whereDate('created_at', today())
             ->exists();
-
-        // ── NOVO: dias da semana com presença ────────────────────────────────
+ 
+        // Dias da semana com presença
         $startOfWeek = now()->startOfWeek(\Carbon\Carbon::SUNDAY);
         $endOfWeek   = now()->endOfWeek(\Carbon\Carbon::SATURDAY);
-
+ 
         $frequencyThisWeek = Frequency::where('student_id', $student->id)
             ->whereBetween('created_at', [$startOfWeek, $endOfWeek])
             ->get()
-            ->map(fn($f) => $f->created_at->dayOfWeek) // 0=Dom ... 6=Sab
+            ->map(fn($f) => $f->created_at->dayOfWeek)
             ->unique()
             ->values()
             ->toArray();
-        // ─────────────────────────────────────────────────────────────────────
-
-        if (!$workout) {
-            return view('dashboard', compact(
-                'frequencyThisMonth',
-                'lastFrequency',
-                'checkedInToday',
-                'frequencyThisWeek'
-            ) + ['enrolled' => true, 'exercises' => collect()]);
-        }
-
-        $exercises = WorkoutExercise::with('exercise')
-            ->where('workout_id', $workout->id)
-            ->get();
-
+ 
         return view('dashboard', compact(
-            'exercises',
-            'workout',
             'frequencyThisMonth',
             'lastFrequency',
             'checkedInToday',

@@ -143,6 +143,12 @@
                 <div class="enrollment-info">{{ session('success') }}</div>
             @endif
 
+            @if(session('error'))
+                <div class="enrollment-errors">
+                    <p>{{ session('error') }}</p>
+                </div>
+            @endif
+
             @if($errors->any())
                 <div class="enrollment-errors">
                     @foreach($errors->all() as $error)
@@ -322,7 +328,6 @@
                             <button
                                 type="button"
                                 class="btn-save"
-                                style="flex:1;"
                                 onclick="selectPlan({{ $plan->id }}); closePlanModal('modal-{{ $plan->id }}');"
                             >
                                 Selecionar este plano

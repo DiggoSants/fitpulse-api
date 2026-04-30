@@ -12,16 +12,31 @@ class ReportController extends Controller
 {
     public function plansComparative()
     {
-        $plans = Plan::active()
-            ->withCount([
-                'enrollments as active_students_count' => function ($query) {
-                    $query->select(DB::raw('COUNT(DISTINCT student_id)'))
-                          ->where('status', 'active')
-                          ->where('end_date', '>=', now()->toDateString());
-                }
-            ])
+        $today = now()->toDateString();
+
+        // IDs de students que são na verdade instrutores (excluir da contagem)
+        $instructorStudentIds = DB::table('students')
+            ->join('instructors', 'instructors.user_id', '=', 'students.user_id')
+            ->pluck('students.id');
+
+        // Pega apenas a matrícula mais recente de cada aluno real
+        $latestEnrollments = DB::table('enrollments')
+            ->select('plan_id', DB::raw('COUNT(DISTINCT enrollments.student_id) as active_students'))
+            ->whereIn('enrollments.id', function ($sub) use ($today, $instructorStudentIds) {
+                $sub->select(DB::raw('MAX(id)'))
+                    ->from('enrollments')
+                    ->where('status', 'active')
+                    ->where('end_date', '>=', $today)
+                    ->whereNotIn('student_id', $instructorStudentIds)
+                    ->groupBy('student_id');
+            })
+            ->groupBy('plan_id')
             ->get()
-            ->map(function ($plan) {
+            ->keyBy('plan_id');
+
+        $plans = Plan::active()
+            ->get()
+            ->map(function ($plan) use ($latestEnrollments) {
                 return [
                     'id'              => $plan->id,
                     'name'            => $plan->name,
@@ -29,11 +44,11 @@ class ReportController extends Controller
                     'price'           => $plan->price,
                     'duration_days'   => $plan->duration_days,
                     'benefits'        => $plan->benefits,
-                    'active_students' => $plan->active_students_count,
+                    'active_students' => $latestEnrollments->get($plan->id)?->active_students ?? 0,
                 ];
             });
 
-        return response()->json(['data' => $plans]);
+        return view('reports.plans-comparative', compact('plans'));
     }
 
     public function plansCancellations(Request $request)
@@ -63,18 +78,12 @@ class ReportController extends Controller
                 ];
             });
 
-        return response()->json([
-            'data'    => $cancellations,
-            'filters' => [
-                'start_date' => $request->start_date,
-                'end_date'   => $request->end_date,
-            ],
-        ]);
+        return view('reports.plans-cancellations', compact('cancellations'));
     }
 
     public function plansLoyalty()
     {
-        // Versão da main: agrupa por aluno e calcula dias desde a primeira matrícula
+        // Agrupa por aluno e calcula dias desde a primeira matrícula
         $enrollments = Enrollment::with(['student.user', 'plan'])
             ->where('status', 'active')
             ->where('end_date', '>=', now()->toDateString())
@@ -100,7 +109,7 @@ class ReportController extends Controller
             ->sortByDesc('days_active')
             ->values();
 
-        return response()->json(['data' => $enrollments]);
+        return view('reports.plans-loyalty', compact('enrollments'));
     }
 
     public function usersDelinquency()
@@ -168,57 +177,53 @@ class ReportController extends Controller
             })
             ->values();
 
-        return response()->json([
-            'data' => [
-                'delinquents' => $delinquents,
-                'cancelled'   => $cancelled,
-                'inactive'    => $inactive,
-            ],
-            'summary' => [
-                'total_delinquents' => $delinquents->count(),
-                'total_cancelled'   => $cancelled->count(),
-                'total_inactive'    => $inactive->count(),
-            ],
-        ]);
+        return view('reports.users-delinquency', compact('delinquents', 'cancelled', 'inactive'));
     }
 
     public function plansOccupation()
     {
-        $occupation = Plan::withCount([
-                'enrollments as active_students_count' => function ($query) {
-                    $query->where('status', 'active')
-                          ->where('end_date', '>=', now()->toDateString());
-                }
-            ])
+        $today = now()->toDateString();
+
+        // IDs de students que são na verdade instrutores (excluir da contagem)
+        $instructorStudentIds = DB::table('students')
+            ->join('instructors', 'instructors.user_id', '=', 'students.user_id')
+            ->pluck('students.id');
+
+        // Pega apenas a matrícula mais recente de cada aluno real
+        $latestEnrollments = DB::table('enrollments')
+            ->select('plan_id', DB::raw('COUNT(DISTINCT enrollments.student_id) as active_students'))
+            ->whereIn('enrollments.id', function ($sub) use ($today, $instructorStudentIds) {
+                $sub->select(DB::raw('MAX(id)'))
+                    ->from('enrollments')
+                    ->where('status', 'active')
+                    ->where('end_date', '>=', $today)
+                    ->whereNotIn('student_id', $instructorStudentIds)
+                    ->groupBy('student_id');
+            })
+            ->groupBy('plan_id')
             ->get()
-            ->map(function ($plan) {
+            ->keyBy('plan_id');
+
+        $totalActive = $latestEnrollments->sum('active_students');
+
+        $occupation = Plan::all()
+            ->map(function ($plan) use ($latestEnrollments, $totalActive) {
+                $activeStudents = $latestEnrollments->get($plan->id)?->active_students ?? 0;
                 return [
                     'plan_id'         => $plan->id,
                     'plan_name'       => $plan->name,
                     'plan_status'     => $plan->status,
                     'price'           => $plan->price,
                     'duration_days'   => $plan->duration_days,
-                    'active_students' => $plan->active_students_count,
+                    'active_students' => $activeStudents,
+                    'percentage'      => $totalActive > 0
+                        ? round(($activeStudents / $totalActive) * 100, 1)
+                        : 0,
                 ];
             })
             ->sortByDesc('active_students')
             ->values();
 
-        $totalActive = $occupation->sum('active_students');
-
-        $occupation = $occupation->map(function ($item) use ($totalActive) {
-            $item['percentage'] = $totalActive > 0
-                ? round(($item['active_students'] / $totalActive) * 100, 1)
-                : 0;
-            return $item;
-        });
-
-        return response()->json([
-            'data'    => $occupation,
-            'summary' => [
-                'total_active_students' => $totalActive,
-                'total_plans'           => $occupation->count(),
-            ],
-        ]);
+        return view('reports.plans-occupation', compact('occupation', 'totalActive'));
     }
 }

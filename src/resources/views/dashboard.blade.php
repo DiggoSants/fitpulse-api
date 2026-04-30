@@ -120,7 +120,7 @@
                         onclick="showManagerSection('reports-section', this)"
                     >
                         Relatórios
-                        <span class="mgr-tab__count">3</span>
+                        <span class="mgr-tab__count">4</span>
                     </button>
                 </div>
 
@@ -470,73 +470,109 @@
                     @endif
                 </div>
 
-                {{-- ══════════════════════════════════════════════════════════════
-                     SEÇÃO RELATÓRIOS
-                ══════════════════════════════════════════════════════════════ --}}
-                <div id="reports-section" class="mgr-section" style="display:none;">
-                    <div style="margin-bottom:20px;">
-                        <p class="section-label">RELATÓRIOS</p>
-                    </div>
+               {{-- ══════════════════════════════════════════════════════════════
+     SEÇÃO RELATÓRIOS
+══════════════════════════════════════════════════════════════ --}}
+<div id="reports-section" class="mgr-section" style="display:none;">
+    <div style="margin-bottom:20px;">
+        <p class="section-label">RELATÓRIOS</p>
+    </div>
 
-                    <div class="report-cards-grid">
-                        <a href="{{ route('reports.plans.comparative') }}" class="report-card report-card--red">
-                            <div class="report-card__body">
-                                <div class="report-card__icon">
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="stroke:#f87171; stroke-width:1.8; stroke-linecap:round;">
-                                        <rect x="3" y="3" width="18" height="18" rx="3"/>
-                                        <path d="M3 9h18M9 21V9"/>
-                                    </svg>
-                                </div>
-                                <p class="report-card__title">Comparativo de Planos</p>
-                                <p class="report-card__desc">Planos ativos lado a lado com preço, duração, benefícios e alunos matriculados.</p>
-                            </div>
-                            <div class="report-card__footer">
-                                <span class="report-card__footer-label">Abrir relatório</span>
-                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:var(--text-muted); stroke-width:2; stroke-linecap:round; stroke-linejoin:round;">
-                                    <path d="M2.5 7h9M7.5 3l4 4-4 4"/>
-                                </svg>
-                            </div>
-                        </a>
+    <div class="report-cards-grid">
 
-                        <a href="{{ route('reports.plans.cancellations') }}" class="report-card report-card--pink">
-                            <div class="report-card__body">
-                                <div class="report-card__icon">
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="stroke:#f87171; stroke-width:1.8; stroke-linecap:round;">
-                                        <circle cx="12" cy="12" r="9"/>
-                                        <path d="M15 9l-6 6M9 9l6 6"/>
-                                    </svg>
-                                </div>
-                                <p class="report-card__title">Cancelamentos</p>
-                                <p class="report-card__desc">Histórico de cancelamentos com data e filtro por período.</p>
-                            </div>
-                            <div class="report-card__footer">
-                                <span class="report-card__footer-label">Abrir relatório</span>
-                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:var(--text-muted); stroke-width:2; stroke-linecap:round; stroke-linejoin:round;">
-                                    <path d="M2.5 7h9M7.5 3l4 4-4 4"/>
-                                </svg>
-                            </div>
-                        </a>
-
-                        <a href="{{ route('reports.plans.loyalty') }}" class="report-card report-card--green">
-                            <div class="report-card__body">
-                                <div class="report-card__icon">
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="stroke:#4ade80; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;">
-                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                    </svg>
-                                </div>
-                                <p class="report-card__title">Fidelidade</p>
-                                <p class="report-card__desc">Ranking dos alunos mais fiéis por tempo de permanência ativo.</p>
-                            </div>
-                            <div class="report-card__footer">
-                                <span class="report-card__footer-label">Abrir relatório</span>
-                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:var(--text-muted); stroke-width:2; stroke-linecap:round; stroke-linejoin:round;">
-                                    <path d="M2.5 7h9M7.5 3l4 4-4 4"/>
-                                </svg>
-                            </div>
-                        </a>
-                    </div>
+        {{-- Comparativo de Planos --}}
+        <a href="{{ route('reports.plans.comparative') }}" class="report-card report-card--red">
+            <div class="report-card__body">
+                <div class="report-card__icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="stroke:#f87171;stroke-width:1.8;stroke-linecap:round;">
+                        <rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/>
+                    </svg>
                 </div>
+                <p class="report-card__title">Comparativo de Planos</p>
+                <p class="report-card__desc">Planos ativos lado a lado com preço, duração, benefícios e alunos matriculados.</p>
+            </div>
+            <div class="report-card__footer">
+                <span class="report-card__footer-label">Abrir relatório</span>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M2.5 7h9M7.5 3l4 4-4 4"/></svg>
+            </div>
+        </a>
 
+        {{-- Cancelamentos --}}
+        <a href="{{ route('reports.plans.cancellations') }}" class="report-card report-card--pink">
+            <div class="report-card__body">
+                <div class="report-card__icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="stroke:#f87171;stroke-width:1.8;stroke-linecap:round;">
+                        <circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/>
+                    </svg>
+                </div>
+                <p class="report-card__title">Cancelamentos</p>
+                <p class="report-card__desc">Histórico de cancelamentos com data e filtro por período.</p>
+            </div>
+            <div class="report-card__footer">
+                <span class="report-card__footer-label">Abrir relatório</span>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M2.5 7h9M7.5 3l4 4-4 4"/></svg>
+            </div>
+        </a>
+
+        {{-- Fidelidade --}}
+        <a href="{{ route('reports.plans.loyalty') }}" class="report-card report-card--green">
+            <div class="report-card__body">
+                <div class="report-card__icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="stroke:#4ade80;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                </div>
+                <p class="report-card__title">Fidelidade</p>
+                <p class="report-card__desc">Ranking dos alunos mais fiéis por tempo de permanência ativo.</p>
+            </div>
+            <div class="report-card__footer">
+                <span class="report-card__footer-label">Abrir relatório</span>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M2.5 7h9M7.5 3l4 4-4 4"/></svg>
+            </div>
+        </a>
+
+        {{-- Inadimplência & Churn --}}
+        <a href="{{ route('reports.users.delinquency') }}" class="report-card report-card--pink">
+            <div class="report-card__body">
+                <div class="report-card__icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="stroke:#f87171;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                </div>
+                <p class="report-card__title">Inadimplência & Churn</p>
+                <p class="report-card__desc">Alunos inadimplentes, cancelados e inativos há mais de 30 dias.</p>
+            </div>
+            <div class="report-card__footer">
+                <span class="report-card__footer-label">Abrir relatório</span>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M2.5 7h9M7.5 3l4 4-4 4"/></svg>
+            </div>
+        </a>
+
+        {{-- Ocupação por Modalidade --}}
+        <a href="{{ route('reports.plans.occupation') }}" class="report-card report-card--red">
+            <div class="report-card__body">
+                <div class="report-card__icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="stroke:#f87171;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                </div>
+                <p class="report-card__title">Ocupação por Modalidade</p>
+                <p class="report-card__desc">Distribuição de alunos ativos por tipo de plano com percentuais.</p>
+            </div>
+            <div class="report-card__footer">
+                <span class="report-card__footer-label">Abrir relatório</span>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M2.5 7h9M7.5 3l4 4-4 4"/></svg>
+            </div>
+        </a>
+
+
+
+    </div>
+</div>
                 {{-- ══════════════════════════════════════════════════════════════
                      SEÇÃO FREQUÊNCIA
                 ══════════════════════════════════════════════════════════════ --}}
@@ -781,7 +817,7 @@
                     </a>
                 </div>
 
-            {{-- ══════════════════════════════════════════════════════════════
+           {{-- ══════════════════════════════════════════════════════════════
                  VISÃO DO ALUNO COM MATRÍCULA
             ══════════════════════════════════════════════════════════════ --}}
             @else
@@ -790,7 +826,7 @@
                     <div class="dash-hero__inner">
                         <div>
                             <div class="dash-hero__eyebrow">Bem-vindo de volta</div>
-                            <h2 class="dash-hero__title">Seu Treino</h2>
+                            <h2 class="dash-hero__title">Painel</h2>
                             <p class="dash-hero__sub">Pronto para mais um dia?</p>
                         </div>
                         <div class="dash-hero__right">
@@ -811,15 +847,6 @@
                                     PAGAMENTO PENDENTE
                                 </span>
                             @endif
-                            <a href="{{ route('workouts.create') }}" class="btn-save"
-                               style="text-decoration:none; display:inline-flex; align-items:center; gap:7px;">
-                                <svg width="11" height="11" viewBox="0 0 12 12" fill="none"
-                                     style="stroke:#fff; stroke-width:2.5; stroke-linecap:round;">
-                                    <line x1="6" y1="1" x2="6" y2="11"/>
-                                    <line x1="1" y1="6" x2="11" y2="6"/>
-                                </svg>
-                                Criar Treino
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -855,10 +882,9 @@
                     </div>
                 @endif
 
-                {{-- ── REGISTRO DE PRESENÇA ──────────────────────────────────────────── --}}
+                {{-- ── REGISTRO DE PRESENÇA ── --}}
                 <div class="freq-card" style="flex-direction:column; align-items:stretch; gap:0; padding:0; overflow:hidden;">
 
-                    {{-- Topo: ícone + título + stats + botão --}}
                     <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:20px; padding:20px 24px 16px;">
                         <div style="display:flex; align-items:center; gap:14px; flex:1;">
                             <div class="freq-card__icon">
@@ -882,7 +908,6 @@
                             </div>
                         </div>
 
-                        {{-- Stats + Botão do lado direito --}}
                         <div style="display:flex; align-items:center; gap:16px; flex-shrink:0;">
                             <div class="freq-card__stats" style="display:flex; align-items:center; gap:12px;">
                                 <div class="freq-card__stat">
@@ -919,10 +944,8 @@
                         </div>
                     </div>
 
-                    {{-- Divisor --}}
                     <div style="height:1px; background:rgba(128,128,128,0.15); margin:0 24px;"></div>
 
-                    {{-- Dias da semana --}}
                     <div style="padding:16px 24px;">
                         <p style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em;
                                   color:var(--text-muted); margin-bottom:10px;">
@@ -957,15 +980,33 @@
                         </div>
                     </div>
 
-                    {{-- Divisor --}}
                     <div style="height:1px; background:rgba(128,128,128,0.15); margin:0 24px;"></div>
                 </div>
 
                 {{-- Toast --}}
                 <div class="freq-toast" id="freq-toast" style="display:none;"></div>
 
-                {{-- AÇÕES RÁPIDAS DO ALUNO: Renovar + Pagar mensalidade --}}
-                <div class="student-quick-actions">
+                {{-- AÇÕES RÁPIDAS: Treinos + Renovar + Pagar --}}
+                <div class="student-quick-actions student-quick-actions--three">
+                    <a href="{{ route('workouts.index') }}" class="student-action-card student-action-card--workout">
+                        <div class="student-action-card__icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                 style="stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;">
+                                <rect x="2" y="9" width="4" height="6" rx="1"/>
+                                <rect x="18" y="9" width="4" height="6" rx="1"/>
+                                <rect x="7" y="11" width="10" height="2" rx="1"/>
+                            </svg>
+                        </div>
+                        <div class="student-action-card__content">
+                            <p class="student-action-card__label">Meus Treinos</p>
+                            <p class="student-action-card__hint">Ver e gerenciar treinos</p>
+                        </div>
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
+                             style="stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; opacity:.45; flex-shrink:0;">
+                            <path d="M2.5 7h9M7.5 3l4 4-4 4"/>
+                        </svg>
+                    </a>
+
                     <a href="{{ route('plans.renewals') }}" class="student-action-card student-action-card--blue">
                         <div class="student-action-card__icon">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -1003,112 +1044,6 @@
                         </svg>
                     </a>
                 </div>
-
-                @if(isset($workout))
-                    <div class="dash-stats">
-                        <div class="dash-stat dash-stat--red">
-                            <div class="dash-stat__bg-icon">⚡</div>
-                            <div class="dash-stat__header">
-                                <span class="dash-stat__dot"></span>
-                                <span class="dash-stat__label">Séries totais</span>
-                            </div>
-                            <div class="dash-stat__value">{{ $exercises->sum(fn($e) => (int) $e->sets) }}</div>
-                        </div>
-                        <div class="dash-stat dash-stat--blue">
-                            <div class="dash-stat__bg-icon">🔁</div>
-                            <div class="dash-stat__header">
-                                <span class="dash-stat__dot"></span>
-                                <span class="dash-stat__label">Reps totais</span>
-                            </div>
-                            <div class="dash-stat__value">{{ $exercises->sum(fn($e) => (int) $e->reps) }}</div>
-                        </div>
-                        <div class="dash-stat dash-stat--green">
-                            <div class="dash-stat__bg-icon">🏋️</div>
-                            <div class="dash-stat__header">
-                                <span class="dash-stat__dot"></span>
-                                <span class="dash-stat__label">Descanso</span>
-                            </div>
-                            <div class="dash-stat__value">{{ $exercises->sum(fn($e) => (int) $e->rest_time) }}</div>
-                        </div>
-                    </div>
-
-                    <div class="exercises-header">
-                        <div class="exercises-header__left">
-                            <span class="exercises-header__tag">Treino atual</span>
-                            <h3 class="exercises-header__name">{{ $workout->name }}</h3>
-                            <span class="exercises-header__badge">{{ $exercises->count() }} exerc.</span>
-                        </div>
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <a href="{{ route('workouts.edit', $workout->id) }}" class="btn-ghost">
-                                <svg viewBox="0 0 14 14" fill="none"><path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z"/></svg>
-                                Editar
-                            </a>
-                            <form action="{{ route('workouts.destroy', $workout->id) }}" method="POST" style="margin:0;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-del">
-                                    <svg viewBox="0 0 14 16" fill="none">
-                                        <path d="M1 3.5h12M4.5 3.5V2a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v1.5M5.5 7v5M8.5 7v5M2.5 3.5l.9 10a.5.5 0 00.5.5h6.2a.5.5 0 00.5-.5l.9-10"/>
-                                    </svg>
-                                    Deletar
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-
-                    @if($exercises->count())
-                        <ul class="exercise-grid">
-                            @foreach($exercises as $item)
-                                <li class="exercise-grid-card">
-                                    <div class="exercise-grid-card__thumb">
-                                        @if(!empty($item->exercise->image_url))
-                                            <img src="{{ $item->exercise->image_url }}" alt="{{ $item->exercise->name }}">
-                                        @else
-                                            <div class="exercise-grid-card__thumb-placeholder">
-                                                <svg viewBox="0 0 24 24">
-                                                    <rect x="2" y="9" width="4" height="6" rx="1"/>
-                                                    <rect x="18" y="9" width="4" height="6" rx="1"/>
-                                                    <rect x="7" y="11" width="10" height="2" rx="1"/>
-                                                </svg>
-                                                <span>{{ $item->exercise->muscle_group ?? 'Exercício' }}</span>
-                                            </div>
-                                        @endif
-                                        <span class="exercise-grid-card__num">{{ $loop->iteration }}</span>
-                                    </div>
-                                    <div class="exercise-grid-card__body">
-                                        <div class="exercise-grid-card__name">{{ $item->exercise->name }}</div>
-                                        <div class="chips">
-                                            <span class="chip chip--series">{{ $item->sets }} séries</span>
-                                            <span class="chip chip--reps">{{ $item->reps }} reps</span>
-                                            <span class="chip chip--rest">{{ $item->rest_time ?? 0 }}s</span>
-                                        </div>
-                                    </div>
-                                    <div class="exercise-grid-card__footer">
-                                        <span style="font-size:11px; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:.07em;">
-                                            {{ $item->exercise->muscle_group ?? '' }}
-                                        </span>
-                                        <button class="btn-play" title="Iniciar">
-                                            <svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg>
-                                        </button>
-                                    </div>
-                                </li>
-                            @endforeach
-                        </ul>
-                    @else
-                        <div class="empty-state"><p>Nenhum exercício encontrado.</p></div>
-                    @endif
-                @else
-                    <div class="empty-state" style="padding:5rem 1rem;">
-                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none"
-                             style="stroke:var(--text-muted); stroke-width:1.1; margin:0 auto 18px; display:block; opacity:.20;">
-                            <rect x="2" y="9" width="4" height="6" rx="1"/>
-                            <rect x="18" y="9" width="4" height="6" rx="1"/>
-                            <rect x="7" y="11" width="10" height="2" rx="1"/>
-                        </svg>
-                        <p>Nenhum treino disponível.</p>
-                        <p style="font-size:13px; margin-top:6px; opacity:.45;">Crie seu primeiro treino para começar.</p>
-                    </div>
-                @endif
             @endif
         </div>
     </div>
@@ -1383,5 +1318,6 @@
 
             loadHeatmap();
         })();
+
     </script>
 </x-app-layout>

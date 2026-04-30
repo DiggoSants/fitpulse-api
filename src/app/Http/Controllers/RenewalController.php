@@ -31,6 +31,16 @@ class RenewalController extends Controller
             ->where('status', 'active')
             ->firstOrFail();
 
+        // Verifica se há pagamentos pendentes não quitados
+        $pendingBilling = Billing::where('student_id', $student->id)
+            ->where('status', 'pending')
+            ->first();
+
+        if ($pendingBilling) {
+            return back()
+                ->with('error', 'Você possui pagamentos pendentes. Complete o pagamento antes de renovar o plano.');
+        }
+
         $currentEnrollment = $student->enrollments()
             ->where('status', 'active')
             ->latest('end_date')
@@ -81,9 +91,9 @@ class RenewalController extends Controller
             ]);
         });
 
-        return response()->json([
-            'message' => 'Plano renovado com sucesso! Você tem 1 dia para realizar o pagamento.',
-        ], 201);
+        return redirect()
+            ->route('plans.renewals')
+            ->with('success', 'Plano renovado com sucesso! Você tem 1 dia para realizar o pagamento.');
     }
     public function history()
     {
@@ -91,25 +101,20 @@ class RenewalController extends Controller
         $user    = Auth::user();
         $student = Student::where('user_id', $user->id)->firstOrFail();
 
+        $activeEnrollment = $student->enrollments()
+            ->where('status', 'active')
+            ->where('end_date', '>=', now()->toDateString())
+            ->latest('end_date')
+            ->first();
+
+        $plans = Plan::where('status', 'active')->get();
+
         $renewals = PlanRenewal::with(['plan', 'oldEnrollment', 'newEnrollment'])
             ->where('student_id', $student->id)
             ->orderBy('renewed_at', 'desc')
-            ->get()
-            ->map(function ($renewal) {
-                return [
-                    'plan_name'  => $renewal->plan->name,
-                    'renewed_at' => $renewal->renewed_at->format('d/m/Y H:i'),
-                    'old_period' => [
-                        'start' => $renewal->oldEnrollment->start_date->format('d/m/Y'),
-                        'end'   => $renewal->oldEnrollment->end_date->format('d/m/Y'),
-                    ],
-                    'new_period' => [
-                        'start' => $renewal->newEnrollment->start_date->format('d/m/Y'),
-                        'end'   => $renewal->newEnrollment->end_date->format('d/m/Y'),
-                    ],
-                ];
-            });
+            ->get();
 
-        return response()->json(['data' => $renewals]);
+        return view('plans.renew', compact('activeEnrollment', 'plans', 'renewals'));
     }
 }
+

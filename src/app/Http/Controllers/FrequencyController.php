@@ -51,47 +51,43 @@ class FrequencyController extends Controller
 
 public function heatmap()
 {
-    $frequencies = Frequency::selectRaw('
-            DAYOFWEEK(created_at) - 1 as day_of_week,
-            HOUR(created_at) as hour,
+    $frequencies = Frequency::selectRaw("
+            DAYOFWEEK(CONVERT_TZ(created_at, '+00:00', '-03:00')) - 1 as day_of_week,
+            HOUR(CONVERT_TZ(created_at, '+00:00', '-03:00')) as hour,
             COUNT(*) as count
-        ')
-        ->where('created_at', '>=', now()->subDays(90)) // ← adicionar esta linha
+        ")
+        ->where('created_at', '>=', now()->subDays(90))
         ->groupBy('day_of_week', 'hour')
         ->orderBy('day_of_week')
         ->orderBy('hour')
         ->get()
-            ->map(function ($item) {
-                $days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+        ->map(function ($item) {
+            $days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+            return [
+                'day_of_week' => (int) $item->day_of_week,
+                'day_name'    => $days[$item->day_of_week],
+                'hour'        => (int) $item->hour,
+                'hour_label'  => sprintf('%02d:00', $item->hour),
+                'count'       => (int) $item->count,
+            ];
+        });
+        
+    $days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+    $matrix = [];
 
-                return [
-                    'day_of_week'      => (int) $item->day_of_week,
-                    'day_name'         => $days[$item->day_of_week],
-                    'hour'             => (int) $item->hour,
-                    'hour_label'       => sprintf('%02d:00', $item->hour),
-                    'count'            => (int) $item->count,
-                ];
-            });
-
-        $days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-        $matrix = [];
-
-        for ($day = 0; $day < 7; $day++) {
-            for ($hour = 0; $hour < 24; $hour++) {
-                $found = $frequencies->first(function ($item) use ($day, $hour) {
-                    return $item['day_of_week'] === $day && $item['hour'] === $hour;
-                });
-
-                $matrix[] = [
-                    'day_of_week' => $day,
-                    'day_name'    => $days[$day],
-                    'hour'        => $hour,
-                    'hour_label'  => sprintf('%02d:00', $hour),
-                    'count'       => $found ? $found['count'] : 0,
-                ];
-            }
+    for ($day = 0; $day < 7; $day++) {
+        for ($hour = 0; $hour < 24; $hour++) {
+            $found = $frequencies->first(fn($item) => $item['day_of_week'] === $day && $item['hour'] === $hour);
+            $matrix[] = [
+                'day_of_week' => $day,
+                'day_name'    => $days[$day],
+                'hour'        => $hour,
+                'hour_label'  => sprintf('%02d:00', $hour),
+                'count'       => $found ? $found['count'] : 0,
+            ];
         }
-
-        return response()->json(['data' => $matrix]);
     }
+
+    return response()->json(['data' => $matrix]);
+}
 }

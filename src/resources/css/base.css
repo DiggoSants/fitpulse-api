@@ -1,0 +1,56 @@
+/* VARIÁVEIS */
+
+:root {
+    --red: #d61532;
+    --red-dim: rgba(214,21,50,0.15);
+    --red-light: #f87171;
+    --blue-dim: rgba(59,130,246,0.15);
+    --blue-light: #93c5fd;
+    --green-dim: rgba(34,197,94,0.15);
+    --green-light: #86efac;
+    --surface: rgba(255,255,255,0.05);
+    --surface-2: rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.08);
+    --text-white: #ffffff;
+    --text-muted: #888888;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-pill: 99px;
+}
+/*tirar o foco padrão dos inputs*/
+input:focus,
+input:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+select:focus,
+select:focus-visible,
+button:focus,
+button:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/*GLOBAIS */
+
+[x-cloak] { /*qualquer elemento com clock, fica escondido*/
+    display: none !important;
+}
+
+*:focus, *:focus-visible { /*tira aquele contorno padrão, mas talvez eu deva tirar futuramente (pensando no design acessível)*/
+    outline: none;
+}
+/*modo escuro/claro*/
+[data-theme="light"] body {
+    background: #f0f0f0 !important;
+    color: #111 !important;
+}
+
+[data-theme="light"] .min-h-screen {
+    background: #f0f0f0 !important;
+}
+
+[data-theme="light"] header h2, [data-theme="light"] header * {
+    color: #111 !important;
+}
+

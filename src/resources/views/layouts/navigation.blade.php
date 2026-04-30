@@ -1,5 +1,5 @@
 <nav x-data="{ open: false }" class="nav-main">
- 
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
 
@@ -16,27 +16,47 @@
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')"> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-right:8px;">
-                     <rect x="3" y="3" width="7" height="7" rx="1"/>
-                     <rect x="14" y="3" width="7" height="7" rx="1"/>
-                     <rect x="14" y="14" width="7" height="7" rx="1"/>
-                     <rect x="3" y="14" width="7" height="7" rx="1"/>
-                    </svg>
 
-                   {{ __('Painel') }}
-                   </x-nav-link>
+                    {{-- Painel — todos os usuários --}}
+                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             style="flex-shrink:0; margin-right:8px;">
+                            <rect x="3" y="3" width="7" height="7" rx="1"/>
+                            <rect x="14" y="3" width="7" height="7" rx="1"/>
+                            <rect x="14" y="14" width="7" height="7" rx="1"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1"/>
+                        </svg>
+                        {{ __('Painel') }}
+                    </x-nav-link>
 
-                   @if(Auth::user()->isManager())
-                   <x-nav-link :href="route('access.index')" :active="request()->routeIs('access.*')">
-                    <svg width="14" height="14" viewBox="0 0 24 24" 
-                    fill="none" stroke="currentColor" stroke-width="2" 
-                    stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-right:8px;">
-                     <rect x="3" y="11" width="18" height="11" rx="2"/>
-                     <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                    </svg>{{ __('Acessos') }}
-                </x-nav-link>
-                @endif
- 
+                    {{-- Treinos — somente aluno matriculado --}}
+                    @if(!Auth::user()->isManager() && !Auth::user()->isInstructor() && Auth::user()->student?->isEnrolled())
+                        <x-nav-link :href="route('workouts.index')" :active="request()->routeIs('workouts.*')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                 style="flex-shrink:0; margin-right:8px;">
+                                <rect x="2" y="9" width="4" height="6" rx="1"/>
+                                <rect x="18" y="9" width="4" height="6" rx="1"/>
+                                <rect x="7" y="11" width="10" height="2" rx="1"/>
+                            </svg>
+                            {{ __('Treinos') }}
+                        </x-nav-link>
+                    @endif
+
+                    {{-- Acessos — somente gerente --}}
+                    @if(Auth::user()->isManager())
+                        <x-nav-link :href="route('access.index')" :active="request()->routeIs('access.*')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                 style="flex-shrink:0; margin-right:8px;">
+                                <rect x="3" y="11" width="18" height="11" rx="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                            {{ __('Acessos') }}
+                        </x-nav-link>
+                    @endif
+
                 </div>
             </div>
 
@@ -73,6 +93,7 @@
 
             </div>
 
+            {{-- Botão hamburguer mobile --}}
             <div class="-me-2 flex items-center sm:hidden">
                 <button @click="open = ! open" style="background:none; border:none; cursor:pointer; padding:8px; color:#fff;">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -86,37 +107,46 @@
     </div>
 
     {{-- Context bar --}}
-<div class="nav-context-bar">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="nav-context-inner">
-            <span class="nav-ctx-crumb">FitPulse</span>
-            <span class="nav-ctx-sep">/</span>
-            <span class="nav-ctx-crumb nav-ctx-crumb--active">
-                @if(request()->routeIs('dashboard'))
-                    Painel
-                @elseif(request()->routeIs('profile.*'))
-                    Perfil
-                @elseif(request()->routeIs('enrollment.*'))
-                    Matrícula
-                @else
-                    {{ ucfirst(request()->segment(1) ?? 'Página') }}
-                @endif
-            </span>
+    <div class="nav-context-bar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="nav-context-inner">
+                <span class="nav-ctx-crumb">FitPulse</span>
+                <span class="nav-ctx-sep">/</span>
+                <span class="nav-ctx-crumb nav-ctx-crumb--active">
+                    @if(request()->routeIs('dashboard'))
+                        Painel
+                    @elseif(request()->routeIs('workouts.*'))
+                        Treinos
+                    @elseif(request()->routeIs('profile.*'))
+                        Perfil
+                    @elseif(request()->routeIs('enrollment.*'))
+                        Matrícula
+                    @else
+                        {{ ucfirst(request()->segment(1) ?? 'Página') }}
+                    @endif
+                </span>
+            </div>
         </div>
     </div>
-</div>
 
     {{-- Menu mobile --}}
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden nav-mobile-menu">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Painel') }}</x-responsive-nav-link>
-                @if(Auth::user()->isManager())
-                <x-responsive-nav-link
-                 :href="route('access.index')" :active="request()->routeIs('access.*')">
-                 {{ __('Controle de Acesso') }}
+                {{ __('Painel') }}
+            </x-responsive-nav-link>
+
+            @if(!Auth::user()->isManager() && !Auth::user()->isInstructor() && Auth::user()->student?->isEnrolled())
+                <x-responsive-nav-link :href="route('workouts.index')" :active="request()->routeIs('workouts.*')">
+                    {{ __('Treinos') }}
                 </x-responsive-nav-link>
-                @endif
+            @endif
+
+            @if(Auth::user()->isManager())
+                <x-responsive-nav-link :href="route('access.index')" :active="request()->routeIs('access.*')">
+                    {{ __('Controle de Acesso') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
         <div class="pt-4 pb-1" style="border-top:1px solid rgba(255,255,255,0.08);">
             <div class="px-4">

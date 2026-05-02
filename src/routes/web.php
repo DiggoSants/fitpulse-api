@@ -15,7 +15,7 @@ use App\Http\Controllers\BillingController;
 use App\Http\Controllers\AccessController;
 use App\Http\Controllers\FrequencyController;
 use App\Http\Controllers\ShopController;
-
+use App\Http\Controllers\EvaluationController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -85,6 +85,7 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
     })->name('reports.frequency.view');
     Route::get('/reports/shop/products',       [ShopController::class, 'report'])->name('reports.shop.products');
 });
+
 // ── Renovação de planos (ANTES do resource para evitar conflito de rota) ──────
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
     Route::get('/plans/renewals', [RenewalController::class, 'history'])->name('plans.renewals');
@@ -125,6 +126,7 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
     Route::post('/frequency/register', [FrequencyController::class, 'register'])->name('frequency.register');
 });
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/exercise-video', function (\Illuminate\Http\Request $request) {
         $query = urlencode($request->q . ' exercício como executar corretamente');
@@ -170,4 +172,12 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
     Route::get('/lojinha', [ShopController::class, 'studentView'])->name('shop.index');
 });
+
+// ── Avaliação física ──────────────────────────────────────────────────────────
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('/evaluations',                          [EvaluationController::class, 'store'])->name('evaluations.store');
+    Route::get('/evaluations/{user_id}',                 [EvaluationController::class, 'history'])->name('evaluations.history');
+    Route::get('/reports/physical/evolution/{user_id}',  [EvaluationController::class, 'evolution'])->name('reports.physical.evolution');
+});
+
 require __DIR__ . '/auth.php';

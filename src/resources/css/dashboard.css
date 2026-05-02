@@ -1234,3 +1234,1075 @@
     background: rgba(214,21,50,0.08);
     border-color: rgba(214,21,50,0.16);
 }
+/* ══════════════════════════════════════════════
+   LOJINHA — ALUNO
+══════════════════════════════════════════════ */
+
+/* Grid de produtos */
+.shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+/* Skeleton card */
+.shop-card-skeleton {
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+}
+
+.shop-card-skeleton__img {
+    width: 100%;
+    aspect-ratio: 4/3;
+}
+
+/* Card real */
+.shop-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: border-color .18s, transform .18s, box-shadow .18s, background .18s;
+}
+
+.shop-card:hover {
+    border-color: rgba(214,21,50,0.30);
+    background: rgba(255,255,255,0.06);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+}
+
+/* Imagem */
+.shop-card__img-wrap {
+    width: 100%;
+    aspect-ratio: 4/3;
+    position: relative;
+    overflow: hidden;
+    background: rgba(214,21,50,0.07);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+}
+
+.shop-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .35s ease;
+}
+
+.shop-card:hover .shop-card__img {
+    transform: scale(1.04);
+}
+
+.shop-card__img-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Badge categoria */
+.shop-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 99px;
+}
+
+.shop-badge--sup {
+    background: rgba(59,130,246,0.18);
+    border: 1px solid rgba(59,130,246,0.28);
+    color: #93c5fd;
+}
+
+.shop-badge--ace {
+    background: rgba(74,222,128,0.14);
+    border: 1px solid rgba(74,222,128,0.25);
+    color: #86efac;
+}
+
+/* Corpo do card */
+.shop-card__body {
+    padding: 14px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+}
+
+.shop-card__name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-white);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.shop-card__desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.5;
+}
+
+.shop-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 12px;
+}
+
+.shop-card__price {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-white);
+}
+
+.shop-card__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 16px;
+    background: #d61532;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    border: none;
+    border-radius: 99px;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    transition: opacity .18s, transform .15s, box-shadow .2s;
+    white-space: nowrap;
+}
+
+.shop-card__btn:hover {
+    opacity: .88;
+    transform: scale(1.04);
+    box-shadow: 0 6px 16px rgba(214,21,50,0.30);
+}
+
+.shop-card__btn:active {
+    transform: scale(.97);
+}
+
+/* Filtros */
+.shop-filter-btn {
+    padding: 7px 14px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.10);
+    color: rgba(255,255,255,0.72);
+    transition: background .18s, border-color .18s, color .18s;
+}
+
+.shop-filter-btn:hover {
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(255,255,255,0.18);
+    color: #fff;
+}
+
+.shop-filter-btn.is-active {
+    background: rgba(214,21,50,0.10);
+    border-color: rgba(214,21,50,0.30);
+    color: #ff5068;
+}
+
+/* Toast */
+.shop-toast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    background: rgba(74,222,128,0.10);
+    border: 1px solid rgba(74,222,128,0.22);
+    color: #4ade80;
+    transition: opacity .3s, transform .3s;
+}
+
+.shop-toast--error {
+    background: rgba(214,21,50,0.10);
+    border-color: rgba(214,21,50,0.22);
+    color: #f87171;
+}
+
+/* Modal overlay */
+.shop-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Modal */
+.shop-modal {
+    background: #161616;
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 420px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.50);
+    animation: shopModalIn .22s ease;
+}
+
+@keyframes shopModalIn {
+    from { opacity:0; transform: scale(.95) translateY(10px); }
+    to   { opacity:1; transform: scale(1) translateY(0); }
+}
+
+.shop-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.shop-modal__title {
+    font-size: 15px;
+    font-weight: 800;
+    color: #f5f5f5;
+    margin: 0;
+}
+
+.shop-modal__close {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.10);
+    color: rgba(255,255,255,0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+}
+
+.shop-modal__close:hover {
+    background: rgba(214,21,50,0.15);
+    border-color: rgba(214,21,50,0.30);
+    color: #f87171;
+}
+
+.shop-modal__body {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 22px 12px;
+}
+
+.shop-modal__img-wrap {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(214,21,50,0.08);
+    border: 1px solid rgba(255,255,255,0.07);
+    flex-shrink: 0;
+}
+
+.shop-modal__img-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.shop-modal__product-name {
+    font-size: 15px;
+    font-weight: 800;
+    color: #f5f5f5;
+    margin: 0 0 3px;
+}
+
+.shop-modal__product-cat {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    margin: 0 0 6px;
+}
+
+.shop-modal__product-price {
+    font-size: 14px;
+    font-weight: 700;
+    color: #ff7080;
+    margin: 0;
+}
+
+.shop-modal__qty-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 22px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.shop-modal__qty-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.shop-modal__qty-ctrl {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.shop-qty-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+    font-family: 'Montserrat', sans-serif;
+    line-height: 1;
+}
+
+.shop-qty-btn:hover {
+    background: rgba(214,21,50,0.15);
+    border-color: rgba(214,21,50,0.30);
+}
+
+.shop-modal__qty-val {
+    font-size: 18px;
+    font-weight: 800;
+    color: #fff;
+    min-width: 24px;
+    text-align: center;
+}
+
+.shop-modal__total-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 22px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.shop-modal__total-val {
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+}
+
+.shop-modal__footer {
+    display: flex;
+    gap: 10px;
+    padding: 14px 22px 20px;
+}
+
+.shop-modal__btn-cancel {
+    flex: 1;
+    padding: 11px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
+    color: rgba(255,255,255,0.60);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    transition: background .15s, border-color .15s, color .15s;
+}
+
+.shop-modal__btn-cancel:hover {
+    background: rgba(255,255,255,0.09);
+    border-color: rgba(255,255,255,0.20);
+    color: #fff;
+}
+
+.shop-modal__btn-confirm {
+    flex: 2;
+    padding: 11px;
+    border-radius: 12px;
+    background: #d61532;
+    border: none;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    transition: opacity .18s, box-shadow .2s;
+}
+
+.shop-modal__btn-confirm:hover {
+    opacity: .88;
+    box-shadow: 0 8px 20px rgba(214,21,50,0.30);
+}
+
+.shop-modal__btn-confirm:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+/* ── LIGHT MODE — Lojinha ──────────────────────────────────── */
+
+[data-theme="light"] .shop-card {
+    background: #fff;
+    border-color: rgba(0,0,0,0.08);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+[data-theme="light"] .shop-card:hover {
+    border-color: rgba(214,21,50,0.22);
+    background: #fff;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.10);
+}
+
+[data-theme="light"] .shop-card__img-wrap {
+    background: rgba(214,21,50,0.05);
+    border-bottom-color: rgba(0,0,0,0.06);
+}
+
+[data-theme="light"] .shop-card-skeleton {
+    background: rgba(0,0,0,0.03);
+    border-color: rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .shop-card__name   { color: #111; }
+[data-theme="light"] .shop-card__price  { color: #111; }
+
+[data-theme="light"] .shop-badge--sup {
+    background: rgba(59,130,246,0.10);
+    border-color: rgba(59,130,246,0.20);
+    color: #1d4ed8;
+}
+
+[data-theme="light"] .shop-badge--ace {
+    background: rgba(22,163,74,0.08);
+    border-color: rgba(22,163,74,0.18);
+    color: #15803d;
+}
+
+[data-theme="light"] .shop-filter-btn {
+    background: #fff;
+    border-color: rgba(0,0,0,0.10);
+    color: rgba(0,0,0,0.72);
+}
+
+[data-theme="light"] .shop-filter-btn:hover {
+    background: rgba(0,0,0,0.04);
+    border-color: rgba(0,0,0,0.18);
+    color: #111;
+}
+
+[data-theme="light"] .shop-filter-btn.is-active {
+    background: rgba(214,21,50,0.07);
+    border-color: rgba(214,21,50,0.22);
+    color: #b91c1c;
+}
+
+[data-theme="light"] .shop-toast {
+    background: rgba(22,163,74,0.08);
+    border-color: rgba(22,163,74,0.20);
+    color: #15803d;
+}
+
+[data-theme="light"] .shop-toast--error {
+    background: rgba(214,21,50,0.07);
+    border-color: rgba(214,21,50,0.18);
+    color: #b91c1c;
+}
+
+[data-theme="light"] .shop-modal {
+    background: #fff;
+    border-color: rgba(0,0,0,0.10);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.15);
+}
+
+[data-theme="light"] .shop-modal__header {
+    border-bottom-color: rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .shop-modal__title { color: #111; }
+
+[data-theme="light"] .shop-modal__close {
+    background: rgba(0,0,0,0.04);
+    border-color: rgba(0,0,0,0.10);
+    color: rgba(0,0,0,0.45);
+}
+
+[data-theme="light"] .shop-modal__close:hover {
+    background: rgba(214,21,50,0.08);
+    border-color: rgba(214,21,50,0.22);
+    color: #b91c1c;
+}
+
+[data-theme="light"] .shop-modal__img-wrap {
+    background: rgba(214,21,50,0.05);
+    border-color: rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .shop-modal__product-name { color: #111; }
+[data-theme="light"] .shop-modal__product-price { color: #b91c1c; }
+
+[data-theme="light"] .shop-modal__qty-row,
+[data-theme="light"] .shop-modal__total-row {
+    border-top-color: rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .shop-qty-btn {
+    background: rgba(0,0,0,0.04);
+    border-color: rgba(0,0,0,0.10);
+    color: #111;
+}
+
+[data-theme="light"] .shop-qty-btn:hover {
+    background: rgba(214,21,50,0.08);
+    border-color: rgba(214,21,50,0.22);
+}
+
+[data-theme="light"] .shop-modal__qty-val  { color: #111; }
+[data-theme="light"] .shop-modal__total-val { color: #111; }
+
+[data-theme="light"] .shop-modal__btn-cancel {
+    background: rgba(0,0,0,0.04);
+    border-color: rgba(0,0,0,0.10);
+    color: rgba(0,0,0,0.55);
+}
+
+[data-theme="light"] .shop-modal__btn-cancel:hover {
+    background: rgba(0,0,0,0.08);
+    border-color: rgba(0,0,0,0.18);
+    color: #111;
+}
+
+/* ── Responsivo — Lojinha ──────────────────────────────────── */
+
+@media (max-width: 640px) {
+    .shop-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .shop-card__name  { font-size: 13px; }
+    .shop-card__price { font-size: 14px; }
+    .shop-card__btn   { font-size: 11px; padding: 6px 12px; }
+
+    .shop-modal { border-radius: 16px; }
+    .shop-modal__footer { flex-direction: column; }
+    .shop-modal__btn-cancel,
+    .shop-modal__btn-confirm { flex: unset; width: 100%; }
+}
+
+@media (max-width: 360px) {
+    .shop-grid { grid-template-columns: 1fr; }
+}
+
+/* ── 1. RELATÓRIO — nome do produto visível no light mode ── */
+[data-theme="light"] .mgr-table td {
+    color: rgba(0,0,0,0.78);
+}
+[data-theme="light"] .mgr-table td span[style*="font-weight:700"],
+[data-theme="light"] .mgr-table td span[style*="color:var(--text-white)"] {
+    color: #111 !important;
+}
+
+/* ── 2. GERENCIAR PRODUTOS — formulário no light mode ── */
+[data-theme="light"] .mgr-table-wrap[style*="background:rgba(255,255,255,0.04)"],
+[data-theme="light"] div[style*="background:rgba(255,255,255,0.04)"][style*="border-radius:20px"] {
+    background: #fff !important;
+    border-color: rgba(0,0,0,0.08) !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
+}
+
+/* Labels do formulário no light mode */
+[data-theme="light"] label[style*="color:rgba(255,255,255,0.75)"] {
+    color: rgba(0,0,0,0.65) !important;
+}
+
+/* Inputs do formulário no light mode */
+[data-theme="light"] input[style*="background:rgba(255,255,255,0.05)"],
+[data-theme="light"] select[style*="background:rgba(255,255,255,0.05)"],
+[data-theme="light"] textarea[style*="background:rgba(255,255,255,0.05)"] {
+    background: #f5f5f5 !important;
+    border-color: rgba(0,0,0,0.12) !important;
+    color: #111 !important;
+}
+[data-theme="light"] input[style*="background:rgba(255,255,255,0.05)"]::placeholder,
+[data-theme="light"] textarea[style*="background:rgba(255,255,255,0.05)"]::placeholder {
+    color: rgba(0,0,0,0.35) !important;
+}
+[data-theme="light"] input[style*="background:rgba(255,255,255,0.05)"]:focus,
+[data-theme="light"] select[style*="background:rgba(255,255,255,0.05)"]:focus,
+[data-theme="light"] textarea[style*="background:rgba(255,255,255,0.05)"]:focus {
+    border-color: rgba(214,21,50,0.40) !important;
+    box-shadow: 0 0 0 3px rgba(214,21,50,0.08) !important;
+}
+
+/* Heading "Cadastrar novo produto" no light mode */
+[data-theme="light"] h3[style*="font-size:18px"] {
+    color: #111 !important;
+}
+
+/* ── 3. MODAL DE COMPRA — botão confirmar (classe .shop-modal__btn) ── */
+.shop-modal__btn {
+    flex: 2;
+    padding: 11px;
+    border-radius: 12px;
+    background: #d61532;
+    border: none;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    transition: opacity .18s, box-shadow .2s;
+}
+.shop-modal__btn:hover {
+    opacity: .88;
+    box-shadow: 0 8px 20px rgba(214,21,50,0.30);
+}
+.shop-modal__btn:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+/* Light mode — modal total label */
+[data-theme="light"] .shop-modal__total-row span {
+    color: rgba(0,0,0,0.55);
+}
+
+/* ── 4. PRODUTO — nome visível no dark mode (relatório) ── */
+.mgr-table td span[style*="color:var(--text-white)"] {
+    color: #f5f5f5 !important;
+}
+
+/* ── 5. GERENCIAR — seção "Produtos cadastrados" título light ── */
+[data-theme="light"] span[style*="color:rgba(255,255,255,0.65)"] {
+    color: rgba(0,0,0,0.55) !important;
+}
+
+/* ── 6. BOTÃO SALVAR (btn-save) — garante estilo base ── */
+.btn-save {
+    display: inline-flex;
+    align-items: center;
+    background: #d61532;
+    color: #fff;
+    font-weight: 700;
+    border: none;
+    border-radius: 99px;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+}
+.btn-save:hover {
+    opacity: .88;
+}
+
+/* ── 7. BTN-GHOST — garante visibilidade light mode ── */
+.btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 18px;
+    border-radius: 99px;
+    border: 1px solid rgba(255,255,255,0.14);
+    color: rgba(255,255,255,0.70);
+    background: transparent;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    transition: color .18s, border-color .18s, background .18s;
+}
+.btn-ghost:hover {
+    color: #fff;
+    border-color: rgba(255,255,255,0.30);
+    background: rgba(255,255,255,0.06);
+}
+[data-theme="light"] .btn-ghost {
+    border-color: rgba(0,0,0,0.14);
+    color: rgba(0,0,0,0.60);
+    background: #fff;
+}
+[data-theme="light"] .btn-ghost:hover {
+    color: #111;
+    border-color: rgba(0,0,0,0.24);
+    background: rgba(0,0,0,0.04);
+}
+
+/* ── 1. SELECT — fundo branco no dark mode ──────────────────── */
+select,
+select option {
+    background: #1e1e1e;
+    color: #f5f5f5;
+}
+
+/* Garante o select inline do formulário de produto */
+#product-category,
+select[name="category"] {
+    background: rgba(255,255,255,0.05) !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
+    color: #f5f5f5 !important;
+    border-radius: 12px;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+#product-category option,
+select[name="category"] option {
+    background: #1e1e1e !important;
+    color: #f5f5f5 !important;
+}
+
+[data-theme="light"] #product-category,
+[data-theme="light"] select[name="category"] {
+    background: #f5f5f5 !important;
+    border-color: rgba(0,0,0,0.12) !important;
+    color: #111 !important;
+}
+
+[data-theme="light"] #product-category option,
+[data-theme="light"] select[name="category"] option {
+    background: #fff !important;
+    color: #111 !important;
+}
+
+/* Fallback global — qualquer select inline com style escuro */
+[data-theme="dark"] select,
+:not([data-theme="light"]) select {
+    background-color: rgba(255,255,255,0.05);
+    color: #f5f5f5;
+    border-color: rgba(255,255,255,0.10);
+}
+
+/* ── 2. HEADINGS do formulário — estilo do site ─────────────── */
+
+/* "Cadastrar novo produto" */
+.mgr-form-section-title,
+#product-form ~ h3,
+h3[style*="font-size:18px"],
+h3[style*="font-size: 18px"] {
+    font-family: 'Montserrat', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    letter-spacing: .10em !important;
+    text-transform: uppercase !important;
+    color: rgba(255,255,255,0.35) !important;
+    margin: 0 0 18px !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+h3[style*="font-size:18px"]::before,
+h3[style*="font-size: 18px"]::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 1px;
+    background: rgba(214,21,50,0.70);
+    flex-shrink: 0;
+}
+
+[data-theme="light"] h3[style*="font-size:18px"],
+[data-theme="light"] h3[style*="font-size: 18px"] {
+    color: rgba(0,0,0,0.45) !important;
+}
+
+/* "Produtos cadastrados" — mesmo padrão */
+.mgr-table-wrap h3,
+div[style*="border-radius:20px"] h3 {
+    font-family: 'Montserrat', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    letter-spacing: .10em !important;
+    text-transform: uppercase !important;
+    color: rgba(255,255,255,0.35) !important;
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mgr-table-wrap h3::before,
+div[style*="border-radius:20px"] h3::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 1px;
+    background: rgba(214,21,50,0.70);
+    flex-shrink: 0;
+}
+
+[data-theme="light"] .mgr-table-wrap h3,
+[data-theme="light"] div[style*="border-radius:20px"] h3 {
+    color: rgba(0,0,0,0.45) !important;
+}
+
+
+/* Body do modal: imagem ao lado do conteúdo */
+.shop-modal__body {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    gap: 16px !important;
+    padding: 20px 22px 14px !important;
+}
+
+/* Imagem quadrada fixa */
+.shop-modal__img-wrap {
+    width: 80px !important;
+    height: 80px !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    flex-shrink: 0 !important;
+    background: rgba(214,21,50,0.08) !important;
+    border: 1px solid rgba(255,255,255,0.07) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.shop-modal__img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+/* Container de texto ao lado da imagem */
+.shop-modal__body > div:last-child {
+    flex: 1 !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+}
+
+/* Botão "Confirmar compra" — VERDE estilizado */
+.shop-modal__btn,
+#shop-modal-confirm-btn {
+    flex: 2 !important;
+    padding: 11px 18px !important;
+    border-radius: 12px !important;
+    background: #16a34a !important;
+    border: 1px solid rgba(34,197,94,0.40) !important;
+    color: #fff !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    letter-spacing: .04em !important;
+    cursor: pointer !important;
+    font-family: 'Montserrat', sans-serif !important;
+    transition: opacity .18s, box-shadow .2s, transform .15s !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 7px !important;
+}
+
+.shop-modal__btn:hover,
+#shop-modal-confirm-btn:hover {
+    opacity: .90 !important;
+    box-shadow: 0 8px 20px rgba(34,197,94,0.30) !important;
+    transform: translateY(-1px) !important;
+}
+
+.shop-modal__btn:active,
+#shop-modal-confirm-btn:active {
+    transform: scale(.97) !important;
+}
+
+.shop-modal__btn:disabled,
+#shop-modal-confirm-btn:disabled {
+    opacity: .50 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+/* Light mode — img-wrap */
+[data-theme="light"] .shop-modal__img-wrap {
+    background: rgba(214,21,50,0.05) !important;
+    border-color: rgba(0,0,0,0.07) !important;
+}
+
+/* Placeholder da imagem centralizado */
+.shop-modal__img-placeholder {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Reset dos fixes anteriores que quebraram */
+.shop-modal__img {
+    position: static !important;
+    inset: auto !important;
+}
+
+.shop-modal__img-placeholder {
+    position: static !important;
+    inset: auto !important;
+}
+
+/* Body: flex row correto */
+.shop-modal__body {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 16px !important;
+    padding: 18px 22px 14px !important;
+}
+
+/* Wrapper da imagem: tamanho fixo, nada vaza */
+.shop-modal__img-wrap {
+    width: 72px !important;
+    height: 72px !important;
+    min-width: 72px !important;
+    max-width: 72px !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    flex-shrink: 0 !important;
+    background: rgba(255,255,255,0.06) !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+}
+
+/* Imagem cobre o quadrado sem distorcer */
+.shop-modal__img-wrap .shop-modal__img,
+.shop-modal__img-wrap img {
+    width: 72px !important;
+    height: 72px !important;
+    min-width: 72px !important;
+    max-width: 72px !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    display: block !important;
+    position: static !important;
+    flex-shrink: 0 !important;
+}
+
+/* Placeholder */
+.shop-modal__img-placeholder {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: static !important;
+}
+
+/* Coluna de texto */
+.shop-modal__body > div {
+    flex: 1 !important;
+    min-width: 0 !important;
+    display: grid !important;
+    gap: 3px !important;
+}
+
+/* Light mode */
+[data-theme="light"] .shop-modal__img-wrap {
+    background: rgba(0,0,0,0.04) !important;
+    border-color: rgba(0,0,0,0.08) !important;
+}
+
+/* ── Botão confirmar — VERMELHO ── */
+.shop-modal__btn,
+#shop-modal-confirm-btn,
+.shop-modal__btn-confirm {
+    flex: 2 !important;
+    padding: 11px 18px !important;
+    border-radius: 12px !important;
+    background: #d61532 !important;
+    border: none !important;
+    color: #fff !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    font-family: 'Montserrat', sans-serif !important;
+    transition: opacity .18s, box-shadow .2s, transform .15s !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: none !important;
+}
+
+.shop-modal__btn:hover,
+#shop-modal-confirm-btn:hover,
+.shop-modal__btn-confirm:hover {
+    opacity: .88 !important;
+    box-shadow: 0 8px 20px rgba(214,21,50,0.30) !important;
+    transform: translateY(-1px) !important;
+}
+
+.shop-modal__btn:disabled,
+#shop-modal-confirm-btn:disabled,
+.shop-modal__btn-confirm:disabled {
+    opacity: .50 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* ── Total row — espaço entre label e valor ── */
+.shop-modal__total-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 12px 22px !important;
+    border-top: 1px solid rgba(255,255,255,0.06) !important;
+    gap: 8px !important;
+}
+
+.shop-modal__total-row span {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: rgba(255,255,255,0.55) !important;
+}
+
+[data-theme="light"] .shop-modal__total-row {
+    border-top-color: rgba(0,0,0,0.07) !important;
+}
+
+[data-theme="light"] .shop-modal__total-row span {
+    color: rgba(0,0,0,0.50) !important;
+}

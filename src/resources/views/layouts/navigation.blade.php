@@ -44,8 +44,32 @@
                         </x-nav-link>
                     @endif
 
+                    {{-- Lojinha — somente aluno matriculado --}}
+                    @if(!Auth::user()->isManager() && !Auth::user()->isInstructor() && Auth::user()->student?->isEnrolled())
+                        <x-nav-link :href="route('shop.index')" :active="request()->routeIs('shop.index')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                 style="flex-shrink:0; margin-right:8px;">
+                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                                <line x1="3" y1="6" x2="21" y2="6"/>
+                                <path d="M16 10a4 4 0 0 1-8 0"/>
+                            </svg>
+                            {{ __('Lojinha') }}
+                        </x-nav-link>
+                    @endif
+
                     {{-- Acessos — somente gerente --}}
                     @if(Auth::user()->isManager())
+                        <x-nav-link :href="route('shop.manager')" :active="request()->routeIs('shop.manager')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                 style="flex-shrink:0; margin-right:8px;">
+                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                                <line x1="3" y1="6" x2="21" y2="6"/>
+                                <path d="M16 10a4 4 0 0 1-8 0"/>
+                            </svg>
+                            {{ __('Lojinha') }}
+                        </x-nav-link>
                         <x-nav-link :href="route('access.index')" :active="request()->routeIs('access.*')">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -142,7 +166,17 @@
                 </x-responsive-nav-link>
             @endif
 
+            {{-- Lojinha mobile --}}
+            @if(!Auth::user()->isManager() && !Auth::user()->isInstructor() && Auth::user()->student?->isEnrolled())
+                <x-responsive-nav-link :href="route('shop.index')" :active="request()->routeIs('shop.index')">
+                    {{ __('Lojinha') }}
+                </x-responsive-nav-link>
+            @endif
+
             @if(Auth::user()->isManager())
+                <x-responsive-nav-link :href="route('shop.manager')" :active="request()->routeIs('shop.manager')">
+                    {{ __('Lojinha') }}
+                </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('access.index')" :active="request()->routeIs('access.*')">
                     {{ __('Controle de Acesso') }}
                 </x-responsive-nav-link>

@@ -1517,21 +1517,26 @@
     color: #f87171;
 }
 
+/* Modal body — imagem ao lado do conteúdo */
 .shop-modal__body {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 18px 22px 12px;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 16px !important;
+    padding: 18px 22px 14px !important;
 }
 
+/* Imagem fixa à esquerda */
 .shop-modal__img-wrap {
-    width: 80px;
-    height: 80px;
-    border-radius: 12px;
-    overflow: hidden;
-    background: rgba(214,21,50,0.08);
-    border: 1px solid rgba(255,255,255,0.07);
-    flex-shrink: 0;
+    width: 72px !important;
+    height: 72px !important;
+    min-width: 72px !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 .shop-modal__img-placeholder {
@@ -2075,30 +2080,6 @@ div[style*="border-radius:20px"] h3::before {
     color: rgba(0,0,0,0.45) !important;
 }
 
-
-/* Body do modal: imagem ao lado do conteúdo */
-.shop-modal__body {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: flex-start !important;
-    gap: 16px !important;
-    padding: 20px 22px 14px !important;
-}
-
-/* Imagem quadrada fixa */
-.shop-modal__img-wrap {
-    width: 80px !important;
-    height: 80px !important;
-    border-radius: 12px !important;
-    overflow: hidden !important;
-    flex-shrink: 0 !important;
-    background: rgba(214,21,50,0.08) !important;
-    border: 1px solid rgba(255,255,255,0.07) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
 .shop-modal__img {
     width: 100% !important;
     height: 100% !important;
@@ -2106,7 +2087,7 @@ div[style*="border-radius:20px"] h3::before {
     display: block !important;
 }
 
-/* Container de texto ao lado da imagem */
+/* Coluna de texto ao lado da imagem */
 .shop-modal__body > div:last-child {
     flex: 1 !important;
     min-width: 0 !important;
@@ -2114,7 +2095,6 @@ div[style*="border-radius:20px"] h3::before {
     flex-direction: column !important;
     gap: 4px !important;
 }
-
 /* Botão "Confirmar compra" — VERDE estilizado */
 .shop-modal__btn,
 #shop-modal-confirm-btn {
@@ -2305,4 +2285,616 @@ div[style*="border-radius:20px"] h3::before {
 
 [data-theme="light"] .shop-modal__total-row span {
     color: rgba(0,0,0,0.50) !important;
+}
+/* ── EVOLUÇÃO FÍSICA — Light Mode ──────────────────────────── */
+
+/* Seção de formulário e histórico */
+[data-theme="light"] div[style*="background:rgba(255,255,255,0.04)"][style*="border-radius:20px"],
+[data-theme="light"] div[style*="background:rgba(255,255,255,0.04)"][style*="border:1px solid rgba(255,255,255,0.08)"] {
+    background: #fff !important;
+    border-color: rgba(0,0,0,0.08) !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05) !important;
+}
+
+/* Labels dos inputs */
+[data-theme="light"] label[style*="color:rgba(255,255,255,0.75)"] {
+    color: rgba(0,0,0,0.60) !important;
+}
+
+/* Inputs e textarea */
+[data-theme="light"] input[style*="background:rgba(255,255,255,0.05)"],
+[data-theme="light"] textarea[style*="background:rgba(255,255,255,0.05)"] {
+    background: #f5f5f5 !important;
+    border-color: rgba(0,0,0,0.12) !important;
+    color: #111 !important;
+}
+
+[data-theme="light"] input[style*="background:rgba(255,255,255,0.05)"]::placeholder,
+[data-theme="light"] textarea[style*="background:rgba(255,255,255,0.05)"]::placeholder {
+    color: rgba(0,0,0,0.30) !important;
+}
+
+[data-theme="light"] input[style*="background:rgba(255,255,255,0.05)"]:focus,
+[data-theme="light"] textarea[style*="background:rgba(255,255,255,0.05)"]:focus {
+    border-color: rgba(214,21,50,0.40) !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(214,21,50,0.08) !important;
+}
+
+/* Cards do histórico (cada avaliação individual) */
+[data-theme="light"] div[style*="background:rgba(255,255,255,0.03)"][style*="border:1px solid rgba(255,255,255,0.07)"] {
+    background: #fafafa !important;
+    border-color: rgba(0,0,0,0.08) !important;
+}
+
+/* Data da avaliação */
+[data-theme="light"] div[style*="font-size:13px; font-weight:700; color:#f5f5f5"] {
+    color: #111 !important;
+}
+
+/* "X ago" */
+[data-theme="light"] div[style*="color:rgba(255,255,255,0.40)"] {
+    color: rgba(0,0,0,0.40) !important;
+}
+
+/* Ícone do card de avaliação */
+[data-theme="light"] div[style*="background:rgba(214,21,50,0.12)"][style*="border:1px solid rgba(214,21,50,0.20)"] {
+    background: rgba(214,21,50,0.07) !important;
+    border-color: rgba(214,21,50,0.15) !important;
+}
+
+/* Cards de resumo (peso atual, IMC, variação) */
+[data-theme="light"] .dash-stat {
+    background: #fff;
+    border-color: rgba(0,0,0,0.07);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+}
+
+[data-theme="light"] .dash-stat:hover {
+    border-color: rgba(214,21,50,0.18);
+}
+
+/* Notas da avaliação */
+[data-theme="light"] div[style*="font-size:12px; color:rgba(255,255,255,0.40)"] {
+    color: rgba(0,0,0,0.45) !important;
+    border-top-color: rgba(0,0,0,0.06) !important;
+}
+
+/* Contador de registros */
+[data-theme="light"] span[style*="color:rgba(255,255,255,0.45)"] {
+    color: rgba(0,0,0,0.40) !important;
+}
+/* ══════════════════════════════════════════════
+   EVOLUÇÃO FÍSICA — estilos da página
+══════════════════════════════════════════════ */
+
+/* Formulário */
+.ev-form-card {
+    padding: 24px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+[data-theme="light"] .ev-form-card {
+    background: #fff;
+    border-color: rgba(0,0,0,0.08);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+}
+
+.ev-section-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .10em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin: 0 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ev-section-title::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 1px;
+    background: rgba(214,21,50,0.70);
+    flex-shrink: 0;
+}
+
+[data-theme="light"] .ev-section-title {
+    color: rgba(0,0,0,0.45);
+}
+
+.ev-count-badge {
+    font-size: 13px;
+    color: rgba(255,255,255,0.45);
+}
+
+[data-theme="light"] .ev-count-badge {
+    color: rgba(0,0,0,0.40);
+}
+
+.ev-label {
+    display: grid;
+    gap: 6px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.75);
+}
+
+[data-theme="light"] .ev-label {
+    color: rgba(0,0,0,0.60);
+}
+
+.ev-optional {
+    opacity: .5;
+}
+
+.ev-input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.ev-input:focus {
+    border-color: rgba(214,21,50,0.45);
+    box-shadow: 0 0 0 3px rgba(214,21,50,0.08);
+}
+
+.ev-input::placeholder {
+    color: rgba(255,255,255,0.25);
+}
+
+.ev-textarea {
+    resize: vertical;
+}
+
+[data-theme="light"] .ev-input {
+    background: #f5f5f5;
+    border-color: rgba(0,0,0,0.12);
+    color: #111;
+}
+
+[data-theme="light"] .ev-input:focus {
+    border-color: rgba(214,21,50,0.40);
+    box-shadow: 0 0 0 3px rgba(214,21,50,0.07);
+}
+
+[data-theme="light"] .ev-input::placeholder {
+    color: rgba(0,0,0,0.30);
+}
+
+/* ── Gráfico ── */
+.ev-chart-wrap {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 20px 20px 14px;
+    margin-bottom: 20px;
+}
+
+[data-theme="light"] .ev-chart-wrap {
+    background: #fafafa;
+    border-color: rgba(0,0,0,0.07);
+}
+
+.ev-chart-meta {
+    display: flex;
+    gap: 28px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+
+.ev-chart-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ev-chart-stat__label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.40);
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    font-weight: 700;
+}
+
+[data-theme="light"] .ev-chart-stat__label {
+    color: rgba(0,0,0,0.40);
+}
+
+.ev-chart-stat__val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 1px;
+    color: var(--text-white);
+    line-height: 1;
+}
+
+[data-theme="light"] .ev-chart-stat__val {
+    color: #111;
+}
+
+.ev-chart-stat__delta {
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 1px;
+}
+
+.ev-delta--down { color: #4ade80; }
+.ev-delta--up   { color: #f87171; }
+
+[data-theme="light"] .ev-delta--down { color: #15803d; }
+[data-theme="light"] .ev-delta--up   { color: #b91c1c; }
+
+.ev-chart-legend {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 10px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.40);
+}
+
+[data-theme="light"] .ev-chart-legend {
+    color: rgba(0,0,0,0.40);
+}
+
+.ev-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.ev-legend-dot {
+    display: inline-block;
+    width: 10px;
+    height: 3px;
+    border-radius: 2px;
+}
+
+.ev-legend-dot--dashed {
+    background: transparent;
+    border-bottom: 2px dashed;
+    height: 0;
+    border-radius: 0;
+}
+
+/* ── Cards de avaliação ── */
+.ev-card {
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.03);
+    overflow: hidden;
+    transition: border-color .2s;
+}
+
+.ev-card:hover {
+    border-color: rgba(255,255,255,0.13);
+}
+
+[data-theme="light"] .ev-card {
+    background: #fafafa;
+    border-color: rgba(0,0,0,0.08);
+}
+
+[data-theme="light"] .ev-card:hover {
+    border-color: rgba(0,0,0,0.14);
+}
+
+.ev-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.ev-card__left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 0;
+}
+
+.ev-card__icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: rgba(214,21,50,0.12);
+    border: 1px solid rgba(214,21,50,0.20);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+[data-theme="light"] .ev-card__icon {
+    background: rgba(214,21,50,0.07);
+    border-color: rgba(214,21,50,0.14);
+}
+
+.ev-card__date {
+    font-size: 13px;
+    font-weight: 700;
+    color: #f5f5f5;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+[data-theme="light"] .ev-card__date {
+    color: #111;
+}
+
+.ev-card__ago {
+    font-size: 11px;
+    color: rgba(255,255,255,0.40);
+    margin-top: 2px;
+}
+
+[data-theme="light"] .ev-card__ago {
+    color: rgba(0,0,0,0.40);
+}
+
+/* Badges recente/primeiro */
+.ev-badge {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 99px;
+}
+
+.ev-badge--latest {
+    background: rgba(214,21,50,0.14);
+    border: 1px solid rgba(214,21,50,0.25);
+    color: #f87171;
+}
+
+.ev-badge--first {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.50);
+}
+
+[data-theme="light"] .ev-badge--latest {
+    background: rgba(214,21,50,0.08);
+    border-color: rgba(214,21,50,0.18);
+    color: #b91c1c;
+}
+
+[data-theme="light"] .ev-badge--first {
+    background: rgba(0,0,0,0.05);
+    border-color: rgba(0,0,0,0.10);
+    color: rgba(0,0,0,0.40);
+}
+
+/* Chips */
+.ev-chips {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.ev-chip {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 99px;
+}
+
+.ev-chip--kg {
+    background: rgba(59,130,246,0.14);
+    border: 1px solid rgba(59,130,246,0.22);
+    color: #93c5fd;
+}
+
+.ev-chip--imc {
+    background: rgba(214,21,50,0.12);
+    border: 1px solid rgba(214,21,50,0.22);
+    color: #f87171;
+}
+
+.ev-chip--fat {
+    background: rgba(34,197,94,0.10);
+    border: 1px solid rgba(34,197,94,0.20);
+    color: #4ade80;
+}
+
+.ev-chip--delta-down {
+    background: rgba(34,197,94,0.10);
+    border: 1px solid rgba(34,197,94,0.20);
+    color: #4ade80;
+}
+
+.ev-chip--delta-up {
+    background: rgba(214,21,50,0.10);
+    border: 1px solid rgba(214,21,50,0.20);
+    color: #f87171;
+}
+
+[data-theme="light"] .ev-chip--kg  { color: #1d4ed8; background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.18); }
+[data-theme="light"] .ev-chip--imc { color: #b91c1c; background: rgba(214,21,50,0.07); border-color: rgba(214,21,50,0.16); }
+[data-theme="light"] .ev-chip--fat { color: #15803d; background: rgba(34,197,94,0.07); border-color: rgba(34,197,94,0.16); }
+[data-theme="light"] .ev-chip--delta-down { color: #15803d; background: rgba(34,197,94,0.07); border-color: rgba(34,197,94,0.16); }
+[data-theme="light"] .ev-chip--delta-up   { color: #b91c1c; background: rgba(214,21,50,0.07); border-color: rgba(214,21,50,0.16); }
+
+/* Barra IMC */
+.ev-imc-bar-wrap {
+    padding: 0 18px 14px;
+}
+
+.ev-imc-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.40);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+[data-theme="light"] .ev-imc-label {
+    color: rgba(0,0,0,0.40);
+}
+
+.ev-imc-val {
+    font-weight: 700;
+    color: rgba(255,255,255,0.75);
+}
+
+[data-theme="light"] .ev-imc-val {
+    color: rgba(0,0,0,0.65);
+}
+
+.ev-imc-track {
+    height: 5px;
+    border-radius: 99px;
+    background: rgba(255,255,255,0.08);
+    overflow: visible;
+    position: relative;
+}
+
+[data-theme="light"] .ev-imc-track {
+    background: rgba(0,0,0,0.08);
+}
+
+.ev-imc-fill {
+    height: 100%;
+    border-radius: 99px;
+    position: relative;
+    transition: width .6s ease;
+}
+
+.ev-imc-marker {
+    position: absolute;
+    top: -3px;
+    right: -1px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.15);
+}
+
+[data-theme="light"] .ev-imc-marker {
+    border-color: #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.20);
+}
+
+.ev-imc-scale {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: rgba(255,255,255,0.25);
+    margin-top: 4px;
+}
+
+[data-theme="light"] .ev-imc-scale {
+    color: rgba(0,0,0,0.30);
+}
+
+/* Nota */
+.ev-note {
+    padding: 10px 18px 14px 30px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.40);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+    line-height: 1.5;
+}
+
+.ev-note::before {
+    content: '"';
+    position: absolute;
+    left: 14px;
+    top: 6px;
+    font-size: 22px;
+    color: rgba(255,255,255,0.12);
+    line-height: 1;
+    font-family: Georgia, serif;
+}
+
+[data-theme="light"] .ev-note {
+    color: rgba(0,0,0,0.45);
+    border-top-color: rgba(0,0,0,0.06);
+}
+
+[data-theme="light"] .ev-note::before {
+    color: rgba(0,0,0,0.10);
+}
+/* Gráfico — fundo do canvas visível no dark */
+.ev-chart-wrap canvas {
+    border-radius: 8px;
+}
+
+/* Corrige o fill vermelho que some no dark */
+.ev-chart-wrap {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Stat values no dark mode — "Bebas Neue" herdando cor errada */
+.ev-chart-stat__val {
+    color: #f5f5f5;
+}
+
+/* Delta labels mais vivos no dark */
+.ev-delta--up {
+    color: #f87171;
+}
+.ev-delta--down {
+    color: #4ade80;
+}
+
+/* Chip delta up (▲ 10 kg) — vermelho mais legível */
+.ev-chip--delta-up {
+    background: rgba(214,21,50,0.16);
+    border-color: rgba(214,21,50,0.30);
+    color: #fca5a5;
+}
+
+/* IMC label e scale no dark */
+.ev-imc-label {
+    color: rgba(255,255,255,0.55);
+}
+.ev-imc-val {
+    color: rgba(255,255,255,0.90);
+}
+.ev-imc-scale {
+    color: rgba(255,255,255,0.30);
+}
+
+/* Ago text */
+.ev-card__ago {
+    color: rgba(255,255,255,0.45);
+}
+
+/* Nota */
+.ev-note {
+    color: rgba(255,255,255,0.50);
+    border-top-color: rgba(255,255,255,0.07);
+}
+.ev-note::before {
+    color: rgba(255,255,255,0.15);
+}
+
+/* Legenda do gráfico */
+.ev-chart-legend {
+    color: rgba(255,255,255,0.50);
 }

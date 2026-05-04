@@ -1,5 +1,4 @@
 <nav x-data="{ open: false }" class="nav-main">
-
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
 
@@ -58,7 +57,19 @@
                         </x-nav-link>
                     @endif
 
-                    {{-- Acessos — somente gerente --}}
+                    {{-- Evolução Física — instrutor --}}
+                    @if(Auth::user()->isInstructor())
+                        <x-nav-link :href="route('evaluations.instructor')" :active="request()->routeIs('evaluations.instructor')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                 style="flex-shrink:0; margin-right:8px;">
+                                <path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 4-6"/>
+                            </svg>
+                            {{ __('Evolução') }}
+                        </x-nav-link>
+                    @endif
+
+                    {{-- Links do gerente --}}
                     @if(Auth::user()->isManager())
                         <x-nav-link :href="route('shop.manager')" :active="request()->routeIs('shop.manager')">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -85,11 +96,9 @@
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:ms-6" style="gap:8px;">
-
                 <button id="btnTheme" class="nav-btn-icon" aria-label="Trocar tema" type="button">
                     <i class="fa-solid fa-moon"></i>
                 </button>
-
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="nav-user-btn">
@@ -100,7 +109,6 @@
                             </svg>
                         </button>
                     </x-slot>
-
                     <x-slot name="content">
                         <x-dropdown-link :href="route('profile.edit')">
                             {{ __('Perfil') }}
@@ -114,7 +122,6 @@
                         </form>
                     </x-slot>
                 </x-dropdown>
-
             </div>
 
             {{-- Botão hamburguer mobile --}}
@@ -145,6 +152,8 @@
                         Perfil
                     @elseif(request()->routeIs('enrollment.*'))
                         Matrícula
+                    @elseif(request()->routeIs('evaluations.*'))
+                        Evolução Física
                     @else
                         {{ ucfirst(request()->segment(1) ?? 'Página') }}
                     @endif
@@ -164,12 +173,14 @@
                 <x-responsive-nav-link :href="route('workouts.index')" :active="request()->routeIs('workouts.*')">
                     {{ __('Treinos') }}
                 </x-responsive-nav-link>
-            @endif
-
-            {{-- Lojinha mobile --}}
-            @if(!Auth::user()->isManager() && !Auth::user()->isInstructor() && Auth::user()->student?->isEnrolled())
                 <x-responsive-nav-link :href="route('shop.index')" :active="request()->routeIs('shop.index')">
                     {{ __('Lojinha') }}
+                </x-responsive-nav-link>
+            @endif
+
+            @if(Auth::user()->isInstructor())
+                <x-responsive-nav-link :href="route('evaluations.instructor')" :active="request()->routeIs('evaluations.instructor')">
+                    {{ __('Evolução Física') }}
                 </x-responsive-nav-link>
             @endif
 
@@ -179,6 +190,9 @@
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('access.index')" :active="request()->routeIs('access.*')">
                     {{ __('Controle de Acesso') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('evaluations.manager')" :active="request()->routeIs('evaluations.manager')">
+                    {{ __('Evolução Física') }}
                 </x-responsive-nav-link>
             @endif
         </div>

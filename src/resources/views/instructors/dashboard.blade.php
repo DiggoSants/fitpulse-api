@@ -205,22 +205,32 @@
             {{-- VISÃO DO INSTRUTOR--}}
             @elseif(Auth::user()->isInstructor())
 
-            <div class="dash-hero">
-                <div class="dash-hero__ring"></div>
-                <div class="dash-hero__inner">
-                    <div>
-                        <div class="dash-hero__eyebrow">Bem-vindo de volta</div>
-                        <h2 class="dash-hero__title">Meus Alunos</h2>
-                        <p class="dash-hero__sub">{{ $instructor->specialty ?? 'Instrutor' }}</p>
-                    </div>
-                    <div class="dash-hero__right">
-                        <span class="dash-hero__pulse">
-                            <span class="dash-hero__pulse-dot"></span>
-                            INSTRUTOR
-                        </span>
-                    </div>
-                </div>
-            </div>
+            <div class="dash-hero" style="overflow:visible;">
+    <div class="dash-hero__ring"></div>
+    <div class="dash-hero__inner">
+        <div>
+            <div class="dash-hero__eyebrow">Bem-vindo de volta</div>
+            <h2 class="dash-hero__title">Meus Alunos</h2>
+            <p class="dash-hero__sub">{{ $instructor->specialty ?? 'Instrutor' }}</p>
+        </div>
+        <div class="dash-hero__right" style="display:flex; flex-direction:row; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:10px;">
+            <span class="dash-hero__pulse">
+                <span class="dash-hero__pulse-dot"></span>
+                INSTRUTOR
+            </span>
+            <a href="{{ route('evaluations.instructor') }}" class="btn-ghost"
+               style="text-decoration:none; display:inline-flex; align-items:center; gap:7px; font-size:12px; padding:9px 18px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                     style="stroke:currentColor; stroke-width:2; stroke-linecap:round;">
+                    <path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 4-6"/>
+                </svg>
+                Evolução Física
+            </a>
+        </div>
+    </div>
+</div>
+
+    
 
             <div class="invite-box">
                 <div>

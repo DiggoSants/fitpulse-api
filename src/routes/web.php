@@ -41,6 +41,7 @@ Route::middleware('auth')->group(function () {
 // ── Alunos ────────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('students', StudentController::class);
+    
 });
 
 // ── Exercícios ─────────────────────────────────
@@ -179,5 +180,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/evaluations/{user_id}',                 [EvaluationController::class, 'history'])->name('evaluations.history');
     Route::get('/reports/physical/evolution/{user_id}',  [EvaluationController::class, 'evolution'])->name('reports.physical.evolution');
 });
+// ── Evolução Física — views ───────────────────────────────────────────────────
+Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
+    Route::get('/evolucao', [EvaluationController::class, 'studentPage'])->name('evaluations.page');
+});
 
+Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
+    Route::get('/evolucao/gerente', [EvaluationController::class, 'managerPage'])->name('evaluations.manager');
+});
+
+Route::middleware(['auth', 'verified', 'role:manager,instructor'])->group(function () {
+    Route::get('/evolucao/instrutor', [EvaluationController::class, 'instructorPage'])->name('evaluations.instructor');
+});
 require __DIR__ . '/auth.php';

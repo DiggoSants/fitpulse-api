@@ -2245,3 +2245,73 @@
             border-color: rgba(0,0,0,0.09);
             color: rgba(0,0,0,0.45);
         }
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+/* ── CONFIRM MODAL — botões ── */
+#confirm-overlay .confirm-btn-cancel {
+    flex: 1;
+    padding: 11px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
+    color: rgba(255,255,255,0.60);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    transition: background .18s, border-color .18s, color .18s, transform .15s;
+}
+
+#confirm-overlay .confirm-btn-cancel:hover {
+    background: rgba(255,255,255,0.10);
+    border-color: rgba(255,255,255,0.22);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+#confirm-overlay .confirm-btn-ok {
+    flex: 2;
+    padding: 11px;
+    border-radius: 12px;
+    background: #d61532;
+    border: 1px solid rgba(214,21,50,0.50);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    transition: opacity .18s, box-shadow .2s, transform .15s;
+}
+
+#confirm-overlay .confirm-btn-ok:hover {
+    opacity: .88;
+    box-shadow: 0 8px 24px rgba(214,21,50,0.40);
+    transform: translateY(-1px);
+}
+
+#confirm-overlay .confirm-btn-ok:active,
+#confirm-overlay .confirm-btn-cancel:active {
+    transform: scale(.97);
+}
+
+[data-theme="light"] #confirm-overlay > div {
+    background: #fff !important;
+    border-color: rgba(0,0,0,0.10) !important;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.15) !important;
+}
+
+[data-theme="light"] #confirm-overlay p:first-of-type { color: #111 !important; }
+[data-theme="light"] #confirm-overlay p:last-of-type  { color: rgba(0,0,0,0.50) !important; }
+
+[data-theme="light"] #confirm-overlay .confirm-btn-cancel {
+    background: rgba(0,0,0,0.04);
+    border-color: rgba(0,0,0,0.10);
+    color: rgba(0,0,0,0.55);
+}
+
+[data-theme="light"] #confirm-overlay .confirm-btn-cancel:hover {
+    background: rgba(0,0,0,0.08);
+    border-color: rgba(0,0,0,0.18);
+    color: #111;
+}

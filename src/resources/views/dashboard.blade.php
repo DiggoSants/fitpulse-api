@@ -120,7 +120,7 @@
                         onclick="showManagerSection('reports-section', this)"
                     >
                         Relatórios
-                        <span class="mgr-tab__count">5</span>
+                        <span class="mgr-tab__count">6</span>
                     </button>
                 </div>
 
@@ -585,6 +585,23 @@
     </div>
 </a>
 </div>
+{{-- após o card "Vendas da Lojinha" --}}
+<a href="{{ route('evaluations.manager') }}" class="report-card report-card--blue">
+    <div class="report-card__body">
+        <div class="report-card__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="stroke:#93c5fd;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;">
+                <path d="M3 3v18h18"/>
+                <path d="M7 16l4-4 4 4 4-6"/>
+            </svg>
+        </div>
+        <p class="report-card__title">Evolução Física</p>
+        <p class="report-card__desc">Histórico de avaliações físicas dos alunos com evolução de peso, IMC e gordura corporal.</p>
+    </div>
+    <div class="report-card__footer">
+        <span class="report-card__footer-label">Abrir relatório</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M2.5 7h9M7.5 3l4 4-4 4"/></svg>
+    </div>
+</a>
     </div>
 
                 {{-- ══════════════════════════════════════════════════════════════
@@ -1057,7 +1074,26 @@
                             <path d="M2.5 7h9M7.5 3l4 4-4 4"/>
                         </svg>
                     </a>
+                        {{-- após o card "Pagar Mensalidade" --}}
+<a href="{{ route('evaluations.page') }}" class="student-action-card student-action-card--workout">
+    <div class="student-action-card__icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+             style="stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;">
+            <path d="M3 3v18h18"/>
+            <path d="M7 16l4-4 4 4 4-6"/>
+        </svg>
+    </div>
+    <div class="student-action-card__content">
+        <p class="student-action-card__label">Minha Evolução</p>
+        <p class="student-action-card__hint">Ver histórico físico</p>
+    </div>
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
+         style="stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; opacity:.45; flex-shrink:0;">
+        <path d="M2.5 7h9M7.5 3l4 4-4 4"/>
+    </svg>
+</a>
                 </div>
+            
             @endif
         </div>
     </div>

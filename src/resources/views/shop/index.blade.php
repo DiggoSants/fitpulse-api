@@ -44,53 +44,50 @@
         </div>
     </div>
 
-    <div id="shop-modal-overlay" class="shop-modal-overlay" style="display:none;">
-        <div class="shop-modal">
-            <div class="shop-modal__header">
-                <h3 class="shop-modal__title">Confirmar compra</h3>
-                <button type="button" class="shop-modal__close" onclick="closeShopModal()">✕</button>
-            </div>
-            <div class="shop-modal__body">
-                <div class="shop-modal__img-wrap">
-                    <img id="shop-modal-img" src="" alt="" class="shop-modal__img" style="display:none;" />
-                    <div id="shop-modal-img-placeholder" class="shop-modal__img-placeholder">
-                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
-                             style="stroke:currentColor; stroke-width:1.5; opacity:.35;">
-                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-                            <line x1="3" y1="6" x2="21" y2="6"/>
-                            <path d="M16 10a4 4 0 0 1-8 0"/>
-                        </svg>
-                    </div>
-                </div>
-                <div style="display:grid; gap:16px;">
-                    <div>
-                        <div id="shop-modal-name" class="shop-modal__product-name"></div>
-                        <div id="shop-modal-cat" class="shop-modal__product-cat"></div>
-                        <div id="shop-modal-price" class="shop-modal__product-price"></div>
-                    </div>
-                    <div class="shop-modal__qty-row">
-                        <div class="shop-modal__qty-label">Quantidade</div>
-                        <div class="shop-modal__qty-ctrl">
-                            <button type="button" class="shop-qty-btn" onclick="changeQty(-1)">-</button>
-                            <div id="shop-modal-qty" class="shop-modal__qty-val">1</div>
-                            <button type="button" class="shop-qty-btn" onclick="changeQty(1)">+</button>
-                        </div>
-                    </div>
-                    <div class="shop-modal__total-row">
-                        <span>Total</span>
-                        <strong id="shop-modal-total" class="shop-modal__total-val">R$ 0,00</strong>
-                    </div>
+   <div id="shop-modal-overlay" class="shop-modal-overlay" style="display:none;">
+    <div class="shop-modal">
+        <div class="shop-modal__header">
+            <h3 class="shop-modal__title">Confirmar compra</h3>
+            <button type="button" class="shop-modal__close" onclick="closeShopModal()">✕</button>
+        </div>
+        <div class="shop-modal__body">
+            <div class="shop-modal__img-wrap">
+                <img id="shop-modal-img" src="" alt="" class="shop-modal__img" style="display:none;" />
+                <div id="shop-modal-img-placeholder" class="shop-modal__img-placeholder">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
+                         style="stroke:currentColor; stroke-width:1.5; opacity:.35;">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <path d="M16 10a4 4 0 0 1-8 0"/>
+                    </svg>
                 </div>
             </div>
-            <div class="shop-modal__footer">
-                <button type="button" class="shop-modal__btn-cancel" onclick="closeShopModal()">Cancelar</button>
-                <button type="button" id="shop-modal-confirm-btn" class="shop-modal__btn" onclick="confirmPurchase()">Confirmar compra</button>
+            <div>
+                <div id="shop-modal-name" class="shop-modal__product-name"></div>
+                <div id="shop-modal-cat" class="shop-modal__product-cat"></div>
+                <div id="shop-modal-price" class="shop-modal__product-price"></div>
             </div>
         </div>
+        <div class="shop-modal__qty-row">
+            <div class="shop-modal__qty-label">Quantidade</div>
+            <div class="shop-modal__qty-ctrl">
+                <button type="button" class="shop-qty-btn" onclick="changeQty(-1)">-</button>
+                <div id="shop-modal-qty" class="shop-modal__qty-val">1</div>
+                <button type="button" class="shop-qty-btn" onclick="changeQty(1)">+</button>
+            </div>
+        </div>
+        <div class="shop-modal__total-row">
+            <span>Total</span>
+            <strong id="shop-modal-total" class="shop-modal__total-val">R$ 0,00</strong>
+        </div>
+        <div class="shop-modal__footer">
+            <button type="button" class="shop-modal__btn-cancel" onclick="closeShopModal()">Cancelar</button>
+            <button type="button" id="shop-modal-confirm-btn" class="shop-modal__btn" onclick="confirmPurchase()">Confirmar compra</button>
+        </div>
     </div>
+</div>
 
-    <div id="shop-toast" class="shop-toast" style="display:none;"></div>
-
+<div id="shop-toast" class="shop-toast" style="display:none;"></div>
     <script>
         const CSRF   = document.querySelector('meta[name="csrf-token"]').content;
         const ENDPOINT_PRODUCTS = "{{ route('products.index') }}";

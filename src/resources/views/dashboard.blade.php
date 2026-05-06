@@ -120,7 +120,7 @@
                         onclick="showManagerSection('reports-section', this)"
                     >
                         Relatórios
-                        <span class="mgr-tab__count">4</span>
+                        <span class="mgr-tab__count">6</span>
                     </button>
                 </div>
 
@@ -470,9 +470,7 @@
                     @endif
                 </div>
 
-               {{-- ══════════════════════════════════════════════════════════════
-     SEÇÃO RELATÓRIOS
-══════════════════════════════════════════════════════════════ --}}
+               {{-- ═════════SEÇÃO RELATÓRIOS═══════════ --}}
 <div id="reports-section" class="mgr-section" style="display:none;">
     <div style="margin-bottom:20px;">
         <p class="section-label">RELATÓRIOS</p>
@@ -568,11 +566,44 @@
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M2.5 7h9M7.5 3l4 4-4 4"/></svg>
             </div>
         </a>
-
-
-
+            {{-- Relatório Lojinha --}}
+<a href="{{ route('reports.shop.products') }}" class="report-card report-card--green">
+    <div class="report-card__body">
+        <div class="report-card__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="stroke:#4ade80;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <path d="M16 10a4 4 0 0 1-8 0"/>
+            </svg>
+        </div>
+        <p class="report-card__title">Vendas da Lojinha</p>
+        <p class="report-card__desc">Produtos mais vendidos, receita total e lucro por item.</p>
     </div>
+    <div class="report-card__footer">
+        <span class="report-card__footer-label">Abrir relatório</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M2.5 7h9M7.5 3l4 4-4 4"/></svg>
+    </div>
+</a>
 </div>
+{{-- após o card "Vendas da Lojinha" --}}
+<a href="{{ route('evaluations.manager') }}" class="report-card report-card--blue">
+    <div class="report-card__body">
+        <div class="report-card__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="stroke:#93c5fd;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;">
+                <path d="M3 3v18h18"/>
+                <path d="M7 16l4-4 4 4 4-6"/>
+            </svg>
+        </div>
+        <p class="report-card__title">Evolução Física</p>
+        <p class="report-card__desc">Histórico de avaliações físicas dos alunos com evolução de peso, IMC e gordura corporal.</p>
+    </div>
+    <div class="report-card__footer">
+        <span class="report-card__footer-label">Abrir relatório</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M2.5 7h9M7.5 3l4 4-4 4"/></svg>
+    </div>
+</a>
+    </div>
+
                 {{-- ══════════════════════════════════════════════════════════════
                      SEÇÃO FREQUÊNCIA
                 ══════════════════════════════════════════════════════════════ --}}
@@ -1043,7 +1074,26 @@
                             <path d="M2.5 7h9M7.5 3l4 4-4 4"/>
                         </svg>
                     </a>
+                        {{-- após o card "Pagar Mensalidade" --}}
+<a href="{{ route('evaluations.page') }}" class="student-action-card student-action-card--workout">
+    <div class="student-action-card__icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+             style="stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;">
+            <path d="M3 3v18h18"/>
+            <path d="M7 16l4-4 4 4 4-6"/>
+        </svg>
+    </div>
+    <div class="student-action-card__content">
+        <p class="student-action-card__label">Minha Evolução</p>
+        <p class="student-action-card__hint">Ver histórico físico</p>
+    </div>
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
+         style="stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; opacity:.45; flex-shrink:0;">
+        <path d="M2.5 7h9M7.5 3l4 4-4 4"/>
+    </svg>
+</a>
                 </div>
+            
             @endif
         </div>
     </div>
@@ -1319,5 +1369,206 @@
             loadHeatmap();
         })();
 
+
+(function () {
+    const CSRF   = document.querySelector('meta[name="csrf-token"]').content;
+    const ENDPOINT_PRODUCTS = "{{ route('products.index') }}";
+    const ENDPOINT_SALE     = "{{ route('sales.store') }}";
+
+    let allProducts    = [];
+    let currentFilter  = 'all';
+    let selectedProduct = null;
+    let currentQty     = 1;
+
+    // ── Carregar produtos ────────────────────────────────────────
+    async function loadProducts() {
+        try {
+            const res  = await fetch(ENDPOINT_PRODUCTS, {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const json = await res.json();
+            allProducts = json.data ?? [];
+
+            document.getElementById('shop-skeleton').style.display = 'none';
+
+            if (!allProducts.length) {
+                document.getElementById('shop-empty').style.display = 'block';
+                return;
+            }
+
+            renderProducts(allProducts);
+            document.getElementById('shop-grid').style.display = 'grid';
+        } catch (e) {
+            document.getElementById('shop-skeleton').style.display = 'none';
+            document.getElementById('shop-empty').style.display    = 'block';
+            console.error('Shop error:', e);
+        }
+    }
+
+    function renderProducts(products) {
+        const grid = document.getElementById('shop-grid');
+        grid.innerHTML = '';
+
+        const filtered = currentFilter === 'all'
+            ? products
+            : products.filter(p => p.category === currentFilter);
+
+        if (!filtered.length) {
+            grid.style.display = 'none';
+            document.getElementById('shop-empty').style.display = 'block';
+            return;
+        }
+
+        document.getElementById('shop-empty').style.display = 'none';
+        grid.style.display = 'grid';
+
+        filtered.forEach(p => {
+            const price = parseFloat(p.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            const catLabel = p.category === 'suplemento' ? 'Suplemento' : 'Acessório';
+            const catClass  = p.category === 'suplemento' ? 'shop-badge--sup' : 'shop-badge--ace';
+
+            const card = document.createElement('div');
+            card.className        = 'shop-card';
+            card.dataset.category = p.category;
+
+            card.innerHTML = `
+                <div class="shop-card__img-wrap">
+                    ${p.image
+                        ? `<img src="${p.image}" alt="${p.name}" class="shop-card__img" loading="lazy">`
+                        : `<div class="shop-card__img-placeholder">
+                               <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+                                    style="stroke:var(--text-muted); stroke-width:1.5; opacity:.30;">
+                                   <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                                   <line x1="3" y1="6" x2="21" y2="6"/>
+                                   <path d="M16 10a4 4 0 0 1-8 0"/>
+                               </svg>
+                           </div>`
+                    }
+                    <span class="shop-badge ${catClass}">${catLabel}</span>
+                </div>
+                <div class="shop-card__body">
+                    <p class="shop-card__name">${p.name}</p>
+                    ${p.description ? `<p class="shop-card__desc">${p.description}</p>` : ''}
+                    <div class="shop-card__footer">
+                        <span class="shop-card__price">${price}</span>
+                        <button type="button" class="shop-card__btn" onclick="openShopModal(${JSON.stringify(p).replace(/"/g, '&quot;')})">
+                            Comprar
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            grid.appendChild(card);
+        });
+    }
+
+    // ── Filtro ────────────────────────────────────────────────────
+    window.shopFilter = function (type, btn) {
+        document.querySelectorAll('.shop-filter-btn').forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        currentFilter = type;
+        renderProducts(allProducts);
+    };
+
+    // ── Modal ─────────────────────────────────────────────────────
+    window.openShopModal = function (product) {
+        selectedProduct = product;
+        currentQty      = 1;
+
+        const img         = document.getElementById('shop-modal-img');
+        const placeholder = document.getElementById('shop-modal-img-placeholder');
+
+        if (product.image) {
+            img.src           = product.image;
+            img.style.display = 'block';
+            placeholder.style.display = 'none';
+        } else {
+            img.style.display         = 'none';
+            placeholder.style.display = 'flex';
+        }
+
+        document.getElementById('shop-modal-name').textContent  = product.name;
+        document.getElementById('shop-modal-cat').textContent   = product.category === 'suplemento' ? 'Suplemento' : 'Acessório';
+        document.getElementById('shop-modal-qty').textContent   = '1';
+        updateModalTotal();
+
+        document.getElementById('shop-modal-overlay').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    };
+
+    window.closeShopModal = function () {
+        document.getElementById('shop-modal-overlay').style.display = 'none';
+        document.body.style.overflow = '';
+        selectedProduct = null;
+    };
+
+    window.changeQty = function (delta) {
+        currentQty = Math.max(1, currentQty + delta);
+        document.getElementById('shop-modal-qty').textContent = currentQty;
+        updateModalTotal();
+    };
+
+    function updateModalTotal() {
+        if (!selectedProduct) return;
+        const total = (parseFloat(selectedProduct.price) * currentQty)
+            .toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        document.getElementById('shop-modal-price').textContent = parseFloat(selectedProduct.price)
+            .toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) + ' / un.';
+        document.getElementById('shop-modal-total').textContent = total;
+    }
+
+    window.confirmPurchase = async function () {
+        if (!selectedProduct) return;
+
+        const btn         = document.getElementById('shop-modal-confirm-btn');
+        btn.disabled      = true;
+        btn.textContent   = 'Processando...';
+
+        try {
+            const res = await fetch(ENDPOINT_SALE, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept':       'application/json',
+                    'X-CSRF-TOKEN': CSRF,
+                },
+                body: JSON.stringify({ product_id: selectedProduct.id, quantity: currentQty }),
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                closeShopModal();
+                showShopToast('Compra realizada com sucesso! 🎉', 'success');
+            } else {
+                showShopToast(data.message || 'Erro ao processar compra.', 'error');
+            }
+        } catch (e) {
+            showShopToast('Erro de conexão. Tente novamente.', 'error');
+        } finally {
+            btn.disabled    = false;
+            btn.textContent = 'Confirmar compra';
+        }
+    };
+
+    function showShopToast(msg, type) {
+        const toast         = document.getElementById('shop-toast');
+        toast.textContent   = msg;
+        toast.style.display = 'flex';
+        toast.className     = 'shop-toast' + (type === 'error' ? ' shop-toast--error' : '');
+
+        setTimeout(() => {
+            toast.style.opacity   = '0';
+            toast.style.transform = 'translateY(-6px)';
+            setTimeout(() => {
+                toast.style.display   = 'none';
+                toast.style.opacity   = '1';
+                toast.style.transform = 'none';
+            }, 300);
+        }, 3500);
+    }
+
+    loadProducts();
+})();
     </script>
 </x-app-layout>

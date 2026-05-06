@@ -16,6 +16,7 @@ use App\Http\Controllers\AccessController;
 use App\Http\Controllers\FrequencyController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\EvaluationController;
+use App\Http\Controllers\MaintenanceController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -41,7 +42,6 @@ Route::middleware('auth')->group(function () {
 // ── Alunos ────────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('students', StudentController::class);
-    
 });
 
 // ── Exercícios ─────────────────────────────────
@@ -160,18 +160,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // Compra — alunos matriculados e gerentes
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
     Route::post('/sales', [ShopController::class, 'sale'])->name('sales.store');
+    Route::get('/lojinha', [ShopController::class, 'studentView'])->name('shop.index');
 });
 
 // Cadastro e gerenciamento — só gerentes
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
-    Route::post('/products',        [ShopController::class, 'store'])->name('products.store');
-    Route::put('/products/{id}',    [ShopController::class, 'update'])->name('products.update');
-    Route::delete('/products/{id}', [ShopController::class, 'destroy'])->name('products.destroy');
+    Route::post('/products',              [ShopController::class, 'store'])->name('products.store');
+    Route::put('/products/{id}',          [ShopController::class, 'update'])->name('products.update');
+    Route::delete('/products/{id}',       [ShopController::class, 'destroy'])->name('products.destroy');
     Route::post('/products/{id}/restore', [ShopController::class, 'restore'])->name('products.restore');
-    Route::get('/lojinha/manager',  [ShopController::class, 'managerView'])->name('shop.manager');
-});
-Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
-    Route::get('/lojinha', [ShopController::class, 'studentView'])->name('shop.index');
+    Route::get('/lojinha/manager',        [ShopController::class, 'managerView'])->name('shop.manager');
 });
 
 // ── Avaliação física ──────────────────────────────────────────────────────────
@@ -180,6 +178,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/evaluations/{user_id}',                 [EvaluationController::class, 'history'])->name('evaluations.history');
     Route::get('/reports/physical/evolution/{user_id}',  [EvaluationController::class, 'evolution'])->name('reports.physical.evolution');
 });
+
 // ── Evolução Física — views ───────────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
     Route::get('/evolucao', [EvaluationController::class, 'studentPage'])->name('evaluations.page');
@@ -192,4 +191,19 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
 Route::middleware(['auth', 'verified', 'role:manager,instructor'])->group(function () {
     Route::get('/evolucao/instrutor', [EvaluationController::class, 'instructorPage'])->name('evaluations.instructor');
 });
+
+// ── Manutenção de equipamentos ────────────────────────────────────────────────
+// Listagem — todos autenticados podem ver
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/equipment',   [MaintenanceController::class, 'equipment'])->name('equipment.index');
+    Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance.index');
+});
+
+// Registro e resolução — só gerentes
+Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
+    Route::post('/equipment',       [MaintenanceController::class, 'storeEquipment'])->name('equipment.store');
+    Route::post('/maintenance',     [MaintenanceController::class, 'store'])->name('maintenance.store');
+    Route::put('/maintenance/{id}', [MaintenanceController::class, 'resolve'])->name('maintenance.resolve');
+});
+
 require __DIR__ . '/auth.php';

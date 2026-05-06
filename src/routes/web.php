@@ -16,6 +16,7 @@ use App\Http\Controllers\AccessController;
 use App\Http\Controllers\FrequencyController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\EvaluationController;
+use App\Http\Controllers\MaintenanceController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -173,6 +174,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/evaluations',                          [EvaluationController::class, 'store'])->name('evaluations.store');
     Route::get('/evaluations/{user_id}',                 [EvaluationController::class, 'history'])->name('evaluations.history');
     Route::get('/reports/physical/evolution/{user_id}',  [EvaluationController::class, 'evolution'])->name('reports.physical.evolution');
+});
+
+// ── Manutenção de equipamentos ────────────────────────────────────────────────
+// Listagem — todos autenticados podem ver
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/equipment',   [MaintenanceController::class, 'equipment'])->name('equipment.index');
+    Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance.index');
+});
+
+// Registro e resolução — só gerentes
+Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
+    Route::post('/equipment',        [MaintenanceController::class, 'storeEquipment'])->name('equipment.store');
+    Route::post('/maintenance',      [MaintenanceController::class, 'store'])->name('maintenance.store');
+    Route::put('/maintenance/{id}',  [MaintenanceController::class, 'resolve'])->name('maintenance.resolve');
 });
 
 require __DIR__ . '/auth.php';

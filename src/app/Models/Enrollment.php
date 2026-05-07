@@ -43,11 +43,29 @@ class Enrollment extends Model
             && ($this->end_date->isFuture() || $this->end_date->isToday());
     }
 
-    public function cancel(): void
-    {
-        $this->update([
-            'status'       => 'cancelled',
-            'cancelled_at' => now(),
-        ]);
+   public function cancel(Request $request)
+{
+    /** @var \App\Models\User $user */
+    $user    = Auth::user();
+    $student = Student::where('user_id', $user->id)->firstOrFail();
+
+    $enrollment = Enrollment::where('student_id', $student->id)
+        ->where('status', 'active')
+        ->first();
+
+    if (!$enrollment) {
+        return back()->with('error', 'Nenhuma matrícula ativa encontrada.');
     }
+
+    $enrollment->update([
+        'status'       => 'cancelled',
+        'cancelled_at' => now(),
+    ]);
+
+    // Remove o instrutor vinculado
+    $student->update(['instructor_id' => null]);
+
+    return redirect()->route('dashboard')->with('success', 'Plano cancelado com sucesso.');
+}
+    
 }

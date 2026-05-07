@@ -260,9 +260,7 @@
                                                     @else
                                                         <span class="mgr-badge-ok">Em dia</span>
                                                     @endif
-                                                    <a href="{{ route('workouts.create', ['student_id' => $student->id]) }}" class="mgr-btn-criar">
-                                                        + Criar treino
-                                                    </a>
+                                                   
                                                 </div>
                                             </div>
 
@@ -584,8 +582,6 @@
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:var(--text-muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M2.5 7h9M7.5 3l4 4-4 4"/></svg>
     </div>
 </a>
-</div>
-{{-- após o card "Vendas da Lojinha" --}}
 <a href="{{ route('evaluations.manager') }}" class="report-card report-card--blue">
     <div class="report-card__body">
         <div class="report-card__icon">
@@ -603,6 +599,8 @@
     </div>
 </a>
     </div>
+</div>
+
 
                 {{-- ══════════════════════════════════════════════════════════════
                      SEÇÃO FREQUÊNCIA
@@ -1116,95 +1114,79 @@
          style="stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; opacity:.45; flex-shrink:0;">
         <path d="M2.5 7h9M7.5 3l4 4-4 4"/>
     </svg>
-</button>
+</button> 
+{{-- CANCELAR PLANO --}}
+<form
+    id="cancel-enrollment-form"
+    action="{{ route('enrollment.cancel') }}"
+    method="POST"
+    style="display:contents;"
+>
+    @csrf
+    <button
+        type="button"
+        onclick="confirmCancelPlan()"
+        class="student-action-card student-action-card--green"
+        style="width:100%; text-align:left; cursor:pointer; font-family:inherit;"
+    >
+        <div class="student-action-card__icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                 style="stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M15 9l-6 6M9 9l6 6"/>
+            </svg>
+        </div>
+        <div class="student-action-card__content">
+            <p class="student-action-card__label">Cancelar Plano</p>
+            <p class="student-action-card__hint">Encerrar matrícula atual</p>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
+             style="stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; opacity:.45; flex-shrink:0;">
+            <path d="M2.5 7h9M7.5 3l4 4-4 4"/>
+        </svg>
+    </button>
+</form>
+
+
                 </div>
             
             @endif
         </div>
     </div>
-{{-- ══ MODAL: NOTIFICAÇÃO AUTOMÁTICA DE MANUTENÇÃO ══════════════════════════ --}}
-{{-- Aparece sozinho ao abrir o dashboard se houver equipamentos em manutenção --}}
-<div id="maint-notify-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(4px); z-index:9998; align-items:center; justify-content:center; padding:20px;">
-    <div style="background:#161616; border:1px solid rgba(251,191,36,0.22); border-radius:20px; width:100%; max-width:400px; box-shadow:0 24px 60px rgba(0,0,0,0.50); animation:shopModalIn .22s ease; overflow:hidden;">
- 
-        {{-- Header --}}
+
+{{-- ══ MODAL: CONFIRMAR CANCELAMENTO ══ --}}
+<div id="cancel-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#161616; border:1px solid rgba(255,255,255,0.10); border-radius:20px; width:100%; max-width:400px; box-shadow:0 24px 60px rgba(0,0,0,0.50); animation:shopModalIn .22s ease; overflow:hidden;">
         <div style="display:flex; align-items:center; justify-content:space-between; padding:18px 22px 16px; border-bottom:1px solid rgba(255,255,255,0.07);">
             <div style="display:flex; align-items:center; gap:10px;">
-                <div style="width:34px; height:34px; border-radius:10px; background:rgba(251,191,36,0.12); border:1px solid rgba(251,191,36,0.25); display:flex; align-items:center; justify-content:center;">
+                <div style="width:34px; height:34px; border-radius:10px; background:rgba(214,21,50,0.12); border:1px solid rgba(214,21,50,0.25); display:flex; align-items:center; justify-content:center;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                         style="stroke:#fbbf24; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;">
-                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                        <line x1="12" y1="9" x2="12" y2="13"/>
-                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                         style="stroke:#f87171; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;">
+                        <circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/>
                     </svg>
                 </div>
-                <p style="font-size:14px; font-weight:800; color:#fbbf24; margin:0;">Aviso de Manutenção</p>
+                <p style="font-size:14px; font-weight:800; color:#f5f5f5; margin:0;">Cancelar Plano?</p>
             </div>
-            <button type="button" class="shop-modal__close" onclick="closeNotifyModal()">✕</button>
+            <button type="button" class="shop-modal__close" onclick="closeCancelModal()">✕</button>
         </div>
- 
-        {{-- Body --}}
         <div style="padding:20px 22px 22px;">
-            <p id="maint-notify-msg" style="font-size:14px; color:rgba(255,255,255,0.85); line-height:1.6; margin:0 0 16px;"></p>
- 
-            <div id="maint-notify-list" style="display:flex; flex-direction:column; gap:6px; margin-bottom:20px;"></div>
- 
-            <button
-                type="button"
-                onclick="closeNotifyModal()"
-                class="btn-save"
-                style="width:100%; justify-content:center; padding:11px; font-size:13px;"
-            >
-                Entendi
-            </button>
-        </div>
-    </div>
-</div>
-{{-- ══ MODAL: VER EQUIPAMENTOS (botão de ação rápida) ══════════════════════ --}}
-<div id="equipment-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:20px;">
-    <div style="background:#161616; border:1px solid rgba(255,255,255,0.10); border-radius:20px; width:100%; max-width:440px; box-shadow:0 24px 60px rgba(0,0,0,0.50); animation:shopModalIn .22s ease; overflow:hidden;">
-
-<div style="display:flex; align-items:center; justify-content:space-between; padding:18px 22px 16px; border-bottom:1px solid rgba(255,255,255,0.07);">
-    <div style="display:flex; align-items:center; gap:8px;">
-        <p style="font-size:15px; font-weight:800; color:#f5f5f5; margin:0;">⚙️ Equipamentos</p>
-    </div>
-    <button type="button" class="shop-modal__close" onclick="closeEquipmentModal()">✕</button>
-</div>
-
-{{-- Filtros rápidos --}}
-<div style="display:flex; gap:8px; padding:14px 22px 0; flex-wrap:wrap;">
-            <button type="button" class="shop-filter-btn is-active" onclick="filterEqModal('all', this)">Todos</button>
-            <button type="button" class="shop-filter-btn" onclick="filterEqModal('ativo', this)">Disponíveis</button>
-            <button type="button" class="shop-filter-btn" onclick="filterEqModal('manutencao', this)">Em manutenção</button>
-        </div>
- 
-        {{-- Lista --}}
-        <div id="eq-modal-body" style="padding:14px 22px 6px; max-height:340px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;">
-            {{-- preenchido via JS --}}
-        </div>
-
-        <div id="eq-modal-loading" style="padding:28px; text-align:center; color:var(--text-muted); font-size:13px; display:flex; flex-direction:column; align-items:center; gap:14px;">
-    <div style="
-        width:32px; height:32px; border-radius:50%;
-        border:3px solid rgba(255,255,255,0.08);
-        border-top-color:#d61532;
-        animation:spin 0.75s linear infinite;
-    "></div>
-    <span>Carregando equipamentos...</span>
-</div>
-
- 
-        {{-- Empty --}}
-        <div id="eq-modal-empty" style="display:none; padding:28px; text-align:center; color:var(--text-muted); font-size:13px;">
-            Nenhum equipamento encontrado.
-        </div>
- 
-        <div style="padding:14px 22px 20px; border-top:1px solid rgba(255,255,255,0.07); margin-top:8px;">
-            <button type="button" onclick="closeEquipmentModal()" class="shop-modal__btn-cancel" style="width:100%; padding:10px;">Fechar</button>
+            <p style="font-size:14px; color:rgba(255,255,255,0.75); line-height:1.6; margin:0 0 20px;">
+                Esta ação encerrará sua matrícula e bloqueará seu acesso. Esta ação <strong style="color:#f87171;">não pode ser desfeita</strong>.
+            </p>
+            <div style="display:flex; gap:10px;">
+                <button type="button" onclick="closeCancelModal()" class="shop-modal__btn-cancel" style="flex:1; padding:11px;">
+                    Voltar
+                </button>
+                <button type="button" onclick="document.getElementById('cancel-enrollment-form').submit()"
+                        style="flex:2; padding:11px; border-radius:12px; background:#d61532; border:none; color:#fff; font-size:13px; font-weight:700; cursor:pointer; font-family:'Montserrat',sans-serif;">
+                    Sim, cancelar plano
+                </button>
+            </div>
         </div>
     </div>
 </div>
     <script>
+
         function showManagerSection(sectionId, btn) {
             document.querySelectorAll('.mgr-section').forEach(s => s.style.display = 'none');
             const target = document.getElementById(sectionId);
@@ -1835,5 +1817,15 @@ function closeNotifyModal() {
     overlay.style.pointerEvents = 'none';
     document.body.style.overflow = '';
 }
+function confirmCancelPlan() {
+    document.getElementById('cancel-modal-overlay').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeCancelModal() {
+    document.getElementById('cancel-modal-overlay').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
     </script>
 </x-app-layout>

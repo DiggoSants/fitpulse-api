@@ -17,12 +17,13 @@ class InstructorController extends Controller
     }
 
     public function create()
-    {
-        $users = User::whereDoesntHave('instructor')
-            ->get();
+{
+    $users = User::whereDoesntHave('instructor')
+        ->whereDoesntHave('manager')  // ← adiciona isso
+        ->get();
 
-        return view('instructors.create', compact('users'));
-    }
+    return view('instructors.create', compact('users'));
+}
 
     public function store(Request $request)
     {

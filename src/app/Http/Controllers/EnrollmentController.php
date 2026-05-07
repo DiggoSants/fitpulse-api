@@ -49,7 +49,6 @@ class EnrollmentController extends Controller
         $user    = Auth::user();
         $student = Student::where('user_id', $user->id)->firstOrFail();
 
-       
         Enrollment::where('student_id', $student->id)
             ->where('status', 'active')
             ->update([
@@ -71,5 +70,32 @@ class EnrollmentController extends Controller
         $student->update(['instructor_id' => $instructor->id]);
 
         return redirect()->route('dashboard')->with('success', 'Matrícula realizada com sucesso!');
+    }
+
+    public function cancel(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user    = Auth::user();
+        $student = Student::where('user_id', $user->id)->firstOrFail();
+
+        $enrollment = Enrollment::where('student_id', $student->id)
+            ->where('status', 'active')
+            ->first();
+
+        if (!$enrollment) {
+            return back()->with('error', 'Nenhuma matrícula ativa encontrada.');
+        }
+
+        $enrollment->update([
+            'status'       => 'cancelled',
+            'cancelled_at' => now(),
+        ]);
+
+        $student->update([
+            'instructor_id' => null,
+            'status'        => 'blocked',
+        ]);
+
+        return redirect()->route('dashboard')->with('success', 'Plano cancelado com sucesso.');
     }
 }

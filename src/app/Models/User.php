@@ -15,6 +15,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'points',
     ];
 
     protected $hidden = [
@@ -27,8 +28,11 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password'          => 'hashed',
+            'points'            => 'integer',
         ];
     }
+
+    // ── Relações ──────────────────────────────────────────────────────────────
 
     public function student()
     {
@@ -50,10 +54,21 @@ class User extends Authenticatable
         return $this->hasMany(PhysicalEvaluation::class);
     }
 
+    public function ownedGroups()
+    {
+        return $this->hasMany(PlanGroup::class, 'owner_id');
+    }
+
+    public function planGroups()
+    {
+        return $this->belongsToMany(PlanGroup::class, 'plan_group_members');
+    }
+
+    // ── Helpers de papel ──────────────────────────────────────────────────────
 
     public function role(): string
     {
-        if ($this->manager()->exists()) return 'manager';
+        if ($this->manager()->exists())    return 'manager';
         if ($this->instructor()->exists()) return 'instructor';
         return 'student';
     }
@@ -71,5 +86,29 @@ class User extends Authenticatable
     public function isStudent(): bool
     {
         return $this->role() === 'student';
+    }
+
+    // ── Helpers de gamificação ────────────────────────────────────────────────
+
+    public function addPoints(int $points): void
+    {
+        $this->increment('points', $points);
+    }
+
+    public function hasGamificationBonus(): bool
+    {
+        return $this->points >= 100;
+    }
+
+    public function gamificationBonus(): float
+    {
+        return $this->hasGamificationBonus() ? 5.0 : 0.0;
+    }
+
+    public function pointsToNextReward(): int
+    {
+        $threshold = 100;
+        $remainder = $this->points % $threshold;
+        return $remainder === 0 ? 0 : $threshold - $remainder;
     }
 }

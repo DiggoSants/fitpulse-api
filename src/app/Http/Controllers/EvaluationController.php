@@ -158,5 +158,42 @@ class EvaluationController extends Controller
                     : null,
             ],
         ]);
+        
     }
+    // Página do aluno — formulário + histórico próprio
+public function studentPage()
+{
+    $user        = Auth::user();
+    $evaluations = PhysicalEvaluation::where('user_id', $user->id)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return view('evaluations.student', compact('evaluations'));
+}
+
+// Página do gerente — todos os alunos com última avaliação
+public function managerPage()
+{
+    $users = User::whereHas('student')
+        ->whereDoesntHave('manager')
+        ->whereDoesntHave('instructor')
+        ->with(['physicalEvaluations' => function ($q) {
+            $q->orderBy('created_at', 'desc');
+        }, 'student'])
+        ->get();
+
+    return view('evaluations.manager', compact('users'));
+}
+// Página do instrutor — seus alunos com última avaliação
+public function instructorPage()
+{
+    $instructor = Auth::user()->instructor;
+    $students   = $instructor->students()
+        ->with(['user.physicalEvaluations' => function ($q) {
+            $q->orderBy('created_at', 'desc');
+        }])
+        ->get();
+
+    return view('evaluations.instructor', compact('students'));
+}
 }

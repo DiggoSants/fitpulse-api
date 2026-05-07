@@ -94,6 +94,16 @@ class ShopController extends Controller
             'message' => 'Produto inativado com sucesso!',
         ]);
     }
+    public function restore($id)
+{
+    $product = Product::findOrFail($id);
+    $product->update(['status' => 'active']);
+ 
+    return response()->json([
+        'message' => 'Produto ativado com sucesso!',
+    ]);
+}
+ 
 
 
     public function sale(Request $request)
@@ -139,39 +149,55 @@ class ShopController extends Controller
             ],
         ], 201);
     }
-    public function report()
-    {
-        $products = Product::withCount('sales')
-            ->withSum('sales', 'quantity')
-            ->withSum('sales', 'total_price')
-            ->get()
-            ->map(function ($product) {
-                $totalQuantity = (int) ($product->sales_sum_quantity ?? 0);
-                $totalRevenue  = (float) ($product->sales_sum_total_price ?? 0);
-                $totalProfit   = ($product->price - $product->cost) * $totalQuantity;
+    public function report(Request $request)
+{
+    $products = Product::withCount('sales')
+        ->withSum('sales', 'quantity')
+        ->withSum('sales', 'total_price')
+        ->get()
+        ->map(function ($product) {
+            $totalQuantity = (int) ($product->sales_sum_quantity ?? 0);
+            $totalRevenue  = (float) ($product->sales_sum_total_price ?? 0);
+            $totalProfit   = ($product->price - $product->cost) * $totalQuantity;
 
-                return [
-                    'product_id'     => $product->id,
-                    'name'           => $product->name,
-                    'category'       => $product->category,
-                    'price'          => $product->price,
-                    'cost'           => $product->cost,
-                    'total_quantity' => $totalQuantity,
-                    'total_revenue'  => round($totalRevenue, 2),
-                    'total_profit'   => round($totalProfit, 2),
-                    'status'         => $product->status,
-                ];
-            })
-            ->sortByDesc('total_revenue')
-            ->values();
+            return [
+                'product_id'     => $product->id,
+                'name'           => $product->name,
+                'category'       => $product->category,
+                'price'          => $product->price,
+                'cost'           => $product->cost,
+                'total_quantity' => $totalQuantity,
+                'total_revenue'  => round($totalRevenue, 2),
+                'total_profit'   => round($totalProfit, 2),
+                'status'         => $product->status,
+            ];
+        })
+        ->sortByDesc('total_revenue')
+        ->values();
 
-        return response()->json([
-            'data'    => $products,
-            'summary' => [
-                'total_revenue' => round($products->sum('total_revenue'), 2),
-                'total_profit'  => round($products->sum('total_profit'), 2),
-                'total_sales'   => $products->sum('total_quantity'),
-            ],
-        ]);
+    $summary = [
+        'total_revenue' => round($products->sum('total_revenue'), 2),
+        'total_profit'  => round($products->sum('total_profit'), 2),
+        'total_sales'   => $products->sum('total_quantity'),
+    ];
+
+    // Se for requisição AJAX/JSON, mantém o comportamento antigo
+    if ($request->expectsJson()) {
+        return response()->json(['data' => $products, 'summary' => $summary]);
     }
+
+    // Senão, renderiza a view
+    return view('reports.shop-products', compact('products', 'summary'));
+}
+public function studentView()
+{
+    return view('shop.index'); // nova view da lojinha do aluno
+}
+
+public function managerView()
+{
+    $products = Product::orderByDesc('created_at')->get();
+
+    return view('shop.manager', compact('products'));
+}
 }

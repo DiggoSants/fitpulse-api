@@ -160,13 +160,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // Compra — alunos matriculados e gerentes
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
     Route::post('/sales', [ShopController::class, 'sale'])->name('sales.store');
+    Route::get('/lojinha', [ShopController::class, 'studentView'])->name('shop.index');
 });
 
 // Cadastro e gerenciamento — só gerentes
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
-    Route::post('/products',        [ShopController::class, 'store'])->name('products.store');
-    Route::put('/products/{id}',    [ShopController::class, 'update'])->name('products.update');
-    Route::delete('/products/{id}', [ShopController::class, 'destroy'])->name('products.destroy');
+    Route::post('/products',              [ShopController::class, 'store'])->name('products.store');
+    Route::put('/products/{id}',          [ShopController::class, 'update'])->name('products.update');
+    Route::delete('/products/{id}',       [ShopController::class, 'destroy'])->name('products.destroy');
+    Route::post('/products/{id}/restore', [ShopController::class, 'restore'])->name('products.restore');
+    Route::get('/lojinha/manager',        [ShopController::class, 'managerView'])->name('shop.manager');
 });
 
 // ── Avaliação física ──────────────────────────────────────────────────────────
@@ -174,6 +177,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/evaluations',                          [EvaluationController::class, 'store'])->name('evaluations.store');
     Route::get('/evaluations/{user_id}',                 [EvaluationController::class, 'history'])->name('evaluations.history');
     Route::get('/reports/physical/evolution/{user_id}',  [EvaluationController::class, 'evolution'])->name('reports.physical.evolution');
+});
+
+// ── Evolução Física — views ───────────────────────────────────────────────────
+Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
+    Route::get('/evolucao', [EvaluationController::class, 'studentPage'])->name('evaluations.page');
+});
+
+Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
+    Route::get('/evolucao/gerente', [EvaluationController::class, 'managerPage'])->name('evaluations.manager');
+});
+
+Route::middleware(['auth', 'verified', 'role:manager,instructor'])->group(function () {
+    Route::get('/evolucao/instrutor', [EvaluationController::class, 'instructorPage'])->name('evaluations.instructor');
 });
 
 // ── Manutenção de equipamentos ────────────────────────────────────────────────
@@ -185,9 +201,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // Registro e resolução — só gerentes
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
-    Route::post('/equipment',        [MaintenanceController::class, 'storeEquipment'])->name('equipment.store');
-    Route::post('/maintenance',      [MaintenanceController::class, 'store'])->name('maintenance.store');
-    Route::put('/maintenance/{id}',  [MaintenanceController::class, 'resolve'])->name('maintenance.resolve');
+    Route::post('/equipment',       [MaintenanceController::class, 'storeEquipment'])->name('equipment.store');
+    Route::post('/maintenance',     [MaintenanceController::class, 'store'])->name('maintenance.store');
+    Route::put('/maintenance/{id}', [MaintenanceController::class, 'resolve'])->name('maintenance.resolve');
 });
 
 require __DIR__ . '/auth.php';

@@ -1092,12 +1092,118 @@
         <path d="M2.5 7h9M7.5 3l4 4-4 4"/>
     </svg>
 </a>
+<button
+    type="button"
+    onclick="openEquipmentModal()"
+    class="student-action-card student-action-card--blue"
+    style="width:100%; text-align:left; cursor:pointer; font-family:inherit; border:1px solid;"
+>
+    <div class="student-action-card__icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+             style="stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;">
+            <rect x="2" y="10" width="3" height="4" rx="1"/>
+            <rect x="19" y="10" width="3" height="4" rx="1"/>
+            <rect x="5" y="8" width="3" height="8" rx="1"/>
+            <rect x="16" y="8" width="3" height="8" rx="1"/>
+            <rect x="8" y="11" width="8" height="2" rx="1"/>
+        </svg>
+    </div>
+    <div class="student-action-card__content">
+        <p class="student-action-card__label">Equipamentos</p>
+        <p class="student-action-card__hint">Ver status e disponibilidade</p>
+    </div>
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
+         style="stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; opacity:.45; flex-shrink:0;">
+        <path d="M2.5 7h9M7.5 3l4 4-4 4"/>
+    </svg>
+</button>
                 </div>
             
             @endif
         </div>
     </div>
+{{-- ══ MODAL: NOTIFICAÇÃO AUTOMÁTICA DE MANUTENÇÃO ══════════════════════════ --}}
+{{-- Aparece sozinho ao abrir o dashboard se houver equipamentos em manutenção --}}
+<div id="maint-notify-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(4px); z-index:9998; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#161616; border:1px solid rgba(251,191,36,0.22); border-radius:20px; width:100%; max-width:400px; box-shadow:0 24px 60px rgba(0,0,0,0.50); animation:shopModalIn .22s ease; overflow:hidden;">
+ 
+        {{-- Header --}}
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:18px 22px 16px; border-bottom:1px solid rgba(255,255,255,0.07);">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:34px; height:34px; border-radius:10px; background:rgba(251,191,36,0.12); border:1px solid rgba(251,191,36,0.25); display:flex; align-items:center; justify-content:center;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                         style="stroke:#fbbf24; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                </div>
+                <p style="font-size:14px; font-weight:800; color:#fbbf24; margin:0;">Aviso de Manutenção</p>
+            </div>
+            <button type="button" class="shop-modal__close" onclick="closeNotifyModal()">✕</button>
+        </div>
+ 
+        {{-- Body --}}
+        <div style="padding:20px 22px 22px;">
+            <p id="maint-notify-msg" style="font-size:14px; color:rgba(255,255,255,0.85); line-height:1.6; margin:0 0 16px;"></p>
+ 
+            <div id="maint-notify-list" style="display:flex; flex-direction:column; gap:6px; margin-bottom:20px;"></div>
+ 
+            <button
+                type="button"
+                onclick="closeNotifyModal()"
+                class="btn-save"
+                style="width:100%; justify-content:center; padding:11px; font-size:13px;"
+            >
+                Entendi
+            </button>
+        </div>
+    </div>
+</div>
+{{-- ══ MODAL: VER EQUIPAMENTOS (botão de ação rápida) ══════════════════════ --}}
+<div id="equipment-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#161616; border:1px solid rgba(255,255,255,0.10); border-radius:20px; width:100%; max-width:440px; box-shadow:0 24px 60px rgba(0,0,0,0.50); animation:shopModalIn .22s ease; overflow:hidden;">
 
+<div style="display:flex; align-items:center; justify-content:space-between; padding:18px 22px 16px; border-bottom:1px solid rgba(255,255,255,0.07);">
+    <div style="display:flex; align-items:center; gap:8px;">
+        <p style="font-size:15px; font-weight:800; color:#f5f5f5; margin:0;">⚙️ Equipamentos</p>
+    </div>
+    <button type="button" class="shop-modal__close" onclick="closeEquipmentModal()">✕</button>
+</div>
+
+{{-- Filtros rápidos --}}
+<div style="display:flex; gap:8px; padding:14px 22px 0; flex-wrap:wrap;">
+            <button type="button" class="shop-filter-btn is-active" onclick="filterEqModal('all', this)">Todos</button>
+            <button type="button" class="shop-filter-btn" onclick="filterEqModal('ativo', this)">Disponíveis</button>
+            <button type="button" class="shop-filter-btn" onclick="filterEqModal('manutencao', this)">Em manutenção</button>
+        </div>
+ 
+        {{-- Lista --}}
+        <div id="eq-modal-body" style="padding:14px 22px 6px; max-height:340px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;">
+            {{-- preenchido via JS --}}
+        </div>
+
+        <div id="eq-modal-loading" style="padding:28px; text-align:center; color:var(--text-muted); font-size:13px; display:flex; flex-direction:column; align-items:center; gap:14px;">
+    <div style="
+        width:32px; height:32px; border-radius:50%;
+        border:3px solid rgba(255,255,255,0.08);
+        border-top-color:#d61532;
+        animation:spin 0.75s linear infinite;
+    "></div>
+    <span>Carregando equipamentos...</span>
+</div>
+
+ 
+        {{-- Empty --}}
+        <div id="eq-modal-empty" style="display:none; padding:28px; text-align:center; color:var(--text-muted); font-size:13px;">
+            Nenhum equipamento encontrado.
+        </div>
+ 
+        <div style="padding:14px 22px 20px; border-top:1px solid rgba(255,255,255,0.07); margin-top:8px;">
+            <button type="button" onclick="closeEquipmentModal()" class="shop-modal__btn-cancel" style="width:100%; padding:10px;">Fechar</button>
+        </div>
+    </div>
+</div>
     <script>
         function showManagerSection(sectionId, btn) {
             document.querySelectorAll('.mgr-section').forEach(s => s.style.display = 'none');
@@ -1570,5 +1676,164 @@
 
     loadProducts();
 })();
+
+// ── Equipamentos modal ─────────────────────────────────────────────────────
+const EP_EQ_STUDENT = "{{ route('equipment.index') }}";
+let eqData = [];
+let eqModalFilter = 'all';
+ 
+async function openEquipmentModal() {
+    document.getElementById('equipment-modal-overlay').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    document.getElementById('eq-modal-loading').style.display = 'block';
+    document.getElementById('eq-modal-body').style.display    = 'none';
+    document.getElementById('eq-modal-empty').style.display   = 'none';
+ 
+    if (!eqData.length) {
+        try {
+            const res  = await fetch(EP_EQ_STUDENT, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+            const json = await res.json();
+            eqData = json.data ?? [];
+        } catch (e) {
+            console.error(e);
+        }
+    }
+ 
+    document.getElementById('eq-modal-loading').style.display = 'none';
+    renderEqModal();
+}
+ 
+function closeEquipmentModal() {
+    document.getElementById('equipment-modal-overlay').style.display = 'none';
+    document.body.style.overflow = '';
+}
+ 
+function filterEqModal(type, btn) {
+    document.querySelectorAll('#equipment-modal-overlay .shop-filter-btn').forEach(b => b.classList.remove('is-active'));
+    if (btn) btn.classList.add('is-active');
+    eqModalFilter = type;
+    renderEqModal();
+}
+ 
+function renderEqModal() {
+    const body  = document.getElementById('eq-modal-body');
+    const empty = document.getElementById('eq-modal-empty');
+    body.innerHTML = '';
+ 
+    const filtered = eqModalFilter === 'all'
+        ? eqData
+        : eqData.filter(e => e.status === eqModalFilter);
+ 
+    if (!filtered.length) {
+        body.style.display  = 'none';
+        empty.style.display = 'block';
+        return;
+    }
+ 
+    empty.style.display = 'none';
+    body.style.display  = 'flex';
+ 
+    filtered.forEach(eq => {
+        const inMaint = eq.status === 'manutencao';
+        const row = document.createElement('div');
+        row.style.cssText = `
+            display:flex; align-items:center; justify-content:space-between;
+            padding:10px 14px; border-radius:12px; gap:10px;
+            background:${inMaint ? 'rgba(251,191,36,0.06)' : 'rgba(255,255,255,0.03)'};
+            border:1px solid ${inMaint ? 'rgba(251,191,36,0.20)' : 'rgba(255,255,255,0.07)'};
+        `;
+        row.innerHTML = `
+            <div style="display:flex; align-items:center; gap:10px; flex:1; min-width:0;">
+                <div style="
+                    width:8px; height:8px; border-radius:50%; flex-shrink:0;
+                    background:${inMaint ? '#fbbf24' : '#4ade80'};
+                    box-shadow: 0 0 0 3px ${inMaint ? 'rgba(251,191,36,0.20)' : 'rgba(74,222,128,0.18)'};
+                "></div>
+                <span style="font-size:13px; font-weight:600; color:var(--text-white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    ${escEqHtml(eq.name)}
+                </span>
+            </div>
+            <span style="
+                font-size:10px; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+                padding:2px 9px; border-radius:99px; white-space:nowrap; flex-shrink:0;
+                background:${inMaint ? 'rgba(251,191,36,0.12)' : 'rgba(74,222,128,0.10)'};
+                border:1px solid ${inMaint ? 'rgba(251,191,36,0.25)' : 'rgba(74,222,128,0.20)'};
+                color:${inMaint ? '#fbbf24' : '#4ade80'};
+            ">
+                ${inMaint ? '⚠ Manutenção' : '● Disponível'}
+            </span>
+        `;
+        body.appendChild(row);
+    });
+}
+ 
+function escEqHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str ?? '';
+    return d.innerHTML;
+}
+ 
+async function checkMaintenanceNotify() {
+    // sem sessionStorage — aparece sempre
+    try {
+        const res  = await fetch("{{ route('maintenance.index') }}", {
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const json = await res.json();
+        const inMaint = json.in_maintenance ?? [];
+
+        if (!inMaint.length) return;
+
+        const count = inMaint.length;
+        const names = inMaint.slice(0, 3).map(e => e.name);
+
+        document.getElementById('maint-notify-msg').textContent =
+            `${count} equipamento${count > 1 ? 's estão' : ' está'} em manutenção no momento.`;
+
+        const listEl = document.getElementById('maint-notify-list');
+        listEl.innerHTML = '';
+        names.forEach(name => {
+            const item = document.createElement('div');
+            item.style.cssText = `
+                display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:10px;
+                background:rgba(251,191,36,0.07); border:1px solid rgba(251,191,36,0.18);
+            `;
+            item.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                     style="stroke:#fbbf24; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0;">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <span style="font-size:13px; font-weight:600; color:rgba(255,255,255,0.85);">${escEqHtml(name)}</span>
+            `;
+            listEl.appendChild(item);
+        });
+
+        if (count > 3) {
+            const more = document.createElement('p');
+            more.style.cssText = 'font-size:12px; color:var(--text-muted); text-align:center; margin:4px 0 0;';
+            more.textContent   = `+ ${count - 3} outro${count - 3 > 1 ? 's' : ''}`;
+            listEl.appendChild(more);
+        }
+
+        document.getElementById('maint-notify-overlay').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+    } catch (e) {
+        console.error('Notify check error:', e);
+    }
+}
+
+// Delay de 2 segundos
+@if(Auth::user()->isStudent() && isset($enrolled) && $enrolled)
+    setTimeout(checkMaintenanceNotify, 2000);
+@endif
+function closeNotifyModal() {
+    const overlay = document.getElementById('maint-notify-overlay');
+    overlay.style.display = 'none';
+    overlay.style.pointerEvents = 'none';
+    document.body.style.overflow = '';
+}
     </script>
 </x-app-layout>

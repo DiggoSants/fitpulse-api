@@ -193,17 +193,19 @@ Route::middleware(['auth', 'verified', 'role:manager,instructor'])->group(functi
 });
 
 // ── Manutenção de equipamentos ────────────────────────────────────────────────
-// Listagem — todos autenticados podem ver
+
+Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
+    Route::get('/maintenance', [MaintenanceController::class, 'view'])->name('maintenance.view');
+});
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/equipment',   [MaintenanceController::class, 'equipment'])->name('equipment.index');
-    Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance.index');
+    Route::get('/api/maintenance', [MaintenanceController::class, 'index'])->name('maintenance.index');
+    Route::get('/api/equipment',   [MaintenanceController::class, 'equipment'])->name('equipment.index');
 });
 
-// Registro e resolução — só gerentes
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
-    Route::post('/equipment',       [MaintenanceController::class, 'storeEquipment'])->name('equipment.store');
-    Route::post('/maintenance',     [MaintenanceController::class, 'store'])->name('maintenance.store');
-    Route::put('/maintenance/{id}', [MaintenanceController::class, 'resolve'])->name('maintenance.resolve');
+    Route::post('/api/equipment',        [MaintenanceController::class, 'storeEquipment'])->name('equipment.store');
+    Route::post('/api/maintenance',      [MaintenanceController::class, 'store'])->name('maintenance.store');
+    Route::put('/api/maintenance/{id}',  [MaintenanceController::class, 'resolve'])->name('maintenance.resolve');
 });
 
 require __DIR__ . '/auth.php';

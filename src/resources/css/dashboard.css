@@ -2898,3 +2898,259 @@ div[style*="border-radius:20px"] h3::before {
 .ev-chart-legend {
     color: rgba(255,255,255,0.50);
 }
+
+/* ── Overlay (fundo desfocado) ────────────────────────────── */
+#equipment-modal-overlay,
+#maint-notify-overlay {
+    /* já definido inline; estes reforçam */
+}
+
+/* ── Caixa do modal — DARK (padrão) ──────────────────────── */
+#equipment-modal-overlay > div,
+#maint-notify-overlay > div {
+    background: #161616;
+    border-color: rgba(255,255,255,0.10);
+    color: #f5f5f5;
+}
+
+/* ── Caixa do modal — LIGHT ──────────────────────────────── */
+[data-theme="light"] #equipment-modal-overlay > div,
+[data-theme="light"] #maint-notify-overlay > div {
+    background: #ffffff !important;
+    border-color: rgba(0,0,0,0.10) !important;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.15) !important;
+    color: #111 !important;
+}
+
+/* ── Header do modal ─────────────────────────────────────── */
+/* título "⚙️ Equipamentos" */
+[data-theme="light"] #equipment-modal-overlay > div > div:first-child p,
+[data-theme="light"] #maint-notify-overlay > div > div:first-child p {
+    color: #111 !important;
+}
+
+/* separador do header */
+[data-theme="light"] #equipment-modal-overlay > div > div:first-child,
+[data-theme="light"] #maint-notify-overlay > div > div:first-child {
+    border-bottom-color: rgba(0,0,0,0.08) !important;
+}
+
+/* ── Botão fechar (✕) ────────────────────────────────────── */
+[data-theme="light"] #equipment-modal-overlay .shop-modal__close,
+[data-theme="light"] #maint-notify-overlay .shop-modal__close {
+    background: rgba(0,0,0,0.04) !important;
+    border-color: rgba(0,0,0,0.10) !important;
+    color: rgba(0,0,0,0.45) !important;
+}
+
+[data-theme="light"] #equipment-modal-overlay .shop-modal__close:hover,
+[data-theme="light"] #maint-notify-overlay .shop-modal__close:hover {
+    background: rgba(214,21,50,0.08) !important;
+    border-color: rgba(214,21,50,0.22) !important;
+    color: #b91c1c !important;
+}
+
+/* ── Filtros (Todos / Disponíveis / Em manutenção) ────────── */
+[data-theme="light"] #equipment-modal-overlay .shop-filter-btn {
+    background: #fff !important;
+    border-color: rgba(0,0,0,0.10) !important;
+    color: rgba(0,0,0,0.65) !important;
+}
+
+[data-theme="light"] #equipment-modal-overlay .shop-filter-btn:hover {
+    background: rgba(0,0,0,0.04) !important;
+    border-color: rgba(0,0,0,0.18) !important;
+    color: #111 !important;
+}
+
+[data-theme="light"] #equipment-modal-overlay .shop-filter-btn.is-active {
+    background: rgba(214,21,50,0.07) !important;
+    border-color: rgba(214,21,50,0.25) !important;
+    color: #d61532 !important;
+}
+
+/* ── Lista de equipamentos — rows ────────────────────────── */
+/* os rows são gerados via JS com inline styles;
+   usamos um seletor de sobrescrita no body do modal */
+[data-theme="light"] #eq-modal-body > div {
+    /* row ativo (verde) e manutenção (amarelo) já têm cores
+       via JS; só precisamos ajustar o texto */
+    color: #111 !important;
+}
+
+[data-theme="light"] #eq-modal-body span[style*="color:var(--text-white)"] {
+    color: #111 !important;
+}
+
+/* Texto "Carregando equipamentos..." e empty state */
+[data-theme="light"] #eq-modal-loading,
+[data-theme="light"] #eq-modal-empty {
+    color: rgba(0,0,0,0.40) !important;
+}
+
+/* ── Separador antes do botão Fechar ─────────────────────── */
+[data-theme="light"] #equipment-modal-overlay > div > div:last-child {
+    border-top-color: rgba(0,0,0,0.08) !important;
+}
+
+/* ── Botão "Fechar" ──────────────────────────────────────── */
+[data-theme="light"] #equipment-modal-overlay .shop-modal__btn-cancel {
+    background: rgba(0,0,0,0.04) !important;
+    border-color: rgba(0,0,0,0.10) !important;
+    color: rgba(0,0,0,0.55) !important;
+}
+
+[data-theme="light"] #equipment-modal-overlay .shop-modal__btn-cancel:hover {
+    background: rgba(0,0,0,0.08) !important;
+    border-color: rgba(0,0,0,0.18) !important;
+    color: #111 !important;
+}
+
+/* ── Modal de notificação — ícone amarelo e mensagem ─────── */
+[data-theme="light"] #maint-notify-overlay > div > div:first-child > div:first-child > div {
+    /* caixa do ícone de aviso — mantém amarelo */
+    background: rgba(251,191,36,0.12) !important;
+    border-color: rgba(251,191,36,0.25) !important;
+}
+
+[data-theme="light"] #maint-notify-msg {
+    color: rgba(0,0,0,0.78) !important;
+}
+
+/* rows dentro da lista de nomes em manutenção */
+[data-theme="light"] #maint-notify-list > div {
+    background: rgba(251,191,36,0.08) !important;
+    border-color: rgba(251,191,36,0.22) !important;
+}
+
+[data-theme="light"] #maint-notify-list > div > span:last-child {
+    color: rgba(0,0,0,0.75) !important;
+}
+
+[data-theme="light"] #eq-modal-body span {
+    color: inherit;
+}
+
+/* ── Scrollbar do body da lista ──────────────────────────── */
+[data-theme="light"] #eq-modal-body {
+    scrollbar-color: rgba(214,21,50,0.30) rgba(0,0,0,0.06);
+}
+
+[data-theme="light"] #eq-modal-body::-webkit-scrollbar-thumb {
+    background: rgba(214,21,50,0.35);
+}
+
+[data-theme="light"] #eq-modal-body::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.05);
+}
+
+/* ── Nomes dos equipamentos na lista ── */
+#eq-list span[style*="color:var(--text-white)"] {
+    color: #f5f5f5;
+}
+[data-theme="light"] #eq-list span[style*="color:var(--text-white)"] {
+    color: #111 !important;
+}
+
+/* ── Nomes na lista de solicitações ── */
+[data-theme="light"] .maint-request-row div[style*="color:var(--text-white)"] {
+    color: #111 !important;
+}
+
+/* ── Card dos equipamentos no light mode ── */
+[data-theme="light"] #eq-list > div {
+    background: #fff !important;
+    border-color: rgba(0,0,0,0.08) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* ── Seções de cadastro/lista de equipamentos — light mode ── */
+[data-theme="light"] #equipment-section > div[style*="background:rgba(255,255,255,0.04)"] {
+    background: #fff !important;
+    border-color: rgba(0,0,0,0.08) !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05) !important;
+}
+
+/* ── Modal Reportar Problema — light mode ── */
+[data-theme="light"] #report-modal-overlay > div {
+    background: #fff !important;
+    border-color: rgba(0,0,0,0.10) !important;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.15) !important;
+}
+
+[data-theme="light"] #report-modal-overlay > div > div:first-child {
+    border-bottom-color: rgba(0,0,0,0.08) !important;
+}
+
+[data-theme="light"] #report-modal-overlay > div > div:first-child p {
+    color: #111 !important;
+}
+
+[data-theme="light"] #report-modal-overlay .shop-modal__close {
+    background: rgba(0,0,0,0.04) !important;
+    border-color: rgba(0,0,0,0.10) !important;
+    color: rgba(0,0,0,0.45) !important;
+}
+
+[data-theme="light"] #report-modal-overlay .shop-modal__close:hover {
+    background: rgba(214,21,50,0.08) !important;
+    border-color: rgba(214,21,50,0.22) !important;
+    color: #b91c1c !important;
+}
+
+/* ── Toast de manutenção — light mode ── */
+[data-theme="light"] #maint-toast {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+/* ── Cards de resumo (mgr-stat-card) já cobertos pelo CSS global ── */
+
+/* ── Linha de solicitação — texto nome do equipamento — light mode ── */
+[data-theme="light"] .maint-request-row {
+    background: #fff !important;
+    border-color: rgba(0,0,0,0.07) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+}
+
+[data-theme="light"] .maint-request-row:hover {
+    border-color: rgba(0,0,0,0.14) !important;
+    background: #fafafa !important;
+}
+
+/* ── Skeleton no light mode ── */
+[data-theme="light"] .sk {
+    background: rgba(0,0,0,0.07) !important;
+}
+/* ── Nome do equipamento — adaptável ── */
+.eq-item-name { color: #f5f5f5; }
+[data-theme="light"] .eq-item-name { color: #111; }
+
+/* ── Nome na solicitação — adaptável ── */
+.maint-eq-name { color: #f5f5f5; }
+[data-theme="light"] .maint-eq-name { color: #111; }
+
+/* Botão equipamentos — garante que herda o estilo azul corretamente */
+button.student-action-card--blue {
+    background: rgba(59,130,246,0.07) !important;
+    border-color: rgba(59,130,246,0.18) !important;
+    color: #93c5fd !important;
+}
+
+button.student-action-card--blue:hover {
+    background: rgba(59,130,246,0.12) !important;
+    border-color: rgba(59,130,246,0.35) !important;
+}
+
+[data-theme="light"] button.student-action-card--blue {
+    background: rgba(59,130,246,0.06) !important;
+    border-color: rgba(59,130,246,0.15) !important;
+    color: #1d4ed8 !important;
+}
+
+[data-theme="light"] button.student-action-card--blue:hover {
+    background: rgba(59,130,246,0.10) !important;
+    border-color: rgba(59,130,246,0.28) !important;
+}
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }

@@ -81,6 +81,7 @@
                             </svg>
                             {{ __('Lojinha') }}
                         </x-nav-link>
+
                         <x-nav-link :href="route('access.index')" :active="request()->routeIs('access.*')">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -89,6 +90,20 @@
                                 <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                             </svg>
                             {{ __('Acessos') }}
+                        </x-nav-link>
+
+                        {{--  Manutenção de Equipamentos --}}
+                        <x-nav-link :href="route('maintenance.view')" :active="request()->routeIs('maintenance.*') || request()->routeIs('equipment.*')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                 style="flex-shrink:0; margin-right:8px;">
+                                <rect x="2" y="10" width="3" height="4" rx="1"/>
+                                <rect x="19" y="10" width="3" height="4" rx="1"/>
+                                <rect x="5" y="8" width="3" height="8" rx="1"/>
+                                <rect x="16" y="8" width="3" height="8" rx="1"/>
+                                <rect x="8" y="11" width="8" height="2" rx="1"/>
+                            </svg>
+                            {{ __('Manutenção') }}
                         </x-nav-link>
                     @endif
 
@@ -154,6 +169,8 @@
                         Matrícula
                     @elseif(request()->routeIs('evaluations.*'))
                         Evolução Física
+                    @elseif(request()->routeIs('maintenance.*') || request()->routeIs('equipment.*'))
+                        Manutenção
                     @else
                         {{ ucfirst(request()->segment(1) ?? 'Página') }}
                     @endif
@@ -193,6 +210,10 @@
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('evaluations.manager')" :active="request()->routeIs('evaluations.manager')">
                     {{ __('Evolução Física') }}
+                </x-responsive-nav-link>
+                {{--  mobile: Manutenção --}}
+                <x-responsive-nav-link :href="route('maintenance.view')" :active="request()->routeIs('maintenance.*') || request()->routeIs('equipment.*')">
+                    {{ __('Manutenção') }}
                 </x-responsive-nav-link>
             @endif
         </div>

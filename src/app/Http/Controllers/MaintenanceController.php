@@ -8,6 +8,14 @@ use App\Models\MaintenanceRequest;
 
 class MaintenanceController extends Controller
 {
+    /**
+     * Renderiza a VIEW da tela de manutenção (só para gerente).*/
+    public function view()
+    {
+        return view('maintenance.index');
+    }
+
+
     public function index()
     {
         $requests = MaintenanceRequest::with('equipment')
@@ -70,6 +78,7 @@ class MaintenanceController extends Controller
         ], 201);
     }
 
+
     public function store(Request $request)
     {
         $request->validate([
@@ -112,6 +121,7 @@ class MaintenanceController extends Controller
         ], 201);
     }
 
+ 
     public function resolve($id)
     {
         $maintenanceRequest = MaintenanceRequest::with('equipment')->findOrFail($id);

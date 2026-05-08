@@ -1,20 +1,27 @@
 {
-  "$schema": "https://railway.com/railway.schema.json",
+  "$schema": "https://railway.app/railway.schema.json",
+
   "build": {
-    "builder": "RAILPACK",
-    "buildEnvironment": "V3"
+    "command": "composer install --no-dev --optimize-autoloader"
   },
+
+  "start": {
+    "command": "php artisan serve --host=0.0.0.0 --port=3000"
+  },
+
   "deploy": {
     "runtime": "V2",
     "numReplicas": 1,
     "sleepApplication": false,
     "useLegacyStacker": false,
     "ipv6EgressEnabled": false,
+
     "multiRegionConfig": {
       "iad": {
         "numReplicas": 1
       }
     },
+
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }

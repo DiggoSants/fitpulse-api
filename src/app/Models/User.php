@@ -49,6 +49,11 @@ class User extends Authenticatable
         return $this->hasOne(Manager::class);
     }
 
+    public function receptionist()
+    {
+        return $this->hasOne(Receptionist::class);
+    }
+
     public function physicalEvaluations()
     {
         return $this->hasMany(PhysicalEvaluation::class);
@@ -68,8 +73,9 @@ class User extends Authenticatable
 
     public function role(): string
     {
-        if ($this->manager()->exists())    return 'manager';
-        if ($this->instructor()->exists()) return 'instructor';
+        if ($this->manager()->exists())      return 'manager';
+        if ($this->instructor()->exists())   return 'instructor';
+        if ($this->receptionist()->exists()) return 'receptionist';
         return 'student';
     }
 
@@ -81,6 +87,11 @@ class User extends Authenticatable
     public function isInstructor(): bool
     {
         return $this->role() === 'instructor';
+    }
+
+    public function isReceptionist(): bool
+    {
+        return $this->role() === 'receptionist';
     }
 
     public function isStudent(): bool

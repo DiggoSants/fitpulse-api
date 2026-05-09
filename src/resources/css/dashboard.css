@@ -3154,3 +3154,53 @@ button.student-action-card--blue:hover {
     @keyframes spin {
         to { transform: rotate(360deg); }
     }
+
+    /* LIGHT MODE - CARD GAMIFICAÇÃO */
+[data-theme="light"] #gami-card {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,.04);
+}
+
+[data-theme="light"] #gami-card p,
+[data-theme="light"] #gami-card span,
+[data-theme="light"] #gami-card div {
+    color: #374151;
+}
+
+/* textos secundários */
+[data-theme="light"] #gami-card [style*="var(--text-muted)"] {
+    color: #6b7280 !important;
+}
+
+/* textos principais */
+[data-theme="light"] #gami-card [style*="var(--text-white)"] {
+    color: #111827 !important;
+}
+
+/* botão ver detalhes */
+[data-theme="light"] #gami-card a {
+    color: #2563eb !important;
+    border-color: #d1d5db !important;
+}
+
+/* barra de progresso */
+[data-theme="light"] #gami-card #dash-progress {
+    background: linear-gradient(90deg,#d61532,#ff5068) !important;
+}
+
+[data-theme="light"] #gami-card div[style*="height:6px; background:rgba(255,255,255,0.08)"] {
+    background: #e5e7eb !important;
+}
+
+/* box inferior */
+[data-theme="light"] #gami-card div[style*="background:rgba(255,255,255,0.03)"] {
+    background: #f9fafb !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+/* grupo */
+[data-theme="light"] #gami-card div[style*="background:rgba(59,130,246,0.07)"] {
+    background: rgba(59,130,246,.08) !important;
+    border: 1px solid rgba(59,130,246,.18) !important;
+}

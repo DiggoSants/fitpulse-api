@@ -84,6 +84,11 @@ class DashboardController extends Controller
             ));
         }
 
+        // ── RECEPCIONISTA ─────────────────────────────────────────────────────
+        if ($user->isReceptionist()) {
+            return redirect()->route('reception.index');
+        }
+
         // ── INSTRUTOR ─────────────────────────────────────────────────────────
         if ($user->isInstructor()) {
             $instructor = Instructor::with([
@@ -97,31 +102,31 @@ class DashboardController extends Controller
 
         // ── ALUNO ─────────────────────────────────────────────────────────────
         $student = Student::where('user_id', $user->id)->first();
- 
+
         if (!$student || !$student->isEnrolled()) {
             return view('dashboard', ['enrolled' => false]);
         }
- 
+
         // Frequência do mês atual
         $frequencyThisMonth = Frequency::where('student_id', $student->id)
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->count();
- 
+
         // Última presença
         $lastFrequency = Frequency::where('student_id', $student->id)
             ->latest()
             ->first();
- 
+
         // Já registrou hoje?
         $checkedInToday = Frequency::where('student_id', $student->id)
             ->whereDate('created_at', today())
             ->exists();
- 
+
         // Dias da semana com presença
         $startOfWeek = now()->startOfWeek(\Carbon\Carbon::SUNDAY);
         $endOfWeek   = now()->endOfWeek(\Carbon\Carbon::SATURDAY);
- 
+
         $frequencyThisWeek = Frequency::where('student_id', $student->id)
             ->whereBetween('created_at', [$startOfWeek, $endOfWeek])
             ->get()
@@ -129,7 +134,7 @@ class DashboardController extends Controller
             ->unique()
             ->values()
             ->toArray();
- 
+
         return view('dashboard', compact(
             'frequencyThisMonth',
             'lastFrequency',

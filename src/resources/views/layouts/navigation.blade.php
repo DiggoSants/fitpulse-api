@@ -16,7 +16,8 @@
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
 
-                    {{-- Painel — todos os usuários --}}
+                    {{-- Painel — todos exceto recepcionista --}}
+                    @unless(Auth::user()->isReceptionist())
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -28,49 +29,26 @@
                         </svg>
                         {{ __('Painel') }}
                     </x-nav-link>
+                    @endunless
 
-                    {{-- Treinos — somente aluno matriculado --}}
-                    @if(!Auth::user()->isManager() && !Auth::user()->isInstructor() && Auth::user()->student?->isEnrolled())
-                        <x-nav-link :href="route('workouts.index')" :active="request()->routeIs('workouts.*')">
+                    {{-- ══ RECEPCIONISTA — apenas links de recepção ══ --}}
+                    @if(Auth::user()->isReceptionist())
+
+                        <x-nav-link :href="route('reception.index')" :active="request()->routeIs('reception.*')">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                  style="flex-shrink:0; margin-right:8px;">
-                                <rect x="2" y="9" width="4" height="6" rx="1"/>
-                                <rect x="18" y="9" width="4" height="6" rx="1"/>
-                                <rect x="7" y="11" width="10" height="2" rx="1"/>
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <line x1="19" y1="8" x2="19" y2="14"/>
+                                <line x1="22" y1="11" x2="16" y2="11"/>
                             </svg>
-                            {{ __('Treinos') }}
+                            {{ __('Matrículas') }}
                         </x-nav-link>
-                    @endif
 
-                    {{-- Lojinha — somente aluno matriculado --}}
-                    @if(!Auth::user()->isManager() && !Auth::user()->isInstructor() && Auth::user()->student?->isEnrolled())
-                        <x-nav-link :href="route('shop.index')" :active="request()->routeIs('shop.index')">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                 style="flex-shrink:0; margin-right:8px;">
-                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-                                <line x1="3" y1="6" x2="21" y2="6"/>
-                                <path d="M16 10a4 4 0 0 1-8 0"/>
-                            </svg>
-                            {{ __('Lojinha') }}
-                        </x-nav-link>
-                    @endif
+                    @elseif(Auth::user()->isManager())
+                    {{-- ══ GERENTE ══ --}}
 
-                    {{-- Evolução Física — instrutor --}}
-                    @if(Auth::user()->isInstructor())
-                        <x-nav-link :href="route('evaluations.instructor')" :active="request()->routeIs('evaluations.instructor')">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                 style="flex-shrink:0; margin-right:8px;">
-                                <path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 4-6"/>
-                            </svg>
-                            {{ __('Evolução') }}
-                        </x-nav-link>
-                    @endif
-
-                    {{-- Links do gerente --}}
-                    @if(Auth::user()->isManager())
                         <x-nav-link :href="route('shop.manager')" :active="request()->routeIs('shop.manager')">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -92,7 +70,6 @@
                             {{ __('Acessos') }}
                         </x-nav-link>
 
-                        {{--  Manutenção de Equipamentos --}}
                         <x-nav-link :href="route('maintenance.view')" :active="request()->routeIs('maintenance.*') || request()->routeIs('equipment.*')">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -105,6 +82,46 @@
                             </svg>
                             {{ __('Manutenção') }}
                         </x-nav-link>
+
+                    @elseif(Auth::user()->isInstructor())
+                    {{-- ══ INSTRUTOR ══ --}}
+
+                        <x-nav-link :href="route('evaluations.instructor')" :active="request()->routeIs('evaluations.instructor')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                 style="flex-shrink:0; margin-right:8px;">
+                                <path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 4-6"/>
+                            </svg>
+                            {{ __('Evolução') }}
+                        </x-nav-link>
+
+                    @else
+                    {{-- ══ ALUNO MATRICULADO ══ --}}
+
+                        @if(Auth::user()->student?->isEnrolled())
+                            <x-nav-link :href="route('workouts.index')" :active="request()->routeIs('workouts.*')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                     style="flex-shrink:0; margin-right:8px;">
+                                    <rect x="2" y="9" width="4" height="6" rx="1"/>
+                                    <rect x="18" y="9" width="4" height="6" rx="1"/>
+                                    <rect x="7" y="11" width="10" height="2" rx="1"/>
+                                </svg>
+                                {{ __('Treinos') }}
+                            </x-nav-link>
+
+                            <x-nav-link :href="route('shop.index')" :active="request()->routeIs('shop.index')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                     style="flex-shrink:0; margin-right:8px;">
+                                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                                    <line x1="3" y1="6" x2="21" y2="6"/>
+                                    <path d="M16 10a4 4 0 0 1-8 0"/>
+                                </svg>
+                                {{ __('Lojinha') }}
+                            </x-nav-link>
+                        @endif
+
                     @endif
 
                 </div>
@@ -161,6 +178,8 @@
                 <span class="nav-ctx-crumb nav-ctx-crumb--active">
                     @if(request()->routeIs('dashboard'))
                         Painel
+                    @elseif(request()->routeIs('reception.*'))
+                        Recepção
                     @elseif(request()->routeIs('workouts.*'))
                         Treinos
                     @elseif(request()->routeIs('profile.*'))
@@ -182,26 +201,18 @@
     {{-- Menu mobile --}}
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden nav-mobile-menu">
         <div class="pt-2 pb-3 space-y-1">
+            @unless(Auth::user()->isReceptionist())
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Painel') }}
             </x-responsive-nav-link>
+            @endunless
 
-            @if(!Auth::user()->isManager() && !Auth::user()->isInstructor() && Auth::user()->student?->isEnrolled())
-                <x-responsive-nav-link :href="route('workouts.index')" :active="request()->routeIs('workouts.*')">
-                    {{ __('Treinos') }}
+            @if(Auth::user()->isReceptionist())
+                <x-responsive-nav-link :href="route('reception.index')" :active="request()->routeIs('reception.*')">
+                    {{ __('Matrículas') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('shop.index')" :active="request()->routeIs('shop.index')">
-                    {{ __('Lojinha') }}
-                </x-responsive-nav-link>
-            @endif
 
-            @if(Auth::user()->isInstructor())
-                <x-responsive-nav-link :href="route('evaluations.instructor')" :active="request()->routeIs('evaluations.instructor')">
-                    {{ __('Evolução Física') }}
-                </x-responsive-nav-link>
-            @endif
-
-            @if(Auth::user()->isManager())
+            @elseif(Auth::user()->isManager())
                 <x-responsive-nav-link :href="route('shop.manager')" :active="request()->routeIs('shop.manager')">
                     {{ __('Lojinha') }}
                 </x-responsive-nav-link>
@@ -211,10 +222,24 @@
                 <x-responsive-nav-link :href="route('evaluations.manager')" :active="request()->routeIs('evaluations.manager')">
                     {{ __('Evolução Física') }}
                 </x-responsive-nav-link>
-                {{--  mobile: Manutenção --}}
                 <x-responsive-nav-link :href="route('maintenance.view')" :active="request()->routeIs('maintenance.*') || request()->routeIs('equipment.*')">
                     {{ __('Manutenção') }}
                 </x-responsive-nav-link>
+
+            @elseif(Auth::user()->isInstructor())
+                <x-responsive-nav-link :href="route('evaluations.instructor')" :active="request()->routeIs('evaluations.instructor')">
+                    {{ __('Evolução Física') }}
+                </x-responsive-nav-link>
+
+            @else
+                @if(Auth::user()->student?->isEnrolled())
+                    <x-responsive-nav-link :href="route('workouts.index')" :active="request()->routeIs('workouts.*')">
+                        {{ __('Treinos') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('shop.index')" :active="request()->routeIs('shop.index')">
+                        {{ __('Lojinha') }}
+                    </x-responsive-nav-link>
+                @endif
             @endif
         </div>
         <div class="pt-4 pb-1" style="border-top:1px solid rgba(255,255,255,0.08);">

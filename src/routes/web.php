@@ -41,7 +41,14 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
+Route::middleware(['auth', 'verified', 'role:manager,receptionist'])->group(function () {
+    Route::get('/students/pending-enrollment', [ReceptionController::class, 'pendingEnrollment'])->name('reception.pending');
+    Route::get('/instructors/available',       [ReceptionController::class, 'availableInstructors'])->name('reception.instructors');
+    Route::post('/enrollments',                [ReceptionController::class, 'enroll'])->name('reception.enroll');
+    Route::get('/reception', function () {return view('reception.index');})->name('reception.index');
+    Route::get('/reception/plans', [ReceptionController::class, 'activePlans'])->name('reception.plans');
+    
+});
 // ── Alunos ────────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('students', StudentController::class);
@@ -65,6 +72,7 @@ Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
         'show'
     ]);
 });
+
 
 // ── Instrutores ───────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
@@ -239,10 +247,5 @@ Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
     )->name('plan-groups.leave');
 });
 
-Route::middleware(['auth', 'verified', 'role:manager,receptionist'])->group(function () {
-    Route::get('/students/pending-enrollment', [ReceptionController::class, 'pendingEnrollment'])->name('reception.pending');
-    Route::get('/instructors/available',       [ReceptionController::class, 'availableInstructors'])->name('reception.instructors');
-    Route::post('/enrollments',                [ReceptionController::class, 'enroll'])->name('reception.enroll');
-});
 
 require __DIR__ . '/auth.php';

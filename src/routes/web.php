@@ -18,6 +18,7 @@ use App\Http\Controllers\ShopController;
 use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\GamificationController;
+use App\Http\Controllers\ReceptionController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -233,6 +234,12 @@ Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
     Route::post('/plan-groups/{id}/leave',
         [GamificationController::class, 'leaveGroup']
     )->name('plan-groups.leave');
+});
+
+Route::middleware(['auth', 'verified', 'role:manager,receptionist'])->group(function () {
+    Route::get('/students/pending-enrollment', [ReceptionController::class, 'pendingEnrollment'])->name('reception.pending');
+    Route::get('/instructors/available',       [ReceptionController::class, 'availableInstructors'])->name('reception.instructors');
+    Route::post('/enrollments',                [ReceptionController::class, 'enroll'])->name('reception.enroll');
 });
 
 require __DIR__ . '/auth.php';

@@ -2,9 +2,6 @@
     @push('styles')
         <link rel="stylesheet" href="{{ asset('css/app.css') }}">
         <style>
-        /* ════════════════════════════════════════════════════════════════
-           TOKENS ADAPTATIVOS — dark default, sobrescreve em light
-        ════════════════════════════════════════════════════════════════ */
         :root {
             --g-bg:       rgba(255,255,255,0.04);
             --g-border:   rgba(255,255,255,0.08);
@@ -652,10 +649,10 @@
     </div>
 
     @if(session('success'))
-        <script>document.addEventListener('DOMContentLoaded',()=>showGamiToast("{{ addslashes(session('success')) }}",'success'));</script>
+        <script>document.addEventListener('DOMContentLoaded',()=>showGamiToast(@json(session('success')),'success'));</script>
     @endif
     @if(session('error'))
-        <script>document.addEventListener('DOMContentLoaded',()=>showGamiToast("{{ addslashes(session('error')) }}",'error'));</script>
+        <script>document.addEventListener('DOMContentLoaded',()=>showGamiToast(@json(session('error')),'error'));</script>
     @endif
 
     <script>

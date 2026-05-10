@@ -245,6 +245,11 @@ Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
     Route::post('/plan-groups/{id}/leave',
         [GamificationController::class, 'leaveGroup']
     )->name('plan-groups.leave');
+
+    Route::get('/plan-groups/{id}/leave', function () {
+        return redirect()->route('gamification.index')
+            ->with('error', 'Use o botao de sair do grupo para confirmar a acao.');
+    });
 });
 
 

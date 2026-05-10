@@ -160,7 +160,16 @@ class GamificationController extends Controller
     {
         /** @var \App\Models\User $user */
         $user  = Auth::user();
-        $group = PlanGroup::with('members')->findOrFail($id);
+        $group = PlanGroup::with('members')->find($id);
+
+        if (!$group) {
+            if (request()->expectsJson()) {
+                return response()->json(['message' => 'Grupo nao encontrado ou ja encerrado.'], 404);
+            }
+
+            return redirect()->route('gamification.index')
+                ->with('error', 'Esse grupo nao existe mais ou ja foi encerrado.');
+        }
 
         if (!$group->members->contains($user->id)) {
             if (request()->expectsJson()) {

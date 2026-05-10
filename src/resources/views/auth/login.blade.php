@@ -9,7 +9,7 @@
         ENTRAR
     </h2>
 
-    <form method="POST" action="{{ route('login') }}">
+    <form method="POST" action="{{ route('login') }}" id="login-form">
         @csrf
 
         {{-- Email --}}
@@ -22,14 +22,19 @@
         {{-- Senha --}}
         <div class="auth-field">
             <label for="password">Senha</label>
-            <input id="password" type="password" name="password" required autocomplete="current-password" />
+            <div class="password-field">
+                <input id="password" type="password" name="password" required autocomplete="current-password" />
+                <button type="button" class="password-toggle" id="password-toggle" aria-label="Mostrar senha" aria-pressed="false">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
+            </div>
             @error('password') <span class="text-red-400">{{ $message }}</span> @enderror
         </div>
 
         {{-- Lembrar --}}
         <div class="auth-field">
-            <label class="remember-label">
-                <input type="checkbox" name="remember" />
+            <label class="remember-label" for="remember">
+                <input id="remember" type="checkbox" name="remember" value="1" {{ old('remember') ? 'checked' : '' }} />
                 Lembrar de mim
             </label>
         </div>
@@ -50,5 +55,40 @@
             </p>
         @endif
     </form>
+
+    <script>
+        (() => {
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const passwordToggle = document.getElementById('password-toggle');
+            const rememberInput = document.getElementById('remember');
+            const form = document.getElementById('login-form');
+            const storageKey = 'fitpulse.remembered_email';
+            const rememberedEmail = localStorage.getItem(storageKey);
+
+            if (rememberedEmail && !emailInput.value) {
+                emailInput.value = rememberedEmail;
+                rememberInput.checked = true;
+            }
+
+            form.addEventListener('submit', () => {
+                if (rememberInput.checked) {
+                    localStorage.setItem(storageKey, emailInput.value.trim());
+                    return;
+                }
+
+                localStorage.removeItem(storageKey);
+            });
+
+            passwordToggle.addEventListener('click', () => {
+                const isPassword = passwordInput.type === 'password';
+                passwordInput.type = isPassword ? 'text' : 'password';
+                passwordToggle.setAttribute('aria-label', isPassword ? 'Esconder senha' : 'Mostrar senha');
+                passwordToggle.setAttribute('aria-pressed', String(isPassword));
+                passwordToggle.innerHTML = `<i class="fa-solid ${isPassword ? 'fa-eye-slash' : 'fa-eye'}"></i>`;
+                passwordInput.focus();
+            });
+        })();
+    </script>
 
 </x-guest-layout>

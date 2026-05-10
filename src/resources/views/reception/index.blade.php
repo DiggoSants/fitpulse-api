@@ -136,13 +136,15 @@
                 </div>
 
                 <div class="rec-field">
-                    <label class="rec-label" for="select-instructor">Instrutor</label>
-                    <div class="rec-select-wrap">
-                        <select id="select-instructor" class="rec-select" onchange="updateInstructorPreview()">
-                            <option value="">Selecione um instrutor...</option>
-                        </select>
-                        <svg class="rec-select-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <label class="rec-label" for="input-instructor-code">Instrutor</label>
+                    <div class="rec-instructor-list" id="instructor-list">
+                        <p class="rec-instructor-list__empty">Carregando instrutores...</p>
                     </div>
+                    <div class="rec-code-field">
+                        <input type="text" id="input-instructor-code" class="rec-code-input" placeholder="Digite o código do instrutor" autocomplete="off" oninput="updateInstructorPreview()">
+                        <span class="rec-code-field__hint">Código</span>
+                    </div>
+                    <p id="instructor-code-error" class="rec-field-error" style="display:none;">Código de instrutor inválido.</p>
                     <div id="instructor-preview" class="rec-instructor-preview" style="display:none;">
                         <div style="display:flex; align-items:center; gap:10px;">
                             <div class="rec-instructor-preview__avatar" id="inst-preview-avatar"></div>
@@ -199,6 +201,7 @@
         let allInstructors = [];
         let allPlans       = [];
         let selectedStudentId = null;
+        let selectedInstructorId = null;
 
         document.addEventListener('DOMContentLoaded', () => {
             loadPendingStudents();
@@ -228,16 +231,28 @@
                 const json = await res.json();
                 allInstructors = json.data ?? [];
                 document.getElementById('stat-instructors').textContent = allInstructors.length;
-                const sel = document.getElementById('select-instructor');
-                allInstructors.forEach(inst => {
-                    const opt = document.createElement('option');
-                    opt.value = inst.id;
-                    opt.textContent = `${inst.name} — cód. ${inst.invite_code}`;
-                    sel.appendChild(opt);
-                });
+                renderInstructorsList();
             } catch (e) {
                 console.error('Erro ao carregar instrutores:', e);
             }
+        }
+
+        function renderInstructorsList() {
+            const list = document.getElementById('instructor-list');
+            list.innerHTML = '';
+            if (!allInstructors.length) {
+                list.innerHTML = '<p class="rec-instructor-list__empty">Nenhum instrutor disponível.</p>';
+                return;
+            }
+
+            allInstructors.forEach(inst => {
+                const item = document.createElement('div');
+                item.className = 'rec-instructor-list__item';
+                item.innerHTML = `
+                    <span class="rec-instructor-list__name">${escHtml(inst.name)}</span>
+                    <span class="rec-instructor-list__code">${escHtml(inst.invite_code ?? '—')}</span>`;
+                list.appendChild(item);
+            });
         }
 
         async function loadPlans() {
@@ -314,9 +329,12 @@
             document.getElementById('modal-student-display-email').textContent = email;
             document.getElementById('modal-student-avatar').textContent       = name.substring(0, 2).toUpperCase();
             document.getElementById('select-plan').value       = '';
-            document.getElementById('select-instructor').value = '';
+            document.getElementById('input-instructor-code').value = '';
+            document.getElementById('input-instructor-code').classList.remove('rec-code-input--error');
+            document.getElementById('instructor-code-error').style.display = 'none';
             document.getElementById('plan-preview').style.display       = 'none';
             document.getElementById('instructor-preview').style.display = 'none';
+            selectedInstructorId = null;
             document.getElementById('enroll-modal-overlay').style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
@@ -325,6 +343,7 @@
             document.getElementById('enroll-modal-overlay').style.display = 'none';
             document.body.style.overflow = '';
             selectedStudentId = null;
+            selectedInstructorId = null;
         }
 
         function updatePlanPreview() {
@@ -338,9 +357,16 @@
         }
 
         function updateInstructorPreview() {
-            const instId = parseInt(document.getElementById('select-instructor').value);
-            const inst   = allInstructors.find(i => i.id === instId);
-            const prev   = document.getElementById('instructor-preview');
+            const codeInput = document.getElementById('input-instructor-code');
+            const error = document.getElementById('instructor-code-error');
+            const typedCode = codeInput.value.trim().toUpperCase();
+            const inst = allInstructors.find(i => (i.invite_code ?? '').toUpperCase() === typedCode);
+            const prev = document.getElementById('instructor-preview');
+
+            selectedInstructorId = inst ? inst.id : null;
+            error.style.display = typedCode && !inst ? 'block' : 'none';
+            codeInput.classList.toggle('rec-code-input--error', Boolean(typedCode && !inst));
+
             if (!inst) { prev.style.display = 'none'; return; }
             document.getElementById('inst-preview-avatar').textContent    = inst.name.substring(0, 2).toUpperCase();
             document.getElementById('inst-preview-name').textContent      = inst.name;
@@ -351,9 +377,9 @@
 
         async function confirmEnroll() {
             const planId = document.getElementById('select-plan').value;
-            const instId = document.getElementById('select-instructor').value;
+            const instId = selectedInstructorId;
             if (!selectedStudentId || !planId || !instId) {
-                showToast('Selecione aluno, plano e instrutor para continuar.', 'error');
+                showToast('Selecione aluno, plano e digite um código de instrutor válido para continuar.', 'error');
                 return;
             }
             const btn = document.getElementById('btn-confirm-enroll');

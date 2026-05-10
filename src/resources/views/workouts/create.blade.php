@@ -45,10 +45,13 @@
                         @enderror
                     </div>
 
-                    <a href="{{ route('exercises.create') }}"
-                       style="display:inline-block; margin-bottom:15px; color:var(--red-light);">
-                        + Adicionar novo exercício
-                    </a>
+                    <div class="workout-form-tools">
+                        <a href="{{ route('exercises.create', ['student_id' => $student->id]) }}">
+                            + Adicionar novo exercício
+                        </a>
+                        <a href="{{ route('exercises.index', ['student_id' => $student->id]) }}">
+                            Biblioteca de exercícios <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
 
                     <div style="margin-top:1.5rem; margin-bottom:12px;">
                         <p class="section-label">EXERCÍCIOS</p>
@@ -61,18 +64,29 @@
                     <ul class="exercise-list">
                         @foreach($exercises as $exercise)
                             <li class="exercise-card" style="flex-direction:column; align-items:flex-start; gap:10px;">
-                                <label style="display:flex; align-items:center; gap:10px; cursor:pointer; width:100%;">
-                                    <input type="checkbox" name="exercise_id[]" value="{{ $exercise->id }}"
-                                           style="accent-color:var(--red); width:16px; height:16px; cursor:pointer;">
-                                    <div class="exercise-thumb" style="width:40px; height:40px; flex-shrink:0;">
-                                        <svg viewBox="0 0 24 24">
-                                            <rect x="2" y="9" width="4" height="6" rx="1"/>
-                                            <rect x="18" y="9" width="4" height="6" rx="1"/>
-                                            <rect x="7" y="11" width="10" height="2" rx="1"/>
-                                        </svg>
-                                    </div>
-                                    <span class="exercise-name" style="margin-bottom:0;">{{ $exercise->name }}</span>
-                                </label>
+                                <div class="workout-exercise-head">
+                                    <label style="display:flex; align-items:center; gap:10px; cursor:pointer; min-width:0;">
+                                        <input type="checkbox" name="exercise_id[]" value="{{ $exercise->id }}"
+                                               style="accent-color:var(--red); width:16px; height:16px; cursor:pointer;">
+                                        <div class="exercise-thumb" style="width:40px; height:40px; flex-shrink:0;">
+                                            <svg viewBox="0 0 24 24">
+                                                <rect x="2" y="9" width="4" height="6" rx="1"/>
+                                                <rect x="18" y="9" width="4" height="6" rx="1"/>
+                                                <rect x="7" y="11" width="10" height="2" rx="1"/>
+                                            </svg>
+                                        </div>
+                                        <span class="exercise-name" style="margin-bottom:0;">{{ $exercise->name }}</span>
+                                    </label>
+
+                                    <button type="button"
+                                            class="workout-exercise-delete"
+                                            data-delete-form="delete-exercise-{{ $exercise->id }}"
+                                            data-exercise-name="{{ $exercise->name }}"
+                                            title="Apagar exercício"
+                                            aria-label="Apagar exercício {{ $exercise->name }}">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
                                 <div class="workout-inputs">
                                     <input type="number" name="sets[{{ $exercise->id }}]" placeholder="Séries" class="workout-input-sm" min="1">
                                     <input type="number" name="reps[{{ $exercise->id }}]" placeholder="Reps" class="workout-input-sm" min="1">
@@ -92,8 +106,71 @@
                     </div>
 
                 </form>
+
+                @foreach($exercises as $exercise)
+                    <form id="delete-exercise-{{ $exercise->id }}" action="{{ route('exercises.destroy', $exercise->id) }}" method="POST" style="display:none;">
+                        @csrf
+                        @method('DELETE')
+                    </form>
+                @endforeach
             </div>
         </div>
     </div>
+
+    <div id="exercise-delete-modal" class="fit-confirm-overlay" style="display:none;" aria-hidden="true">
+        <div class="fit-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="exercise-delete-title">
+            <div class="fit-confirm-modal__icon">
+                <i class="fa-solid fa-trash"></i>
+            </div>
+            <p class="fit-confirm-modal__eyebrow">Excluir exercício</p>
+            <h2 id="exercise-delete-title" class="fit-confirm-modal__title">Apagar da biblioteca?</h2>
+            <p class="fit-confirm-modal__text">
+                O exercício <strong id="exercise-delete-name">—</strong> também será removido dos treinos que usam ele.
+            </p>
+            <div class="fit-confirm-modal__actions">
+                <button type="button" class="fit-confirm-btn fit-confirm-btn--cancel" id="exercise-delete-cancel">Cancelar</button>
+                <button type="button" class="fit-confirm-btn fit-confirm-btn--danger" id="exercise-delete-confirm">Apagar exercício</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (() => {
+            const modal = document.getElementById('exercise-delete-modal');
+            const nameEl = document.getElementById('exercise-delete-name');
+            const cancelBtn = document.getElementById('exercise-delete-cancel');
+            const confirmBtn = document.getElementById('exercise-delete-confirm');
+            let formId = null;
+
+            document.querySelectorAll('[data-delete-form]').forEach(button => {
+                button.addEventListener('click', () => {
+                    formId = button.dataset.deleteForm;
+                    nameEl.textContent = button.dataset.exerciseName || 'este exercício';
+                    modal.style.display = 'flex';
+                    modal.setAttribute('aria-hidden', 'false');
+                    document.body.style.overflow = 'hidden';
+                    cancelBtn.focus();
+                });
+            });
+
+            function closeDeleteModal() {
+                modal.style.display = 'none';
+                modal.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+                formId = null;
+            }
+
+            cancelBtn.addEventListener('click', closeDeleteModal);
+            modal.addEventListener('click', event => {
+                if (event.target === modal) closeDeleteModal();
+            });
+            document.addEventListener('keydown', event => {
+                if (event.key === 'Escape' && modal.style.display === 'flex') closeDeleteModal();
+            });
+            confirmBtn.addEventListener('click', () => {
+                if (formId) document.getElementById(formId)?.submit();
+            });
+        })();
+    </script>
 
 </x-app-layout>

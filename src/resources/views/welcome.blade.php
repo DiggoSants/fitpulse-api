@@ -395,7 +395,7 @@
                 <i class="fa-solid fa-phone"></i> (85) 99999-9999
               </a>
               <a href="/cdn-cgi/l/email-protection#0f6c60617b6e7b604f69667b7f7a637c6a216c6062216d7d" class="es-contato-btn">
-                <i class="fa-solid fa-envelope"></i> <span class="__cf_email__" data-cfemail="d9bab6b7adb8adb699bfb0ada9acb5aabcf7bab6b4f7bbab">[email&#160;protected]</span>
+                <i class="fa-solid fa-envelope"></i> <span class="__cf_email__" data-cfemail="d9bab6b7adb8adb699bfb0ada9acb5aabcf7bab6b4f7bbab">fitpulse@gmail.com</span>
               </a>
             </div>
             <div class="es-social">

@@ -394,6 +394,122 @@
     pointer-events: none;
 }
 
+.rec-instructor-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 132px;
+    overflow-y: auto;
+    padding: 10px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.09);
+}
+
+.rec-instructor-list__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 10px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.07);
+}
+
+.rec-instructor-list__name {
+    min-width: 0;
+    color: var(--text-white);
+    font-size: 12px;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rec-instructor-list__code {
+    flex-shrink: 0;
+    color: #f87171;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .08em;
+}
+
+.rec-instructor-list__empty {
+    color: var(--text-muted);
+    font-size: 12px;
+    margin: 0;
+    padding: 4px;
+}
+
+.rec-code-field {
+    position: relative;
+}
+
+.rec-code-input {
+    width: 100%;
+    padding: 11px 76px 11px 14px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
+    color: #f5f5f5;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.rec-code-input:focus {
+    border-color: rgba(214,21,50,0.45);
+    box-shadow: 0 0 0 3px rgba(214,21,50,0.10);
+}
+
+.rec-code-input--error {
+    border-color: rgba(248,113,113,0.70);
+}
+
+.rec-code-field__hint {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    pointer-events: none;
+}
+
+.rec-field-error {
+    color: #f87171;
+    font-size: 11px;
+    font-weight: 700;
+    margin: -2px 0 0;
+}
+
+[data-theme="light"] .rec-instructor-list,
+[data-theme="light"] .rec-code-input {
+    background: #f5f5f5;
+    border-color: rgba(0,0,0,0.12);
+    color: #111;
+}
+
+[data-theme="light"] .rec-instructor-list__item {
+    background: #fff;
+    border-color: rgba(0,0,0,0.08);
+}
+
+[data-theme="light"] .rec-instructor-list__name { color: #111; }
+[data-theme="light"] .rec-instructor-list__code { color: #c41230; }
+[data-theme="light"] .rec-code-input:focus {
+    border-color: rgba(214,21,50,0.40);
+    box-shadow: 0 0 0 3px rgba(214,21,50,0.08);
+}
+
 /* Preview do plano */
 .rec-plan-preview {
     display: flex;

@@ -43,12 +43,22 @@ class EnrollmentController extends Controller
         if (!$instructor) {
             return back()
                 ->withInput()
-                ->withErrors(['invite_code' => 'Código de instrutor inválido.']);
+                ->withErrors([
+                    'invite_code' => 'Código de instrutor inválido.',
+                ]);
         }
 
         /** @var \App\Models\User $user */
         $user    = Auth::user();
         $student = Student::where('user_id', $user->id)->firstOrFail();
+
+        // Cancela matrículas ativas anteriores
+        Enrollment::where('student_id', $student->id)
+            ->where('status', 'active')
+            ->update([
+                'status'       => 'cancelled',
+                'cancelled_at' => now(),
+            ]);
 
         $plan      = Plan::findOrFail($request->plan_id);
         $startDate = Carbon::today();
@@ -62,9 +72,13 @@ class EnrollmentController extends Controller
             'status'     => 'active',
         ]);
 
-        $student->update(['instructor_id' => $instructor->id]);
+        $student->update([
+            'instructor_id' => $instructor->id,
+        ]);
 
-        return redirect()->route('dashboard')->with('success', 'Matrícula realizada com sucesso!');
+        return redirect()
+            ->route('dashboard')
+            ->with('success', 'Matrícula realizada com sucesso!');
     }
 
     public function cancel($id)
@@ -75,26 +89,41 @@ class EnrollmentController extends Controller
 
         // Aluno só pode cancelar a própria matrícula
         if ($user->isStudent()) {
+
             $student = Student::where('user_id', $user->id)->first();
-            if (!$student || $enrollment->student_id !== $student->id) {
+
+            if (
+                !$student ||
+                $enrollment->student_id !== $student->id
+            ) {
                 return response()->json([
                     'message' => 'Você não tem permissão para cancelar esta matrícula.',
                 ], 403);
             }
         }
 
+        // Verifica se já foi cancelada
         if ($enrollment->status === 'cancelled') {
             return response()->json([
                 'message' => 'Esta matrícula já foi cancelada.',
             ], 422);
         }
 
-        $enrollment->cancel();
+        // Cancela matrícula
+        $enrollment->update([
+            'status'       => 'cancelled',
+            'cancelled_at' => now(),
+        ]);
 
-        // Marca o aluno como inativo se não tiver outra matrícula ativa
+        // Atualiza status do aluno
         $student = $enrollment->student;
+
         if (!$student->isEnrolled()) {
-            $student->update(['status' => 'active', 'is_defaulter' => false]);
+            $student->update([
+                'instructor_id' => null,
+                'status'        => 'blocked',
+                'is_defaulter'  => false,
+            ]);
         }
 
         return response()->json([

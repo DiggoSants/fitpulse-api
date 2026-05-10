@@ -32,6 +32,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/enrollment', [EnrollmentController::class, 'index'])->name('enrollment.index');
     Route::post('/enrollment', [EnrollmentController::class, 'store'])->name('enrollment.store');
+    Route::post('/enrollments/{id}/cancel', [EnrollmentController::class, 'cancel'])->name('enrollment.cancel');
 });
 
 // ── Perfil ────────────────────────────────────────────────────────────────────
@@ -208,38 +209,20 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
     Route::put('/maintenance/{id}', [MaintenanceController::class, 'resolve'])->name('maintenance.resolve');
 });
 
-// ── Gamificação e Planos Conjuntos ────────────────────────────────────────────
+// ── Gamificação e planos conjuntos ────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
-
-    Route::get('/gamification',
-        [GamificationController::class, 'index']
-    )->name('gamification.index');
-
-    Route::get('/plan-groups',
-        [GamificationController::class, 'listGroups']
-    )->name('plan-groups.index');
-
-    Route::post('/plan-groups',
-        [GamificationController::class, 'createGroup']
-    )->name('plan-groups.store');
-
-    Route::get('/plan-groups/{id}',
-        [GamificationController::class, 'showGroup']
-    )->name('plan-groups.show');
-
-    Route::post('/plan-groups/{id}/join',
-        [GamificationController::class, 'joinGroup']
-    )->name('plan-groups.join');
-
-    Route::post('/plan-groups/{id}/leave',
-        [GamificationController::class, 'leaveGroup']
-    )->name('plan-groups.leave');
+    Route::get('/gamification',             [GamificationController::class, 'index'])->name('gamification.index');
+    Route::get('/plan-groups',              [GamificationController::class, 'listGroups'])->name('plan-groups.index');
+    Route::post('/plan-groups',             [GamificationController::class, 'createGroup'])->name('plan-groups.store');
+    Route::post('/plan-groups/{id}/join',   [GamificationController::class, 'joinGroup'])->name('plan-groups.join');
+    Route::post('/plan-groups/{id}/leave',  [GamificationController::class, 'leaveGroup'])->name('plan-groups.leave');
 });
+
+// ── Recepção ──────────────────────────────────────────────────────────────────
 
 Route::middleware(['auth', 'verified', 'role:manager,receptionist'])->group(function () {
     Route::get('/students/pending-enrollment', [ReceptionController::class, 'pendingEnrollment'])->name('reception.pending');
     Route::get('/instructors/available',       [ReceptionController::class, 'availableInstructors'])->name('reception.instructors');
     Route::post('/enrollments',                [ReceptionController::class, 'enroll'])->name('reception.enroll');
 });
-
 require __DIR__ . '/auth.php';

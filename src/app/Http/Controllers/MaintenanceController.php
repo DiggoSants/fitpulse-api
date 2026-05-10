@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\Equipment;
 use App\Models\MaintenanceRequest;
 
@@ -23,7 +24,6 @@ class MaintenanceController extends Controller
                 ];
             });
 
-        // Equipamentos em manutenção para o modal do dashboard
         $inMaintenance = Equipment::where('status', 'manutencao')->get()
             ->map(fn($e) => ['id' => $e->id, 'name' => $e->name]);
 
@@ -82,23 +82,37 @@ class MaintenanceController extends Controller
         ]);
 
         $equipment = Equipment::findOrFail($request->equipment_id);
+        $hasOpen = DB::transaction(function () use ($equipment, $request) {
+            $existing = MaintenanceRequest::where('equipment_id', $equipment->id)
+                ->where('status', 'aberto')
+                ->lockForUpdate()
+                ->first();
 
-        // Não permite múltiplas solicitações abertas para o mesmo equipamento
-        if ($equipment->hasOpenRequest()) {
+            if ($existing) {
+                return true;
+            }
+
+            MaintenanceRequest::create([
+                'equipment_id' => $equipment->id,
+                'description'  => $request->description,
+                'status'       => 'aberto',
+            ]);
+
+            $equipment->update(['status' => 'manutencao']);
+
+            return false;
+        });
+
+        if ($hasOpen) {
             return response()->json([
                 'message' => 'Este equipamento já possui uma solicitação aberta.',
             ], 422);
         }
 
-        // Cria a solicitação
-        $maintenanceRequest = MaintenanceRequest::create([
-            'equipment_id' => $equipment->id,
-            'description'  => $request->description,
-            'status'       => 'aberto',
-        ]);
-
-        // Atualiza o status do equipamento automaticamente
-        $equipment->update(['status' => 'manutencao']);
+        $maintenanceRequest = MaintenanceRequest::where('equipment_id', $equipment->id)
+            ->where('status', 'aberto')
+            ->latest()
+            ->first();
 
         return response()->json([
             'message' => 'Solicitação registrada! Equipamento marcado como em manutenção.',
@@ -122,16 +136,13 @@ class MaintenanceController extends Controller
             ], 422);
         }
 
-        // Marca como resolvida
         $maintenanceRequest->update(['status' => 'resolvido']);
 
-        // Verifica se ainda tem outras solicitações abertas para o mesmo equipamento
         $stillHasOpenRequests = $maintenanceRequest->equipment
             ->maintenanceRequests()
             ->where('status', 'aberto')
             ->exists();
 
-        // Se não tiver mais solicitações abertas, volta o equipamento para ativo
         if (!$stillHasOpenRequests) {
             $maintenanceRequest->equipment->update(['status' => 'ativo']);
         }

@@ -10,46 +10,13 @@ use App\Models\Billing;
 
 class BillingController extends Controller
 {
-    // Exibe a tela de mensalidade com plano ativo e histórico de pagamentos
-public function index()
-{
-    $user    = Auth::user();
-    $student = Student::where('user_id', $user->id)->firstOrFail();
-
-    // Auto-sync: tem billing confirmado mas status ainda é delinquent
-    if ($student->isDelinquent()) {
-        $hasConfirmed = $student->billings()
-            ->where('status', 'confirmed')
-            ->exists();
-
-        if ($hasConfirmed) {
-            $student->update([
-                'status'       => 'active',
-                'is_defaulter' => false,
-            ]);
-        }
-    }
-
-    $activeEnrollment = $student->activeEnrollment();
-
-        $payments = Billing::with(['plan', 'enrollment'])
-            ->where('student_id', $student->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return view('billing.index', compact('activeEnrollment', 'payments'));
-    }
-
-    // Processa o pagamento e redireciona de volta com mensagem
     public function process(Request $request)
     {
         $request->validate([
-            'payment_method' => ['required', 'in:credit_card,pix,boleto,card'],
-            'enrollment_id'  => ['required', 'exists:enrollments,id'],
+            'payment_method' => ['required', 'in:credit_card,pix,boleto'],
         ], [
-            'payment_method.required' => 'Informe o método de pagamento.',
-            'payment_method.in'       => 'Método inválido.',
-            'enrollment_id.required'  => 'Matrícula não identificada.',
+            'payment_method.required' => 'Informe o método de pagamento',
+            'payment_method.in'       => 'Método inválido. Use: credit_card, pix ou boleto',
         ]);
 
         /** @var \App\Models\User $user */
@@ -58,8 +25,10 @@ public function index()
 
         $enrollment = $student->activeEnrollment();
 
-        if (!$enrollment || $enrollment->id != $request->enrollment_id) {
-            return back()->with('error', 'Nenhuma matrícula ativa encontrada.');
+        if (!$enrollment) {
+            return response()->json([
+                'message' => 'Nenhuma matrícula ativa encontrada.',
+            ], 422);
         }
 
         $existingBilling = Billing::where('enrollment_id', $enrollment->id)
@@ -67,27 +36,26 @@ public function index()
             ->first();
 
         if ($existingBilling) {
-            $label = $existingBilling->status === 'pending' ? 'pendente' : 'confirmado';
-            return back()->with('error', "Já existe um pagamento {$label} para esta matrícula.");
+            return response()->json([
+                'message' => 'Já existe um pagamento ' . ($existingBilling->isPending() ? 'pendente' : 'confirmado') . ' para esta matrícula.',
+                'data'    => $existingBilling,
+            ], 422);
         }
 
-        // Simulação de pagamento
-        $method = $request->payment_method;
-        $status = match ($method) {
-            'boleto'                   => 'pending',
-            'pix'                      => 'confirmed',
-            'credit_card', 'card'      => (rand(1, 10) <= 9) ? 'confirmed' : 'rejected',
-            default                    => 'pending',
+        // ── SIMULAÇÃO DE PAGAMENTO ────────────────────────────────────────────
+        $status = match($request->payment_method) {
+            'boleto'      => 'pending',
+            'pix'         => 'confirmed',
+            'credit_card' => (rand(1, 10) <= 9) ? 'confirmed' : 'rejected',
         };
 
-        DB::transaction(function () use ($student, $enrollment, $status, $method) {
+        $billing = DB::transaction(function () use ($student, $enrollment, $status) {
             $billing = Billing::create([
                 'student_id'    => $student->id,
                 'plan_id'       => $enrollment->plan_id,
                 'enrollment_id' => $enrollment->id,
                 'amount'        => $enrollment->plan->price,
                 'status'        => $status,
-                'payment_method'=> $method,
                 'paid_at'       => $status === 'confirmed' ? now() : null,
             ]);
 
@@ -96,12 +64,15 @@ public function index()
             }
 
             if ($status === 'confirmed') {
-                $student->update([
-                  'is_defaulter' => false,
-                  'status'       => 'active',
-                   'renewed_at'   => now(),
-    ]);
-}
+                $student->update(['is_defaulter' => false]);
+
+                // Se estava como delinquent por falta de pagamento, reativa
+                if ($student->isDelinquent()) {
+                    $student->activate();
+                }
+            }
+
+            return $billing;
         });
 
         $messages = [
@@ -110,7 +81,40 @@ public function index()
             'rejected'  => 'Pagamento recusado. Verifique seus dados.',
         ];
 
-        return redirect()->route('billing.index')->with('success', $messages[$status]);
+        return response()->json([
+            'message' => $messages[$status],
+            'data'    => [
+                'billing_id'     => $billing->id,
+                'amount'         => $billing->amount,
+                'status'         => $billing->status,
+                'paid_at'        => $billing->paid_at?->format('d/m/Y H:i'),
+                'payment_method' => $request->payment_method,
+            ],
+        ], 201);
+    }
+
+    public function index()
+    {
+        /** @var \App\Models\User $user */
+        $user    = Auth::user();
+        $student = Student::where('user_id', $user->id)->firstOrFail();
+
+        $billings = Billing::with(['plan', 'enrollment'])
+            ->where('student_id', $student->id)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($billing) {
+                return [
+                    'id'         => $billing->id,
+                    'plan_name'  => $billing->plan->name,
+                    'amount'     => $billing->amount,
+                    'status'     => $billing->status,
+                    'paid_at'    => $billing->paid_at?->format('d/m/Y H:i'),
+                    'created_at' => $billing->created_at->format('d/m/Y H:i'),
+                ];
+            });
+
+        return response()->json(['data' => $billings]);
     }
 
     public function all(Request $request)

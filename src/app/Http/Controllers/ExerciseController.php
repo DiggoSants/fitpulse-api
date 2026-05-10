@@ -59,7 +59,7 @@ class ExerciseController extends Controller
         $exercise = Exercise::findOrFail($id);
         $exercise->delete();
 
-        return redirect()->route('exercises.index');
+        return back()->with('success', 'Exercício removido com sucesso.');
     }
 
     private array $exerciseDictionary = [

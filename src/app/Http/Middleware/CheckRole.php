@@ -9,13 +9,17 @@ use Symfony\Component\HttpFoundation\Response;
 class CheckRole
 {
     public function handle(Request $request, Closure $next, string ...$roles): Response
-    {
-        $user = $request->user();
+{
+    $user = $request->user();
 
-        if (!$user || !in_array($user->role(), $roles)) {
-            abort(403, 'Acesso não autorizado.');
-        }
+    $allowed = collect($roles)
+        ->flatMap(fn($r) => explode(',', $r))
+        ->map(fn($r) => trim($r));
 
-        return $next($request);
+    if (!$user || !$allowed->contains($user->role())) {
+        abort(403, 'Acesso não autorizado.');
     }
+
+    return $next($request);
+}
 }

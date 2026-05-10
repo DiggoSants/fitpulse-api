@@ -1,4 +1,7 @@
 <x-app-layout>
+    @php
+        $workoutCreateUrl = route('workouts.create', request()->filled('student_id') ? ['student_id' => request('student_id')] : []);
+    @endphp
 
     @push('styles')
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
@@ -19,7 +22,7 @@
                         <p class="workout-form-kicker">EXERCÍCIOS</p>
                         <h1 class="workout-form-title">Criar Exercício</h1>
                     </div>
-                    <a href="/exercises" class="workout-form-back">← Voltar</a>
+                    <a href="{{ $workoutCreateUrl }}" class="workout-form-back">← Voltar</a>
                 </div>
 
                 <div class="profile-card">
@@ -110,7 +113,7 @@
 
                         <div class="profile-form-row">
                             <button type="submit" class="btn-save">Salvar</button>
-                            <a href="/exercises" class="btn-cancel" style="text-decoration:none;">Cancelar</a>
+                            <a href="{{ $workoutCreateUrl }}" class="btn-cancel" style="text-decoration:none;">Cancelar</a>
                         </div>
                     </form>
                 </div>

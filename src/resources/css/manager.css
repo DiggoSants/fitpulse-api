@@ -2315,3 +2315,26 @@
     border-color: rgba(0,0,0,0.18);
     color: #111;
 }
+/* ── Modal Reportar Problema gerente — light mode completo ── */
+[data-theme="light"] #report-modal-overlay > div {
+    background: #ffffff !important;
+    border-color: rgba(0,0,0,0.10) !important;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.15) !important;
+}
+
+[data-theme="light"] #report-modal-overlay select.ev-input,
+[data-theme="light"] #report-modal-overlay textarea.ev-input,
+[data-theme="light"] #report-modal-overlay input.ev-input {
+    background: #f5f5f5 !important;
+    border-color: rgba(0,0,0,0.12) !important;
+    color: #111 !important;
+}
+
+[data-theme="light"] #report-modal-overlay .ev-label {
+    color: rgba(0,0,0,0.60) !important;
+}
+
+[data-theme="light"] #report-modal-overlay select.ev-input option {
+    background: #fff !important;
+    color: #111 !important;
+}

@@ -1,4 +1,9 @@
 <x-app-layout>
+    @php
+        $workoutCreateUrl = route('workouts.create', request()->filled('student_id') ? ['student_id' => request('student_id')] : []);
+        $exerciseCreateUrl = route('exercises.create', request()->filled('student_id') ? ['student_id' => request('student_id')] : []);
+    @endphp
+
     @push('styles')
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     @endpush
@@ -16,9 +21,9 @@
     </div>
 
     <div class="exercise-library-header__actions">
-        <a href="/workouts/create" class="workout-form-back">← Voltar</a>
+        <a href="{{ $workoutCreateUrl }}" class="workout-form-back">← Voltar</a>
 
-        <a href="/exercises/create" class="btn-save exercise-library-header__new">
+        <a href="{{ $exerciseCreateUrl }}" class="btn-save exercise-library-header__new">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <line x1="7" y1="1" x2="7" y2="13" />
                 <line x1="1" y1="7" x2="13" y2="7" />

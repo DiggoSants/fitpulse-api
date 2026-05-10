@@ -399,6 +399,171 @@
     transform: translateX(3px);
 }
 
+.workout-exercise-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+}
+
+.workout-exercise-head > label {
+    flex: 1;
+}
+
+.workout-exercise-delete {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid rgba(248,113,113,0.28);
+    background: rgba(214,21,50,0.08);
+    color: #f87171;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background .18s, border-color .18s, transform .15s;
+}
+
+.workout-exercise-delete:hover {
+    background: rgba(214,21,50,0.18);
+    border-color: rgba(248,113,113,0.50);
+    transform: translateY(-1px);
+}
+
+.workout-exercise-delete:active {
+    transform: scale(.96);
+}
+
+.workout-form-tools {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.workout-form-tools a {
+    color: var(--red-light);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.workout-form-tools a:hover {
+    color: #fff;
+}
+
+.fit-confirm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(5px);
+}
+
+.fit-confirm-modal {
+    width: 100%;
+    max-width: 420px;
+    border-radius: 20px;
+    background: #161616;
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+    padding: 28px;
+    text-align: center;
+    animation: shopModalIn .22s ease;
+}
+
+.fit-confirm-modal__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    margin: 0 auto 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(214,21,50,0.12);
+    border: 1px solid rgba(214,21,50,0.28);
+    color: #f87171;
+    font-size: 20px;
+}
+
+.fit-confirm-modal__eyebrow {
+    margin: 0 0 8px;
+    color: #f87171;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+}
+
+.fit-confirm-modal__title {
+    margin: 0;
+    color: var(--text-white);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 34px;
+    letter-spacing: 1.5px;
+    line-height: 1;
+}
+
+.fit-confirm-modal__text {
+    margin: 12px 0 22px;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.fit-confirm-modal__text strong {
+    color: var(--text-white);
+}
+
+.fit-confirm-modal__actions {
+    display: flex;
+    gap: 10px;
+}
+
+.fit-confirm-btn {
+    flex: 1;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background .18s, border-color .18s, transform .15s, box-shadow .2s;
+}
+
+.fit-confirm-btn--cancel {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.11);
+    color: var(--text-muted);
+}
+
+.fit-confirm-btn--danger {
+    background: #d61532;
+    border: 1px solid rgba(214,21,50,0.42);
+    color: #fff;
+}
+
+.fit-confirm-btn:hover {
+    transform: translateY(-1px);
+}
+
+.fit-confirm-btn--cancel:hover {
+    background: rgba(255,255,255,0.10);
+    color: #fff;
+}
+
+.fit-confirm-btn--danger:hover {
+    box-shadow: 0 8px 20px rgba(214,21,50,0.35);
+}
+
 .exercise-card--active {
     border-color: var(--red);
 }
@@ -416,6 +581,47 @@
 [data-theme="light"] .exercise-card:hover {
     border-color: rgba(214,21,50,0.25);
     background: #fff;
+}
+
+[data-theme="light"] .workout-exercise-delete {
+    background: rgba(214,21,50,0.06);
+    border-color: rgba(214,21,50,0.18);
+    color: #c41230;
+}
+
+[data-theme="light"] .workout-exercise-delete:hover {
+    background: rgba(214,21,50,0.12);
+    border-color: rgba(214,21,50,0.32);
+}
+
+[data-theme="light"] .workout-form-tools a:hover {
+    color: #111;
+}
+
+[data-theme="light"] .fit-confirm-modal {
+    background: #fff;
+    border-color: rgba(0,0,0,0.10);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+}
+
+[data-theme="light"] .fit-confirm-modal__title,
+[data-theme="light"] .fit-confirm-modal__text strong {
+    color: #111;
+}
+
+[data-theme="light"] .fit-confirm-modal__text {
+    color: rgba(0,0,0,0.52);
+}
+
+[data-theme="light"] .fit-confirm-btn--cancel {
+    background: #f5f5f5;
+    border-color: rgba(0,0,0,0.10);
+    color: rgba(0,0,0,0.52);
+}
+
+[data-theme="light"] .fit-confirm-btn--cancel:hover {
+    background: #eee;
+    color: #111;
 }
 
 .exercise-order {
@@ -1509,6 +1715,9 @@
     justify-content: center;
     cursor: pointer;
     transition: background .15s, color .15s;
+    line-height: 1;
+    font-size: 18px;
+    font-family: Arial, sans-serif;
 }
 
 .shop-modal__close:hover {
@@ -1833,6 +2042,9 @@
     .shop-modal__footer { flex-direction: column; }
     .shop-modal__btn-cancel,
     .shop-modal__btn-confirm { flex: unset; width: 100%; }
+    .fit-confirm-modal { padding: 24px 20px; }
+    .fit-confirm-modal__actions { flex-direction: column; }
+    .fit-confirm-btn { width: 100%; }
 }
 
 @media (max-width: 360px) {
@@ -2897,4 +3109,406 @@ div[style*="border-radius:20px"] h3::before {
 /* Legenda do gráfico */
 .ev-chart-legend {
     color: rgba(255,255,255,0.50);
+}
+
+/* ── Overlay (fundo desfocado) ────────────────────────────── */
+#equipment-modal-overlay,
+#maint-notify-overlay {
+    /* já definido inline; estes reforçam */
+}
+
+/* ── Caixa do modal — DARK (padrão) ──────────────────────── */
+#equipment-modal-overlay > div,
+#maint-notify-overlay > div {
+    background: #161616;
+    border-color: rgba(255,255,255,0.10);
+    color: #f5f5f5;
+}
+
+/* ── Caixa do modal — LIGHT ──────────────────────────────── */
+[data-theme="light"] #equipment-modal-overlay > div,
+[data-theme="light"] #maint-notify-overlay > div {
+    background: #ffffff !important;
+    border-color: rgba(0,0,0,0.10) !important;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.15) !important;
+    color: #111 !important;
+}
+
+/* ── Header do modal ─────────────────────────────────────── */
+/* título "⚙️ Equipamentos" */
+[data-theme="light"] #equipment-modal-overlay > div > div:first-child p,
+[data-theme="light"] #maint-notify-overlay > div > div:first-child p {
+    color: #111 !important;
+}
+
+/* separador do header */
+[data-theme="light"] #equipment-modal-overlay > div > div:first-child,
+[data-theme="light"] #maint-notify-overlay > div > div:first-child {
+    border-bottom-color: rgba(0,0,0,0.08) !important;
+}
+
+/* ── Botão fechar (✕) ────────────────────────────────────── */
+[data-theme="light"] #equipment-modal-overlay .shop-modal__close,
+[data-theme="light"] #maint-notify-overlay .shop-modal__close {
+    background: rgba(0,0,0,0.04) !important;
+    border-color: rgba(0,0,0,0.10) !important;
+    color: rgba(0,0,0,0.45) !important;
+}
+
+[data-theme="light"] #equipment-modal-overlay .shop-modal__close:hover,
+[data-theme="light"] #maint-notify-overlay .shop-modal__close:hover {
+    background: rgba(214,21,50,0.08) !important;
+    border-color: rgba(214,21,50,0.22) !important;
+    color: #b91c1c !important;
+}
+
+/* ── Filtros (Todos / Disponíveis / Em manutenção) ────────── */
+[data-theme="light"] #equipment-modal-overlay .shop-filter-btn {
+    background: #fff !important;
+    border-color: rgba(0,0,0,0.10) !important;
+    color: rgba(0,0,0,0.65) !important;
+}
+
+[data-theme="light"] #equipment-modal-overlay .shop-filter-btn:hover {
+    background: rgba(0,0,0,0.04) !important;
+    border-color: rgba(0,0,0,0.18) !important;
+    color: #111 !important;
+}
+
+[data-theme="light"] #equipment-modal-overlay .shop-filter-btn.is-active {
+    background: rgba(214,21,50,0.07) !important;
+    border-color: rgba(214,21,50,0.25) !important;
+    color: #d61532 !important;
+}
+
+/* ── Lista de equipamentos — rows ────────────────────────── */
+/* os rows são gerados via JS com inline styles;
+   usamos um seletor de sobrescrita no body do modal */
+[data-theme="light"] #eq-modal-body > div {
+    /* row ativo (verde) e manutenção (amarelo) já têm cores
+       via JS; só precisamos ajustar o texto */
+    color: #111 !important;
+}
+
+[data-theme="light"] #eq-modal-body span[style*="color:var(--text-white)"] {
+    color: #111 !important;
+}
+
+/* Texto "Carregando equipamentos..." e empty state */
+[data-theme="light"] #eq-modal-loading,
+[data-theme="light"] #eq-modal-empty {
+    color: rgba(0,0,0,0.40) !important;
+}
+
+/* ── Separador antes do botão Fechar ─────────────────────── */
+[data-theme="light"] #equipment-modal-overlay > div > div:last-child {
+    border-top-color: rgba(0,0,0,0.08) !important;
+}
+
+/* ── Botão "Fechar" ──────────────────────────────────────── */
+[data-theme="light"] #equipment-modal-overlay .shop-modal__btn-cancel {
+    background: rgba(0,0,0,0.04) !important;
+    border-color: rgba(0,0,0,0.10) !important;
+    color: rgba(0,0,0,0.55) !important;
+}
+
+[data-theme="light"] #equipment-modal-overlay .shop-modal__btn-cancel:hover {
+    background: rgba(0,0,0,0.08) !important;
+    border-color: rgba(0,0,0,0.18) !important;
+    color: #111 !important;
+}
+
+/* ── Modal de notificação — ícone amarelo e mensagem ─────── */
+[data-theme="light"] #maint-notify-overlay > div > div:first-child > div:first-child > div {
+    /* caixa do ícone de aviso — mantém amarelo */
+    background: rgba(251,191,36,0.12) !important;
+    border-color: rgba(251,191,36,0.25) !important;
+}
+
+[data-theme="light"] #maint-notify-msg {
+    color: rgba(0,0,0,0.78) !important;
+}
+
+/* rows dentro da lista de nomes em manutenção */
+[data-theme="light"] #maint-notify-list > div {
+    background: rgba(251,191,36,0.08) !important;
+    border-color: rgba(251,191,36,0.22) !important;
+}
+
+[data-theme="light"] #maint-notify-list > div > span:last-child {
+    color: rgba(0,0,0,0.75) !important;
+}
+
+[data-theme="light"] #eq-modal-body span {
+    color: inherit;
+}
+
+/* ── Scrollbar do body da lista ──────────────────────────── */
+[data-theme="light"] #eq-modal-body {
+    scrollbar-color: rgba(214,21,50,0.30) rgba(0,0,0,0.06);
+}
+
+[data-theme="light"] #eq-modal-body::-webkit-scrollbar-thumb {
+    background: rgba(214,21,50,0.35);
+}
+
+[data-theme="light"] #eq-modal-body::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.05);
+}
+
+/* ── Nomes dos equipamentos na lista ── */
+#eq-list span[style*="color:var(--text-white)"] {
+    color: #f5f5f5;
+}
+[data-theme="light"] #eq-list span[style*="color:var(--text-white)"] {
+    color: #111 !important;
+}
+
+/* ── Nomes na lista de solicitações ── */
+[data-theme="light"] .maint-request-row div[style*="color:var(--text-white)"] {
+    color: #111 !important;
+}
+
+/* ── Card dos equipamentos no light mode ── */
+[data-theme="light"] #eq-list > div {
+    background: #fff !important;
+    border-color: rgba(0,0,0,0.08) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* ── Seções de cadastro/lista de equipamentos — light mode ── */
+[data-theme="light"] #equipment-section > div[style*="background:rgba(255,255,255,0.04)"] {
+    background: #fff !important;
+    border-color: rgba(0,0,0,0.08) !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05) !important;
+}
+
+/* ── Modal Reportar Problema — light mode ── */
+[data-theme="light"] #report-modal-overlay > div {
+    background: #fff !important;
+    border-color: rgba(0,0,0,0.10) !important;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.15) !important;
+}
+
+[data-theme="light"] #report-modal-overlay > div > div:first-child {
+    border-bottom-color: rgba(0,0,0,0.08) !important;
+}
+
+[data-theme="light"] #report-modal-overlay > div > div:first-child p {
+    color: #111 !important;
+}
+
+[data-theme="light"] #report-modal-overlay .shop-modal__close {
+    background: rgba(0,0,0,0.04) !important;
+    border-color: rgba(0,0,0,0.10) !important;
+    color: rgba(0,0,0,0.45) !important;
+}
+
+[data-theme="light"] #report-modal-overlay .shop-modal__close:hover {
+    background: rgba(214,21,50,0.08) !important;
+    border-color: rgba(214,21,50,0.22) !important;
+    color: #b91c1c !important;
+}
+
+/* ── Toast de manutenção — light mode ── */
+[data-theme="light"] #maint-toast {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+/* ── Cards de resumo (mgr-stat-card) já cobertos pelo CSS global ── */
+
+/* ── Linha de solicitação — texto nome do equipamento — light mode ── */
+[data-theme="light"] .maint-request-row {
+    background: #fff !important;
+    border-color: rgba(0,0,0,0.07) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+}
+
+[data-theme="light"] .maint-request-row:hover {
+    border-color: rgba(0,0,0,0.14) !important;
+    background: #fafafa !important;
+}
+
+/* ── Skeleton no light mode ── */
+[data-theme="light"] .sk {
+    background: rgba(0,0,0,0.07) !important;
+}
+/* ── Nome do equipamento — adaptável ── */
+.eq-item-name { color: #f5f5f5; }
+[data-theme="light"] .eq-item-name { color: #111; }
+
+/* ── Nome na solicitação — adaptável ── */
+.maint-eq-name { color: #f5f5f5; }
+[data-theme="light"] .maint-eq-name { color: #111; }
+
+/* Botão equipamentos — garante que herda o estilo azul corretamente */
+button.student-action-card--blue {
+    background: rgba(59,130,246,0.07) !important;
+    border-color: rgba(59,130,246,0.18) !important;
+    color: #93c5fd !important;
+}
+
+button.student-action-card--blue:hover {
+    background: rgba(59,130,246,0.12) !important;
+    border-color: rgba(59,130,246,0.35) !important;
+}
+
+[data-theme="light"] button.student-action-card--blue {
+    background: rgba(59,130,246,0.06) !important;
+    border-color: rgba(59,130,246,0.15) !important;
+    color: #1d4ed8 !important;
+}
+
+[data-theme="light"] button.student-action-card--blue:hover {
+    background: rgba(59,130,246,0.10) !important;
+    border-color: rgba(59,130,246,0.28) !important;
+}
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* LIGHT MODE - CARD GAMIFICAÇÃO */
+[data-theme="light"] #gami-card {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,.04);
+}
+
+[data-theme="light"] #gami-card p,
+[data-theme="light"] #gami-card span,
+[data-theme="light"] #gami-card div {
+    color: #374151;
+}
+
+/* textos secundários */
+[data-theme="light"] #gami-card [style*="var(--text-muted)"] {
+    color: #6b7280 !important;
+}
+
+/* textos principais */
+[data-theme="light"] #gami-card [style*="var(--text-white)"] {
+    color: #111827 !important;
+}
+
+/* botão ver detalhes */
+[data-theme="light"] #gami-card a {
+    color: #2563eb !important;
+    border-color: #d1d5db !important;
+}
+
+/* barra de progresso */
+[data-theme="light"] #gami-card #dash-progress {
+    background: linear-gradient(90deg,#d61532,#ff5068) !important;
+}
+
+[data-theme="light"] #gami-card div[style*="height:6px; background:rgba(255,255,255,0.08)"] {
+    background: #e5e7eb !important;
+}
+
+/* box inferior */
+[data-theme="light"] #gami-card div[style*="background:rgba(255,255,255,0.03)"] {
+    background: #f9fafb !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+/* grupo */
+[data-theme="light"] #gami-card div[style*="background:rgba(59,130,246,0.07)"] {
+    background: rgba(59,130,246,.08) !important;
+    border: 1px solid rgba(59,130,246,.18) !important;
+}
+
+[data-theme="light"] #cancel-modal-overlay > div {
+    background: #fff !important;
+    border-color: rgba(0,0,0,0.10) !important;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.18) !important;
+}
+
+[data-theme="light"] #cancel-modal-overlay > div > div:first-child {
+    border-bottom-color: rgba(0,0,0,0.08) !important;
+}
+
+[data-theme="light"] #cancel-modal-overlay > div > div:first-child p {
+    color: #111 !important;
+}
+
+[data-theme="light"] #cancel-modal-overlay > div > div:nth-child(2) p {
+    color: rgba(0,0,0,0.62) !important;
+}
+
+[data-theme="light"] #cancel-modal-overlay > div > div:nth-child(2) strong {
+    color: #c41230 !important;
+}
+
+[data-theme="light"] #cancel-modal-overlay .shop-modal__btn-cancel {
+    background: #f3f4f6 !important;
+    border-color: rgba(0,0,0,0.09) !important;
+    color: rgba(0,0,0,0.56) !important;
+}
+
+[data-theme="light"] #cancel-modal-overlay .shop-modal__btn-cancel:hover {
+    background: #e5e7eb !important;
+    color: #111 !important;
+}
+
+/* Instructor workout cards: keep exercise and group columns separated. */
+.student-card .ex-table {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(214,21,50,.65) rgba(255,255,255,.08);
+    padding-bottom: 8px;
+}
+
+.student-card .ex-table__head,
+.student-card .ex-table__row {
+    min-width: 500px;
+    grid-template-columns: 165px 105px 56px 56px 56px !important;
+    column-gap: 14px !important;
+}
+
+.student-card .ex-table__head span,
+.student-card .ex-table__name,
+.student-card .ex-table__group {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.student-card .ex-table::-webkit-scrollbar {
+    height: 9px;
+}
+
+.student-card .ex-table::-webkit-scrollbar-track {
+    background: rgba(255,255,255,.06);
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.07);
+}
+
+.student-card .ex-table::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, rgba(214,21,50,.75), rgba(248,113,113,.72));
+    border-radius: 999px;
+    border: 2px solid rgba(22,22,22,.95);
+}
+
+.student-card .ex-table::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(90deg, rgba(214,21,50,.95), rgba(248,113,113,.9));
+}
+
+[data-theme="light"] .student-card .ex-table {
+    scrollbar-color: rgba(196,18,48,.50) rgba(0,0,0,.06);
+}
+
+[data-theme="light"] .student-card .ex-table::-webkit-scrollbar-track {
+    background: rgba(0,0,0,.045);
+    border-color: rgba(0,0,0,.06);
+}
+
+[data-theme="light"] .student-card .ex-table::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, rgba(196,18,48,.58), rgba(248,113,113,.55));
+    border-color: #fff;
+}
+
+[data-theme="light"] .student-card .ex-table::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(90deg, rgba(196,18,48,.75), rgba(248,113,113,.70));
 }

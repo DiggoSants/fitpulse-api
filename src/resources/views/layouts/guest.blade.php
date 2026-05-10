@@ -122,6 +122,35 @@
             border-color: var(--red);
             background: rgba(214,21,50,0.06);
         }
+        .auth-card .password-field {
+            position: relative;
+        }
+        .auth-card .password-field input {
+            padding-right: 46px;
+        }
+        .auth-card .password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--muted);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: color .2s, background .2s;
+        }
+        .auth-card .password-toggle:hover,
+        .auth-card .password-toggle:focus-visible {
+            color: var(--text);
+            background: rgba(255,255,255,0.08);
+            outline: none;
+        }
 
         /* Checkbox */
         .auth-card input[type="checkbox"] {

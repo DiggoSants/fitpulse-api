@@ -93,7 +93,7 @@
                     {{-- STATS DO TREINO SELECIONADO --}}
                     <div class="dash-stats">
                         <div class="dash-stat dash-stat--red">
-                            <div class="dash-stat__bg-icon">⚡</div>
+                            <div class="dash-stat__bg-icon"></div>
                             <div class="dash-stat__header">
                                 <span class="dash-stat__dot"></span>
                                 <span class="dash-stat__label">Séries totais</span>
@@ -101,7 +101,7 @@
                             <div class="dash-stat__value">{{ $exercises->sum(fn($e) => (int) $e->sets) }}</div>
                         </div>
                         <div class="dash-stat dash-stat--blue">
-                            <div class="dash-stat__bg-icon">🔁</div>
+                            <div class="dash-stat__bg-icon"></div>
                             <div class="dash-stat__header">
                                 <span class="dash-stat__dot"></span>
                                 <span class="dash-stat__label">Reps totais</span>
@@ -109,7 +109,7 @@
                             <div class="dash-stat__value">{{ $exercises->sum(fn($e) => (int) $e->reps) }}</div>
                         </div>
                         <div class="dash-stat dash-stat--green">
-                            <div class="dash-stat__bg-icon">🏋️</div>
+                            <div class="dash-stat__bg-icon"></div>
                             <div class="dash-stat__header">
                                 <span class="dash-stat__dot"></span>
                                 <span class="dash-stat__label">Descanso (s)</span>

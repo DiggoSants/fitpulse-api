@@ -15,10 +15,9 @@ class CheckEnrollment
     /** @var \App\Models\User $user */
     $user = Auth::user();
 
-    if ($user->isInstructor() || $user->isManager()) {
-        return $next($request);
-    }
-
+    if ($user->isInstructor() || $user->isManager() || $user->isReceptionist()) {
+    return $next($request);
+}
     $student = Student::where('user_id', $user->id)->first();
 
     if (!$student || !$student->isEnrolled()) {

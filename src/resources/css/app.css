@@ -7,8 +7,7 @@
 @import "./instructor.css";
 @import "./enrollament.css";
 @import "./dashboard.css";
-
-
+@import "./reception.css";
 
 @tailwind base;
 @tailwind components;

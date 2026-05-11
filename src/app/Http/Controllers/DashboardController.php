@@ -5,10 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Student;
 use App\Models\Instructor;
+use App\Models\Receptionist;
 use App\Models\Workout;
 use App\Models\WorkoutExercise;
-use App\Models\Plan;
-use App\Models\Frequency;
 
 class DashboardController extends Controller
 {
@@ -23,10 +22,7 @@ class DashboardController extends Controller
                 'user',
                 'instructor.user',
                 'enrollments.plan',
-            ])->whereHas('user', function ($q) {
-                $q->whereDoesntHave('manager')
-                  ->whereDoesntHave('instructor');
-            })->get();
+            ])->get();
 
             $studentsData = $students->map(function ($student) {
                 $activeEnrollment = $student->activeEnrollment();
@@ -40,19 +36,29 @@ class DashboardController extends Controller
                 }
 
                 return [
-                    'id'         => $student->id,
-                    'name'       => $student->user->name,
-                    'email'      => $student->user->email,
-                    'status'     => $status,
-                    'instructor' => $student->instructor
+                    'id'          => $student->id,
+                    'name'        => $student->user->name,
+                    'email'       => $student->user->email,
+                    'role'        => 'student',
+                    'status'      => $status,
+                    'instructor'  => $student->instructor
                         ? $student->instructor->user->name
                         : null,
-                    'plan'       => $activeEnrollment
+                    'plan'        => $activeEnrollment
                         ? $activeEnrollment->plan->name
                         : null,
-                    'plan_end'   => $activeEnrollment
+                    'plan_end'    => $activeEnrollment
                         ? $activeEnrollment->end_date->format('d/m/Y')
                         : null,
+                ];
+            });
+
+            $receptionists = Receptionist::with('user')->get()->map(function ($r) {
+                return [
+                    'id'    => $r->id,
+                    'name'  => $r->user->name,
+                    'email' => $r->user->email,
+                    'role'  => 'receptionist',
                 ];
             });
 
@@ -62,31 +68,7 @@ class DashboardController extends Controller
                 'students.workouts.workoutExercises.exercise',
             ])->get();
 
-            $plans = Plan::orderBy('status')->orderBy('name')->get();
-
-            $totalStudents             = $students->count();
-            $activeStudents            = $studentsData->where('status', 'ativo')->count();
-            $defaulterStudents         = $studentsData->where('status', 'inadimplente')->count();
-            $studentsWithoutEnrollment = $studentsData->where('status', 'sem_matricula')->count();
-            $totalInstructors          = $instructors->count();
-            $totalPlans                = $plans->count();
-
-            return view('dashboard', compact(
-                'studentsData',
-                'instructors',
-                'totalStudents',
-                'activeStudents',
-                'defaulterStudents',
-                'studentsWithoutEnrollment',
-                'totalInstructors',
-                'plans',
-                'totalPlans'
-            ));
-        }
-
-        // ── RECEPCIONISTA ─────────────────────────────────────────────────────
-        if ($user->isReceptionist()) {
-            return redirect()->route('reception.index');
+            return view('dashboard', compact('studentsData', 'instructors', 'receptionists'));
         }
 
         // ── INSTRUTOR ─────────────────────────────────────────────────────────
@@ -100,6 +82,11 @@ class DashboardController extends Controller
             return view('dashboard', compact('instructor'));
         }
 
+        // ── RECEPCIONISTA ─────────────────────────────────────────────────────
+        if ($user->isReceptionist()) {
+            return redirect()->route('reception.pending');
+        }
+
         // ── ALUNO ─────────────────────────────────────────────────────────────
         $student = Student::where('user_id', $user->id)->first();
 
@@ -107,39 +94,18 @@ class DashboardController extends Controller
             return view('dashboard', ['enrolled' => false]);
         }
 
-        // Frequência do mês atual
-        $frequencyThisMonth = Frequency::where('student_id', $student->id)
-            ->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->count();
-
-        // Última presença
-        $lastFrequency = Frequency::where('student_id', $student->id)
+        $workout = Workout::where('student_id', $student->id)
             ->latest()
             ->first();
 
-        // Já registrou hoje?
-        $checkedInToday = Frequency::where('student_id', $student->id)
-            ->whereDate('created_at', today())
-            ->exists();
+        if (!$workout) {
+            return view('dashboard', ['enrolled' => true, 'exercises' => collect()]);
+        }
 
-        // Dias da semana com presença
-        $startOfWeek = now()->startOfWeek(\Carbon\Carbon::SUNDAY);
-        $endOfWeek   = now()->endOfWeek(\Carbon\Carbon::SATURDAY);
+        $exercises = WorkoutExercise::with('exercise')
+            ->where('workout_id', $workout->id)
+            ->get();
 
-        $frequencyThisWeek = Frequency::where('student_id', $student->id)
-            ->whereBetween('created_at', [$startOfWeek, $endOfWeek])
-            ->get()
-            ->map(fn($f) => $f->created_at->dayOfWeek)
-            ->unique()
-            ->values()
-            ->toArray();
-
-        return view('dashboard', compact(
-            'frequencyThisMonth',
-            'lastFrequency',
-            'checkedInToday',
-            'frequencyThisWeek'
-        ) + ['enrolled' => true]);
+        return view('dashboard', compact('exercises', 'workout') + ['enrolled' => true]);
     }
 }

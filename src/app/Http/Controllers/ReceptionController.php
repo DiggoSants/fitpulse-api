@@ -13,70 +13,47 @@ use Carbon\Carbon;
 
 class ReceptionController extends Controller
 {
-    /**
-     * GET /students/pending-enrollment
-     */
     public function pendingEnrollment()
     {
         $students = Student::with('user')
-            ->whereHas('user', function ($q) {
-                $q->whereDoesntHave('manager')
-                  ->whereDoesntHave('instructor')
-                  ->whereDoesntHave('receptionist');
+            ->whereDoesntHave('enrollments', function ($q) {
+                $q->where('status', 'active')
+                  ->where('end_date', '>=', now()->toDateString());
             })
             ->get()
-            ->filter(fn($s) => !$s->isEnrolled())
-            ->map(fn($s) => [
-                'id'     => $s->id,
-                'name'   => $s->user->name,
-                'email'  => $s->user->email,
-                'status' => $s->status,
-            ])
+            ->map(function ($student) {
+                return [
+                    'id'     => $student->id,
+                    'name'   => $student->user->name,
+                    'email'  => $student->user->email,
+                    'status' => $student->status,
+                ];
+            })
             ->values();
 
-        return response()->json(['data' => $students, 'total' => $students->count()]);
+        return response()->json([
+            'data'  => $students,
+            'total' => $students->count(),
+        ]);
     }
 
-    /**
-     * GET /instructors/available
-     */
     public function availableInstructors()
     {
         $instructors = Instructor::with('user')
             ->get()
-            ->map(fn($i) => [
-                'id'          => $i->id,
-                'name'        => $i->user->name,
-                'specialty'   => $i->specialty ?? '—',
-                'invite_code' => $i->invite_code,
-                'students'    => $i->students()->count(),
-            ]);
+            ->map(function ($instructor) {
+                return [
+                    'id'          => $instructor->id,
+                    'name'        => $instructor->user->name,
+                    'specialty'   => $instructor->specialty ?? '—',
+                    'invite_code' => $instructor->invite_code,
+                    'students'    => $instructor->students()->count(),
+                ];
+            });
 
         return response()->json(['data' => $instructors]);
     }
 
-    /**
-     * GET /reception/plans
-     * Planos ativos — acessível por recepcionistas e gerentes.
-     */
-    public function activePlans()
-    {
-        $plans = Plan::where('status', 'active')
-            ->get()
-            ->map(fn($p) => [
-                'id'            => $p->id,
-                'name'          => $p->name,
-                'price'         => $p->price,
-                'duration_days' => $p->duration_days,
-                'status'        => $p->status,
-            ]);
-
-        return response()->json(['data' => $plans]);
-    }
-
-    /**
-     * POST /enrollments
-     */
     public function enroll(Request $request)
     {
         $request->validate([
@@ -89,6 +66,7 @@ class ReceptionController extends Controller
             'instructor_id.required' => 'Selecione o instrutor',
         ]);
 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         $student    = Student::findOrFail($request->student_id);
@@ -96,7 +74,9 @@ class ReceptionController extends Controller
         $instructor = Instructor::findOrFail($request->instructor_id);
 
         if ($student->isEnrolled()) {
-            return response()->json(['message' => 'Este aluno já possui uma matrícula ativa.'], 422);
+            return response()->json([
+                'message' => 'Este aluno já possui uma matrícula ativa.',
+            ], 422);
         }
 
         $receptionist = $user->isReceptionist()
@@ -120,13 +100,13 @@ class ReceptionController extends Controller
         return response()->json([
             'message' => 'Matrícula realizada com sucesso!',
             'data'    => [
-                'enrollment_id' => $enrollment->id,
-                'student'       => $student->user->name,
-                'plan'          => $plan->name,
-                'instructor'    => $instructor->user->name,
-                'start_date'    => $enrollment->start_date->format('d/m/Y'),
-                'end_date'      => $enrollment->end_date->format('d/m/Y'),
-                'receptionist'  => $receptionist?->user->name ?? 'Gerente',
+                'enrollment_id'  => $enrollment->id,
+                'student'        => $student->user->name,
+                'plan'           => $plan->name,
+                'instructor'     => $instructor->user->name,
+                'start_date'     => $enrollment->start_date->format('d/m/Y'),
+                'end_date'       => $enrollment->end_date->format('d/m/Y'),
+                'receptionist'   => $receptionist?->user->name ?? 'Gerente',
             ],
         ], 201);
     }

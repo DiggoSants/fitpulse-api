@@ -984,6 +984,11 @@
 </style>
 
 <script>
+    const DASH_USER_ROLE = @json(Auth::user()->role());
+    const DASH_USER_ID = @json(Auth::id());
+    const MAINT_NOTIFY_ALLOWED_ROLES = ['student', 'instructor', 'manager'];
+    const MAINT_NOTIFY_STORAGE_KEY = `fitpulse:maintenance-notify-seen:${DASH_USER_ID}`;
+
     function showManagerSection(sectionId, btn) {
         document.querySelectorAll('.mgr-section').forEach(s => s.style.display = 'none');
         const target = document.getElementById(sectionId);
@@ -1414,11 +1419,16 @@
     function escEqHtml(str) { const d = document.createElement('div'); d.textContent = str ?? ''; return d.innerHTML; }
 
     async function checkMaintenanceNotify() {
+        if (!MAINT_NOTIFY_ALLOWED_ROLES.includes(DASH_USER_ROLE)) return;
+
         try {
             const res  = await fetch("{{ route('maintenance.index') }}", { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
             const json = await res.json();
             const inMaint = json.in_maintenance ?? [];
             if (!inMaint.length) return;
+            const notifySignature = inMaint.map(e => e.id ?? e.name).sort().join('|');
+            if (localStorage.getItem(MAINT_NOTIFY_STORAGE_KEY) === notifySignature) return;
+
             const count = inMaint.length;
             document.getElementById('maint-notify-msg').textContent = `${count} equipamento${count > 1 ? 's estão' : ' está'} em manutenção no momento.`;
             const listEl = document.getElementById('maint-notify-list');
@@ -1434,6 +1444,7 @@
             notifyOverlay.style.pointerEvents = '';
             notifyOverlay.style.display = 'flex';
             document.body.style.overflow = 'hidden';
+            localStorage.setItem(MAINT_NOTIFY_STORAGE_KEY, notifySignature);
         } catch (e) { console.error('Notify check error:', e); }
     }
 

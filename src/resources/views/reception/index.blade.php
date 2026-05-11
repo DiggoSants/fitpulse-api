@@ -192,7 +192,7 @@
 
     <script>
         const CSRF            = document.querySelector('meta[name="csrf-token"]').content;
-        const URL_PENDING     = "{{ route('reception.pending') }}";
+        const URL_PENDING     = "{{ route('reception.pending.data') }}";
         const URL_INSTRUCTORS = "{{ route('reception.instructors') }}";
         const URL_ENROLL      = "{{ route('reception.enroll') }}";
         const URL_PLANS       = "{{ route('reception.plans') }}";  {{-- ✅ rota dedicada --}}

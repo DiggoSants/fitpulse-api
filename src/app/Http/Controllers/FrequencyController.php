@@ -38,22 +38,29 @@ class FrequencyController extends Controller
             ], 403);
         }
 
+        $existingToday = Frequency::where('student_id', $student->id)
+            ->whereDate('created_at', today())
+            ->first();
+
+        if ($existingToday) {
+            return response()->json([
+                'message' => 'PresenÃ§a jÃ¡ registrada hoje.',
+                'data'    => [
+                    'registered_at' => $existingToday->created_at->format('d/m/Y H:i:s'),
+                    'points_earned' => 0,
+                    'total_points'  => $user->points,
+                    'points_to_next'=> $user->pointsToNextReward(),
+                ],
+            ]);
+        }
+
         $frequency = Frequency::create([
             'student_id' => $student->id,
         ]);
 
-        $alreadyPointedToday = Frequency::where('student_id', $student->id)
-            ->whereDate('created_at', today())
-            ->where('id', '!=', $frequency->id)
-            ->exists();
-
-        $pointsEarned = 0;
-
-        if (!$alreadyPointedToday) {
-            $user->addPoints(self::POINTS_PER_DAY);
-            $pointsEarned = self::POINTS_PER_DAY;
-            $user->refresh();
-        }
+        $user->addPoints(self::POINTS_PER_DAY);
+        $pointsEarned = self::POINTS_PER_DAY;
+        $user->refresh();
 
         return response()->json([
             'message'       => 'Presença registrada com sucesso!',

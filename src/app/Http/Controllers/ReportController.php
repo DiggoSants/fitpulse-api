@@ -10,7 +10,7 @@ use App\Models\Student;
 
 class ReportController extends Controller
 {
-    public function plansComparative()
+    public function plansComparative(Request $request)
     {
         $plans = Plan::active()
             ->withCount([
@@ -33,7 +33,11 @@ class ReportController extends Controller
                 ];
             });
 
-        return response()->json(['data' => $plans]);
+        if ($request->expectsJson()) {
+            return response()->json(['data' => $plans]);
+        }
+
+        return view('reports.plans-comparative', compact('plans'));
     }
 
     public function plansCancellations(Request $request)
@@ -72,16 +76,20 @@ class ReportController extends Controller
                 ];
             });
 
-        return response()->json([
-            'data'    => $cancellations,
-            'filters' => [
-                'start_date' => $request->start_date,
-                'end_date'   => $request->end_date,
-            ],
-        ]);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'data'    => $cancellations,
+                'filters' => [
+                    'start_date' => $request->start_date,
+                    'end_date'   => $request->end_date,
+                ],
+            ]);
+        }
+
+        return view('reports.plans-cancellations', compact('cancellations'));
     }
 
-    public function plansLoyalty()
+    public function plansLoyalty(Request $request)
     {
         $enrollments = Enrollment::with(['student.user', 'plan'])
             ->where('status', 'active')
@@ -108,10 +116,14 @@ class ReportController extends Controller
             ->sortByDesc('days_active')
             ->values();
 
-        return response()->json(['data' => $enrollments]);
+        if ($request->expectsJson()) {
+            return response()->json(['data' => $enrollments]);
+        }
+
+        return view('reports.plans-loyalty', compact('enrollments'));
     }
 
-    public function usersDelinquency()
+    public function usersDelinquency(Request $request)
     {
         $delinquents = Student::with(['user'])
             ->where(function ($q) {
@@ -173,21 +185,25 @@ class ReportController extends Controller
             })
             ->values();
 
-        return response()->json([
-            'data' => [
-                'delinquents' => $delinquents,
-                'cancelled'   => $cancelled,
-                'inactive'    => $inactive,
-            ],
-            'summary' => [
-                'total_delinquents' => $delinquents->count(),
-                'total_cancelled'   => $cancelled->count(),
-                'total_inactive'    => $inactive->count(),
-            ],
-        ]);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'data' => [
+                    'delinquents' => $delinquents,
+                    'cancelled'   => $cancelled,
+                    'inactive'    => $inactive,
+                ],
+                'summary' => [
+                    'total_delinquents' => $delinquents->count(),
+                    'total_cancelled'   => $cancelled->count(),
+                    'total_inactive'    => $inactive->count(),
+                ],
+            ]);
+        }
+
+        return view('reports.users-delinquency', compact('delinquents', 'cancelled', 'inactive'));
     }
 
-    public function plansOccupation()
+    public function plansOccupation(Request $request)
     {
         $occupation = Plan::withCount([
                 'enrollments as active_students_count' => function ($query) {
@@ -218,12 +234,16 @@ class ReportController extends Controller
             return $item;
         });
 
-        return response()->json([
-            'data'    => $occupation,
-            'summary' => [
-                'total_active_students' => $totalActive,
-                'total_plans'           => $occupation->count(),
-            ],
-        ]);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'data'    => $occupation,
+                'summary' => [
+                    'total_active_students' => $totalActive,
+                    'total_plans'           => $occupation->count(),
+                ],
+            ]);
+        }
+
+        return view('reports.plans-occupation', compact('occupation', 'totalActive'));
     }
 }

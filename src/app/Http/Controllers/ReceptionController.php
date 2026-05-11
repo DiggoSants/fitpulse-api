@@ -15,7 +15,17 @@ class ReceptionController extends Controller
 {
     public function pendingEnrollment()
     {
+        return view('reception.index');
+    }
+
+    public function pendingEnrollmentData()
+    {
         $students = Student::with('user')
+            ->whereHas('user', function ($q) {
+                $q->whereDoesntHave('instructor')
+                  ->whereDoesntHave('manager')
+                  ->whereDoesntHave('receptionist');
+            })
             ->whereDoesntHave('enrollments', function ($q) {
                 $q->where('status', 'active')
                   ->where('end_date', '>=', now()->toDateString());
@@ -35,6 +45,15 @@ class ReceptionController extends Controller
             'data'  => $students,
             'total' => $students->count(),
         ]);
+    }
+
+    public function activePlans()
+    {
+        $plans = Plan::active()
+            ->orderBy('name')
+            ->get(['id', 'name', 'price', 'duration_days']);
+
+        return response()->json(['data' => $plans]);
     }
 
     public function availableInstructors()
@@ -72,6 +91,12 @@ class ReceptionController extends Controller
         $student    = Student::findOrFail($request->student_id);
         $plan       = Plan::where('id', $request->plan_id)->where('status', 'active')->firstOrFail();
         $instructor = Instructor::findOrFail($request->instructor_id);
+
+        if (!$student->user || !$student->user->isStudent()) {
+            return response()->json([
+                'message' => 'Apenas alunos podem ser matriculados.',
+            ], 422);
+        }
 
         if ($student->isEnrolled()) {
             return response()->json([

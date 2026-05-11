@@ -8,6 +8,8 @@ use App\Models\Instructor;
 use App\Models\Receptionist;
 use App\Models\Workout;
 use App\Models\WorkoutExercise;
+use App\Models\Frequency;
+use App\Models\Plan;
 
 class DashboardController extends Controller
 {
@@ -22,7 +24,13 @@ class DashboardController extends Controller
                 'user',
                 'instructor.user',
                 'enrollments.plan',
-            ])->get();
+            ])
+                ->whereHas('user', function ($query) {
+                    $query->whereDoesntHave('instructor')
+                        ->whereDoesntHave('manager')
+                        ->whereDoesntHave('receptionist');
+                })
+                ->get();
 
             $studentsData = $students->map(function ($student) {
                 $activeEnrollment = $student->activeEnrollment();
@@ -68,7 +76,18 @@ class DashboardController extends Controller
                 'students.workouts.workoutExercises.exercise',
             ])->get();
 
-            return view('dashboard', compact('studentsData', 'instructors', 'receptionists'));
+            $plans = Plan::orderBy('name')->get();
+
+            return view('dashboard', [
+                'studentsData'     => $studentsData,
+                'instructors'      => $instructors,
+                'receptionists'    => $receptionists,
+                'plans'            => $plans,
+                'totalStudents'    => $studentsData->count(),
+                'activeStudents'   => $studentsData->where('status', 'ativo')->count(),
+                'totalInstructors' => $instructors->count(),
+                'totalPlans'       => $plans->count(),
+            ]);
         }
 
         // ── INSTRUTOR ─────────────────────────────────────────────────────────
@@ -84,7 +103,7 @@ class DashboardController extends Controller
 
         // ── RECEPCIONISTA ─────────────────────────────────────────────────────
         if ($user->isReceptionist()) {
-            return redirect()->route('reception.pending');
+            return view('reception.index');
         }
 
         // ── ALUNO ─────────────────────────────────────────────────────────────
@@ -94,18 +113,50 @@ class DashboardController extends Controller
             return view('dashboard', ['enrolled' => false]);
         }
 
+        $activeEnrollment = $student->activeEnrollment();
+        $checkedInToday = Frequency::where('student_id', $student->id)
+            ->whereDate('created_at', today())
+            ->exists();
+        $lastFrequency = Frequency::where('student_id', $student->id)
+            ->latest()
+            ->first();
+        $frequencyThisWeek = Frequency::where('student_id', $student->id)
+            ->whereBetween('created_at', [
+                now()->startOfWeek(\Carbon\Carbon::SUNDAY),
+                now()->endOfWeek(\Carbon\Carbon::SATURDAY),
+            ])
+            ->get()
+            ->map(fn ($frequency) => $frequency->created_at->dayOfWeek)
+            ->unique()
+            ->values()
+            ->all();
+
         $workout = Workout::where('student_id', $student->id)
             ->latest()
             ->first();
 
         if (!$workout) {
-            return view('dashboard', ['enrolled' => true, 'exercises' => collect()]);
+            return view('dashboard', [
+                'enrolled'          => true,
+                'exercises'         => collect(),
+                'activeEnrollment' => $activeEnrollment,
+                'checkedInToday'    => $checkedInToday,
+                'lastFrequency'     => $lastFrequency,
+                'frequencyThisWeek' => $frequencyThisWeek,
+            ]);
         }
 
         $exercises = WorkoutExercise::with('exercise')
             ->where('workout_id', $workout->id)
             ->get();
 
-        return view('dashboard', compact('exercises', 'workout') + ['enrolled' => true]);
+        return view('dashboard', compact(
+            'exercises',
+            'workout',
+            'activeEnrollment',
+            'checkedInToday',
+            'lastFrequency',
+            'frequencyThisWeek'
+        ) + ['enrolled' => true]);
     }
 }

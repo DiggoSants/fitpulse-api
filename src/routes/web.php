@@ -197,16 +197,20 @@ Route::middleware(['auth', 'verified', 'role:manager,instructor'])->group(functi
 
 // ── Manutenção de equipamentos ────────────────────────────────────────────────
 // Listagem — todos autenticados podem ver
+Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
+    Route::get('/maintenance', [MaintenanceController::class, 'view'])->name('maintenance.view');
+});
+
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/equipment',   [MaintenanceController::class, 'equipment'])->name('equipment.index');
-    Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance.index');
+    Route::get('/api/equipment',   [MaintenanceController::class, 'equipment'])->name('equipment.index');
+    Route::get('/api/maintenance', [MaintenanceController::class, 'index'])->name('maintenance.index');
 });
 
 // Registro e resolução — só gerentes
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
-    Route::post('/equipment',       [MaintenanceController::class, 'storeEquipment'])->name('equipment.store');
-    Route::post('/maintenance',     [MaintenanceController::class, 'store'])->name('maintenance.store');
-    Route::put('/maintenance/{id}', [MaintenanceController::class, 'resolve'])->name('maintenance.resolve');
+    Route::post('/api/equipment',       [MaintenanceController::class, 'storeEquipment'])->name('equipment.store');
+    Route::post('/api/maintenance',     [MaintenanceController::class, 'store'])->name('maintenance.store');
+    Route::put('/api/maintenance/{id}', [MaintenanceController::class, 'resolve'])->name('maintenance.resolve');
 });
 
 // ── Gamificação e planos conjuntos ────────────────────────────────────────────
@@ -222,7 +226,9 @@ Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
 
 Route::middleware(['auth', 'verified', 'role:manager,receptionist'])->group(function () {
     Route::get('/students/pending-enrollment', [ReceptionController::class, 'pendingEnrollment'])->name('reception.pending');
-    Route::get('/instructors/available',       [ReceptionController::class, 'availableInstructors'])->name('reception.instructors');
+    Route::get('/api/students/pending-enrollment', [ReceptionController::class, 'pendingEnrollmentData'])->name('reception.pending.data');
+    Route::get('/reception/instructors/available', [ReceptionController::class, 'availableInstructors'])->name('reception.instructors');
+    Route::get('/reception/plans',             [ReceptionController::class, 'activePlans'])->name('reception.plans');
     Route::post('/enrollments',                [ReceptionController::class, 'enroll'])->name('reception.enroll');
 });
 require __DIR__ . '/auth.php';

@@ -882,7 +882,7 @@
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; opacity:.45; flex-shrink:0;"><path d="M2.5 7h9M7.5 3l4 4-4 4"/></svg>
                     </button>
 
-                    <form id="cancel-enrollment-form" action="{{ route('enrollment.cancel') }}" method="POST" style="display:contents;">
+                    <form id="cancel-enrollment-form" action="{{ route('enrollment.cancel', $activeEnrollment->id) }}" method="POST" style="display:contents;">
                         @csrf
                         <button type="button" onclick="confirmCancelPlan()" class="student-action-card student-action-card--green" style="width:100%; text-align:left; cursor:pointer; font-family:inherit;">
                             <div class="student-action-card__icon">

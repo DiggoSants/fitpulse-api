@@ -47,6 +47,12 @@ class RenewalController extends Controller
             ->first();
 
         if (!$currentEnrollment) {
+            if (!$request->expectsJson()) {
+                return redirect()
+                    ->route('enrollment.index')
+                    ->with('info', 'Nenhuma matrícula encontrada para renovar. Use o fluxo de matrícula.');
+            }
+
             return response()->json([
                 'message' => 'Nenhuma matrícula encontrada para renovar. Use o fluxo de matrícula.',
             ], 422);
@@ -117,4 +123,3 @@ class RenewalController extends Controller
         return view('plans.renew', compact('activeEnrollment', 'plans', 'renewals'));
     }
 }
-

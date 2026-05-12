@@ -177,6 +177,7 @@ public function managerPage()
     $users = User::whereHas('student')
         ->whereDoesntHave('manager')
         ->whereDoesntHave('instructor')
+        ->whereDoesntHave('receptionist')
         ->with(['physicalEvaluations' => function ($q) {
             $q->orderBy('created_at', 'desc');
         }, 'student'])

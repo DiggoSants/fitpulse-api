@@ -81,7 +81,7 @@ class EnrollmentController extends Controller
             ->with('success', 'Matrícula realizada com sucesso!');
     }
 
-    public function cancel($id)
+    public function cancel(Request $request, $id)
     {
         /** @var \App\Models\User $user */
         $user       = Auth::user();
@@ -96,6 +96,10 @@ class EnrollmentController extends Controller
                 !$student ||
                 $enrollment->student_id !== $student->id
             ) {
+                if (!$request->expectsJson()) {
+                    return back()->with('error', 'Você não tem permissão para cancelar esta matrícula.');
+                }
+
                 return response()->json([
                     'message' => 'Você não tem permissão para cancelar esta matrícula.',
                 ], 403);
@@ -104,6 +108,10 @@ class EnrollmentController extends Controller
 
         // Verifica se já foi cancelada
         if ($enrollment->status === 'cancelled') {
+            if (!$request->expectsJson()) {
+                return redirect('/')->with('info', 'Esta matrícula já foi cancelada.');
+            }
+
             return response()->json([
                 'message' => 'Esta matrícula já foi cancelada.',
             ], 422);
@@ -124,6 +132,10 @@ class EnrollmentController extends Controller
                 'status'        => 'blocked',
                 'is_defaulter'  => false,
             ]);
+        }
+
+        if (!$request->expectsJson()) {
+            return redirect('/')->with('success', 'Plano cancelado com sucesso.');
         }
 
         return response()->json([

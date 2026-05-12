@@ -20,7 +20,12 @@ class Instructor extends Model
 
     public function students()
     {
-        return $this->hasMany(Student::class);
+        return $this->hasMany(Student::class)
+            ->whereHas('user', function ($query) {
+                $query->whereDoesntHave('manager')
+                    ->whereDoesntHave('instructor')
+                    ->whereDoesntHave('receptionist');
+            });
     }
 
     public function workouts()

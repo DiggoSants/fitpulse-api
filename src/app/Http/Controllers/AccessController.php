@@ -114,7 +114,8 @@ class AccessController extends Controller
     }])
     ->whereHas('user', function ($q) {
         $q->whereDoesntHave('manager')
-          ->whereDoesntHave('instructor');
+          ->whereDoesntHave('instructor')
+          ->whereDoesntHave('receptionist');
     })
     ->get()
    ->map(function ($student) {

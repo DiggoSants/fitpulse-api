@@ -20,6 +20,7 @@ class InstructorController extends Controller
 {
     $users = User::whereDoesntHave('instructor')
         ->whereDoesntHave('manager')  // ← adiciona isso
+        ->whereDoesntHave('receptionist')
         ->get();
 
     return view('instructors.create', compact('users'));

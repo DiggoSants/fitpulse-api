@@ -464,7 +464,9 @@
 
         async function loadStudents() {
             try {
-                const res  = await fetch('{{ route("access.students") }}');
+                const res  = await fetch('{{ route("access.students") }}', {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                });
                 const json = await res.json();
                 allStudents = json.data ?? [];
                 renderTable(allStudents);
@@ -563,7 +565,7 @@
             try {
                 const res  = await fetch('{{ route("access.block") }}', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
                     body: JSON.stringify({ student_id: studentId, reason })
                 });
                 const json = await res.json();
@@ -579,7 +581,7 @@
             try {
                 const res  = await fetch('{{ route("access.unblock") }}', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
                     body: JSON.stringify({ student_id: studentId })
                 });
                 const json = await res.json();
@@ -620,7 +622,7 @@
             try {
                 const res  = await fetch('{{ route("access.status") }}', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
                     body: JSON.stringify({ student_id: studentId, status: newStatus })
                 });
                 const json = await res.json();

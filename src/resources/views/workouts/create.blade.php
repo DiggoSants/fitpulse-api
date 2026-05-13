@@ -1,9 +1,4 @@
 <x-app-layout>
-
-    @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    @endpush
-
     <div aria-hidden="true" class="form-watermark">
         <span>FIT</span>
         <span>PULSE</span>

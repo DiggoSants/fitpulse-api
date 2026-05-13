@@ -1,6 +1,5 @@
 <x-app-layout>
     @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
         <style>
             /* ── Plano ativo card ── */
             .billing-plan-card {

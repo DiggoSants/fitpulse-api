@@ -1,7 +1,5 @@
 <x-app-layout>
     @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
         <style>
             /* ── EVAL ACCORDION — tema-aware ── */
             .eval-wrap {

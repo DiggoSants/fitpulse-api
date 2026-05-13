@@ -1,8 +1,4 @@
 <x-app-layout>
-    @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    @endpush
-
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 

@@ -2,10 +2,11 @@
   "$schema": "https://railway.com/railway.schema.json",
   "build": {
     "builder": "Nixpacks",
-    "buildCommand": "npm ci && npm run build"
+    "buildCommand": "cd src && composer install --no-dev --optimize-autoloader && npm ci && npm run build"
   },
   "deploy": {
-    "preDeployCommand": "php artisan migrate --force",
+    "startCommand": "cd src && php artisan serve --host=0.0.0.0 --port=${PORT}",
+    "preDeployCommand": "cd src && php artisan migrate --force",
     "healthcheckPath": "/",
     "healthcheckTimeout": 300,
     "restartPolicyType": "ON_FAILURE",

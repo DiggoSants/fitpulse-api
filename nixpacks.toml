@@ -1,2 +1,8 @@
 [phases.setup]
 nixPkgs = ["php", "php82Packages.composer", "nodejs_20"]
+
+[phases.install]
+cmds = ["cd src && composer install --no-dev --optimize-autoloader && npm ci --include=dev"]
+
+[phases.build]
+cmds = ["cd src && npm run build"]

@@ -1,8 +1,4 @@
 <x-app-layout>
-    @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    @endpush
-
     <div class="py-6 form-page">
         <div class="form-watermark" aria-hidden="true">
             <span>PAG</span>

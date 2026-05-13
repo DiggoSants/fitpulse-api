@@ -3,12 +3,7 @@
         $workoutCreateUrl = route('workouts.create', request()->filled('student_id') ? ['student_id' => request('student_id')] : []);
         $exerciseCreateUrl = route('exercises.create', request()->filled('student_id') ? ['student_id' => request('student_id')] : []);
     @endphp
-
-    @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    @endpush
-
-    <div class="py-6">
+<div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 exercise-library-shell">
 
            <div class="exercise-library-header">

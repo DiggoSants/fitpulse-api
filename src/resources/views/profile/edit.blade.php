@@ -1,8 +1,4 @@
 <x-app-layout>
-    @push('styles')
-<link rel="stylesheet" href="{{ asset('css/app.css') }}">
-@endpush
-
     <div class="profile-wrapper">
 
         {{-- ── HEADER ESTRUTURADO ── --}}
@@ -200,8 +196,4 @@
         </div>
 
     </div>
-
-    @push('styles')
-    @endpush
-
 </x-app-layout>

@@ -1,6 +1,5 @@
 <x-app-layout>
     @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
         <style>
         :root {
             --g-bg:       rgba(255,255,255,0.04);

@@ -6,8 +6,9 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/css/app.css',
-                'resources/css/style.css', // <--- ADICIONE ESTA LINHA
-                'resources/js/app.js'
+                'resources/css/style.css',
+                'resources/js/app.js',
+                'resources/js/script.js'
             ],
             refresh: true,
         }),

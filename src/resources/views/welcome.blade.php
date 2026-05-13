@@ -498,10 +498,10 @@
           <p>Treinos completos, acompanhamento e um ambiente feito pra evoluir.</p>
           <a class="offer-link" href="{{ route('register') }}">MATRICULE-SE →</a>
         </div>
-        <img class="about-img-main" src="{{ asset('img\Fit couple standing.jpg') }}" alt="Pessoas treinando">
+        <img class="about-img-main" src="{{ asset('img/Fit couple standing.jpg') }}" alt="Pessoas treinando">
         <button class="about-video" type="button" id="openVideo"
                 data-video="{{ asset('video/video.mp4') }}">
-          <img src="img/gym.jpg" alt="Assistir vídeo">
+          <img src="{{ asset('img/gym.jpg') }}" alt="Assistir vídeo">
           <span class="play" aria-hidden="true">▶</span>
         </button>
       </div>

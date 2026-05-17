@@ -4,8 +4,8 @@
     "builder": "Nixpacks"
   },
   "deploy": {
-    "startCommand": "if [ -d src ]; then cd src; fi && php artisan serve --host=0.0.0.0 --port=${PORT}",
-    "preDeployCommand": "if [ -d src ]; then cd src; fi && php artisan migrate --force",
+    "startCommand": "php artisan serve --host=0.0.0.0 --port=${PORT}",
+    "preDeployCommand": "php artisan migrate --force",
     "healthcheckPath": "/",
     "healthcheckTimeout": 300,
     "restartPolicyType": "ON_FAILURE",

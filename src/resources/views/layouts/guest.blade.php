@@ -13,15 +13,7 @@
     @if (file_exists(public_path('hot')))
         @vite(['resources/css/style.css'])
     @else
-        @php
-            $viteManifestPath = public_path('build/manifest.json');
-            $viteManifest = file_exists($viteManifestPath)
-                ? json_decode(file_get_contents($viteManifestPath), true)
-                : [];
-        @endphp
-        @isset($viteManifest['resources/css/style.css']['file'])
-            <link rel="stylesheet" href="{{ asset('build/' . $viteManifest['resources/css/style.css']['file']) }}">
-        @endisset
+        <x-vite-build-assets :entries="['resources/css/style.css']" />
     @endif
 
     <style>

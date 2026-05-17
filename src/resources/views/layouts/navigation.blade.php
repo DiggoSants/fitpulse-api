@@ -34,7 +34,7 @@
                     {{-- ══ RECEPCIONISTA — apenas links de recepção ══ --}}
                     @if(Auth::user()->isReceptionist())
 
-                        <x-nav-link :href="route('reception.pending')" :active="request()->routeIs('reception.*')">
+                        <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard') || request()->routeIs('reception.*')">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                  style="flex-shrink:0; margin-right:8px;">
@@ -176,7 +176,9 @@
                 <span class="nav-ctx-crumb">FitPulse</span>
                 <span class="nav-ctx-sep">/</span>
                 <span class="nav-ctx-crumb nav-ctx-crumb--active">
-                    @if(request()->routeIs('dashboard'))
+                    @if(request()->routeIs('dashboard') && Auth::user()->isReceptionist())
+                        Matrículas
+                    @elseif(request()->routeIs('dashboard'))
                         Painel
                     @elseif(request()->routeIs('reception.*'))
                         Recepção
@@ -208,7 +210,7 @@
             @endunless
 
             @if(Auth::user()->isReceptionist())
-                <x-responsive-nav-link :href="route('reception.pending')" :active="request()->routeIs('reception.*')">
+                <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard') || request()->routeIs('reception.*')">
                     {{ __('Matrículas') }}
                 </x-responsive-nav-link>
 

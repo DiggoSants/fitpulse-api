@@ -15,7 +15,7 @@ class ReceptionController extends Controller
 {
     public function pendingEnrollment()
     {
-        return view('reception.index');
+        return redirect()->route('dashboard');
     }
 
     public function pendingEnrollmentData()

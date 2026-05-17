@@ -10,8 +10,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-    @vite(['resources/css/style.css', 'resources/js/script.js'])
-</head>
+    @if (file_exists(public_path('hot')))
+      @vite(['resources/css/style.css', 'resources/js/script.js'])
+    @else
+      @php
+        $viteManifestPath = public_path('build/manifest.json');
+        $viteManifest = file_exists($viteManifestPath)
+            ? json_decode(file_get_contents($viteManifestPath), true)
+            : [];
+      @endphp
+      @isset($viteManifest['resources/css/style.css']['file'])
+        <link rel="stylesheet" href="{{ asset('build/' . $viteManifest['resources/css/style.css']['file']) }}">
+      @endisset
+      @vite('resources/js/script.js')
+    @endif
+  </head>
 <body>
 
 <header class="topbar">

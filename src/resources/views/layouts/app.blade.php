@@ -13,7 +13,20 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     
        @stack('styles')
-       @vite(['resources/css/app.css', 'resources/js/app.js'])
+       @if (file_exists(public_path('hot')))
+           @vite(['resources/css/app.css', 'resources/js/app.js'])
+       @else
+           @php
+               $viteManifestPath = public_path('build/manifest.json');
+               $viteManifest = file_exists($viteManifestPath)
+                   ? json_decode(file_get_contents($viteManifestPath), true)
+                   : [];
+           @endphp
+           @isset($viteManifest['resources/css/app.css']['file'])
+               <link rel="stylesheet" href="{{ asset('build/' . $viteManifest['resources/css/app.css']['file']) }}">
+           @endisset
+           @vite('resources/js/app.js')
+       @endif
 
         <style>
             body { background: #0a0a0a !important; color: #fff !important; font-family: 'Montserrat', sans-serif !important; }

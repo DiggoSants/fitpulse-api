@@ -10,7 +10,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    @vite(['resources/css/style.css'])
+    @if (file_exists(public_path('hot')))
+        @vite(['resources/css/style.css'])
+    @else
+        @php
+            $viteManifestPath = public_path('build/manifest.json');
+            $viteManifest = file_exists($viteManifestPath)
+                ? json_decode(file_get_contents($viteManifestPath), true)
+                : [];
+        @endphp
+        @isset($viteManifest['resources/css/style.css']['file'])
+            <link rel="stylesheet" href="{{ asset('build/' . $viteManifest['resources/css/style.css']['file']) }}">
+        @endisset
+    @endif
 
     <style>
         .auth-page {

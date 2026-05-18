@@ -12,3 +12,137 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@media (max-width: 640px) {
+    html,
+    body {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .btn-save,
+    .btn-cancel,
+    .btn-delete,
+    .btn-del,
+    .btn-ghost,
+    .btn-workout-action,
+    .mgr-btn-criar,
+    .mgr-btn-sm,
+    .mgr-btn-del,
+    .mgr-btn-view,
+    .rec-btn-matricular,
+    .rec-btn-confirm,
+    .rec-btn-cancel,
+    .inst-card__btn,
+    .shop-card__btn,
+    .shop-modal__btn,
+    .shop-modal__btn-cancel,
+    .shop-modal__btn-confirm,
+    .fit-confirm-btn,
+    .confirm-btn-cancel,
+    .confirm-btn-ok,
+    button[type="submit"],
+    a[class*="btn-"] {
+        max-width: 100%;
+        min-height: 40px;
+        white-space: normal !important;
+        line-height: 1.25;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .profile-form-row,
+    .enrollment-actions,
+    .delete-modal-actions,
+    .fit-confirm-modal__actions,
+    .rec-modal__footer,
+    .shop-modal__footer,
+    .auth-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .profile-form-row > *,
+    .enrollment-actions > *,
+    .delete-modal-actions > *,
+    .fit-confirm-modal__actions > *,
+    .rec-modal__footer > *,
+    .shop-modal__footer > *,
+    .auth-actions > * {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .mgr-section-head,
+    .rec-section-head,
+    .dash-hero__inner,
+    .dash-hero__right,
+    .mgr-workout-actions,
+    .inst-card__actions,
+    .billing-history__row {
+        flex-wrap: wrap;
+        min-width: 0;
+    }
+
+    .mgr-tabs,
+    .mgr-filters,
+    .rec-search-card,
+    .shop-filters,
+    .exercise-library-header__actions {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .mgr-search,
+    .rec-search-input,
+    .profile-input,
+    .profile-select,
+    .profile-textarea,
+    .ev-input,
+    .enrollment-card input,
+    .enrollment-card select,
+    .enrollment-card textarea {
+        width: 100%;
+        min-width: 0 !important;
+    }
+
+    .mgr-card,
+    .rec-student-card,
+    .student-action-card,
+    .shop-card,
+    .inst-card,
+    .profile-card,
+    .enrollment-card,
+    .exercise-library-card,
+    .dash-plan-card {
+        min-width: 0;
+    }
+
+    .mgr-table-wrap,
+    .hm-grid-wrap,
+    .billing-history,
+    .exercise-library-list {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+@media (max-width: 420px) {
+    .btn-save,
+    .btn-cancel,
+    .btn-delete,
+    .btn-del,
+    .btn-ghost,
+    .mgr-btn-sm,
+    .mgr-btn-criar,
+    .rec-btn-matricular,
+    .shop-card__btn,
+    .inst-card__btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

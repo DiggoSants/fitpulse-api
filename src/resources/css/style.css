@@ -2755,3 +2755,61 @@ img, video, iframe {
     font-weight: 700;
     letter-spacing: .5px;
 }
+
+@media (max-width: 640px) {
+  .nav,
+  .nav-left,
+  .nav-auth,
+  .about-actions,
+  .faq-cta,
+  .es-pills,
+  .es-contato-actions,
+  .instr-modal__footer,
+  .explore-header {
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .nav-auth .cta--outline,
+  .nav-auth .cta--solid,
+  .btn,
+  .btn-explorar,
+  .es-next-btn,
+  .es-plano__btn,
+  .es-contato-btn,
+  .instr-modal__cta-btn,
+  .faq-whats-btn {
+    max-width: 100%;
+    min-height: 38px;
+    white-space: normal;
+    line-height: 1.2;
+    text-align: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .explore-tabs,
+  .explorar-preview__tabs,
+  .carr-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-auth {
+    gap: 6px;
+  }
+
+  .nav-auth .cta--outline {
+    display: inline-flex;
+  }
+
+  .nav-auth .cta--outline,
+  .nav-auth .cta--solid {
+    padding: 7px 8px;
+    font-size: 10px;
+    letter-spacing: .04em;
+  }
+}

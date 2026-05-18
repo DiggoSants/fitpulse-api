@@ -7,6 +7,11 @@
                     {{ session('success') }}
                 </div>
             @endif
+            @if(session('info'))
+                <div style="margin-bottom:16px; padding:12px 16px; background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.2); border-radius:10px; color:#93c5fd; font-size:13px; font-weight:600;">
+                    {{ session('info') }}
+                </div>
+            @endif
 
             {{-- HERO --}}
             <div class="dash-hero" style="margin-bottom:1.25rem;">
@@ -37,15 +42,9 @@
                                 PAGAMENTO PENDENTE
                             </span>
                         @endif
-                        <a href="{{ route('workouts.create') }}" class="btn-save"
-                           style="text-decoration:none; display:inline-flex; align-items:center; gap:7px;">
-                            <svg width="11" height="11" viewBox="0 0 12 12" fill="none"
-                                 style="stroke:#fff; stroke-width:2.5; stroke-linecap:round;">
-                                <line x1="6" y1="1" x2="6" y2="11"/>
-                                <line x1="1" y1="6" x2="11" y2="6"/>
-                            </svg>
-                            Criar Treino
-                        </a>
+                        <span style="max-width:280px; font-size:12px; line-height:1.5; color:var(--text-muted); text-align:right;">
+                            Quer ajustar seu treino? Fale com seu instrutor para manter tudo alinhado com sua evolução.
+                        </span>
                     </div>
                 </div>
             </div>
@@ -60,11 +59,7 @@
                         <rect x="7" y="11" width="10" height="2" rx="1"/>
                     </svg>
                     <p>Nenhum treino disponível.</p>
-                    <p style="font-size:13px; margin-top:6px; opacity:.45;">Crie seu primeiro treino para começar.</p>
-                    <a href="{{ route('workouts.create') }}" class="btn-save"
-                       style="text-decoration:none; display:inline-block; margin-top:20px;">
-                        + Criar Primeiro Treino
-                    </a>
+                    <p style="font-size:13px; margin-top:6px; opacity:.45;">Seu instrutor vai montar seu treino por aqui. Se já combinou um plano, peça para ele liberar na plataforma.</p>
                 </div>
             @else
 
@@ -121,26 +116,8 @@
                             <h3 class="exercises-header__name">{{ $workout->name }}</h3>
                             <span class="exercises-header__badge">{{ $exercises->count() }} exerc.</span>
                         </div>
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <a href="{{ route('workouts.edit', $workout->id) }}" class="btn-ghost">
-                                <svg viewBox="0 0 14 14" fill="none"
-                                     style="stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; width:12px; height:12px;">
-                                    <path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z"/>
-                                </svg>
-                                Editar
-                            </a>
-                            <form action="{{ route('workouts.destroy', $workout->id) }}" method="POST" style="margin:0;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-del"
-                                        onclick="return confirm('Deletar este treino?')">
-                                    <svg viewBox="0 0 14 16" fill="none"
-                                         style="stroke:currentColor; stroke-width:1.8; stroke-linecap:round; width:12px; height:12px;">
-                                        <path d="M1 3.5h12M4.5 3.5V2a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v1.5M5.5 7v5M8.5 7v5M2.5 3.5l.9 10a.5.5 0 00.5.5h6.2a.5.5 0 00.5-.5l.9-10"/>
-                                    </svg>
-                                    Deletar
-                                </button>
-                            </form>
+                        <div style="max-width:300px; font-size:12px; line-height:1.5; color:var(--text-muted); text-align:right;">
+                            Edição bloqueada para alunos. Peça ajustes ao seu instrutor quando quiser evoluir o plano.
                         </div>
                     </div>
 

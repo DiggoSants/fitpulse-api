@@ -229,6 +229,84 @@
             font-family:'Montserrat',sans-serif; transition:opacity .18s;
         }
         #confirm-modal-box .cm-confirm:hover { opacity:.88; }
+
+        @media (max-width: 768px) {
+            .dash-hero__inner,
+            .dash-hero__right {
+                align-items: flex-start;
+            }
+
+            .g-card {
+                min-width: 0;
+            }
+
+            .g-banner,
+            .g-group-row,
+            .g-member-row {
+                align-items: flex-start;
+            }
+
+            .g-banner,
+            .g-group-row {
+                flex-direction: column;
+            }
+
+            .g-member-row {
+                flex-wrap: wrap;
+            }
+
+            .g-id-wrap {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .g-id-wrap .g-input,
+            .g-id-btn {
+                width: 100%;
+                border-radius: 12px;
+                border: 1px solid var(--g-input-bd);
+            }
+
+            .g-btn-join,
+            #confirm-modal-box .cm-cancel,
+            #confirm-modal-box .cm-confirm {
+                width: 100%;
+                justify-content: center;
+                white-space: normal;
+            }
+
+            #confirm-modal-box .cm-foot {
+                flex-direction: column-reverse;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .max-w-7xl > div[style*="grid-template-columns:1fr 1fr"],
+            .max-w-7xl > div[style*="grid-template-columns: 1fr 1fr"],
+            .g-group-card > div[style*="grid-template-columns:repeat(3,1fr)"],
+            .g-card div[style*="grid-template-columns:repeat(4,1fr)"] {
+                grid-template-columns: 1fr !important;
+            }
+
+            .g-points-number {
+                font-size: 44px;
+            }
+
+            .g-tier,
+            .g-stat-blue {
+                padding: 12px;
+            }
+
+            .g-group-card {
+                padding: 18px 16px;
+                border-radius: 16px;
+            }
+
+            .g-card {
+                padding: 18px 16px !important;
+                border-radius: 16px;
+            }
+        }
         </style>
     @endpush
 

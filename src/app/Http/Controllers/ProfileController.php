@@ -6,7 +6,9 @@ use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -43,6 +45,12 @@ class ProfileController extends Controller
     public function destroy(Request $request)
     {
         $user = $request->user();
+
+        if (!Hash::check((string) $request->input('password'), $user->password)) {
+            throw ValidationException::withMessages([
+                'password' => __('auth.password'),
+            ])->errorBag('userDeletion')->redirectTo(route('profile.edit'));
+        }
 
         $student = \App\Models\Student::where('user_id', $user->id)->first();
 

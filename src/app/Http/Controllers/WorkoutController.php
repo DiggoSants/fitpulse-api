@@ -11,6 +11,12 @@ use Illuminate\Support\Facades\Auth;
 
 class WorkoutController extends Controller
 {
+    private function studentWorkoutNotice()
+    {
+        return redirect()->route('workouts.index')
+            ->with('info', 'Seu treino fica sob cuidado da equipe. Se quiser mudar alguma coisa, fale com seu instrutor ou com a recepção.');
+    }
+
     private function resolveStudent(?int $studentId = null): Student
     {
         /** @var \App\Models\User $user */
@@ -58,6 +64,12 @@ class WorkoutController extends Controller
 
     public function create(Request $request)
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!($user->isInstructor() || $user->isManager())) {
+            return $this->studentWorkoutNotice();
+        }
+
         $exercises = Exercise::all();
         $studentId = $request->query('student_id');
         $student   = $this->resolveStudent($studentId ? (int) $studentId : null);
@@ -65,8 +77,19 @@ class WorkoutController extends Controller
         return view('workouts.create', compact('exercises', 'student'));
     }
 
+    public function show($id)
+    {
+        return redirect()->route('workouts.index', ['workout_id' => $id]);
+    }
+
     public function store(Request $request)
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!($user->isInstructor() || $user->isManager())) {
+            return $this->studentWorkoutNotice();
+        }
+
         $request->validate([
             'name'        => ['required', 'min:3', 'regex:/^[A-Za-z0-9\s]+$/'],
             'exercise_id' => ['required', 'array'],
@@ -114,9 +137,6 @@ class WorkoutController extends Controller
             return back()->with('error', 'Preencha séries e reps de pelo menos um exercício')->withInput();
         }
 
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
         if ($user->isInstructor() || $user->isManager()) {
             return redirect()->route('dashboard');
         }
@@ -126,6 +146,12 @@ class WorkoutController extends Controller
 
     public function edit(Request $request, $id)
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!($user->isInstructor() || $user->isManager())) {
+            return $this->studentWorkoutNotice();
+        }
+
         $workout   = Workout::with('workoutExercises')->findOrFail($id);
         $exercises = Exercise::all();
         $studentId = $request->query('student_id');
@@ -138,6 +164,12 @@ class WorkoutController extends Controller
 
     public function update(Request $request, $id)
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!($user->isInstructor() || $user->isManager())) {
+            return $this->studentWorkoutNotice();
+        }
+
         $request->validate([
             'name'        => ['required', 'min:3', 'regex:/^[A-Za-z0-9\s]+$/'],
             'exercise_id' => ['required', 'array'],
@@ -186,9 +218,6 @@ class WorkoutController extends Controller
             return back()->with('error', 'Preencha séries e reps de pelo menos um exercício')->withInput();
         }
 
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
         if ($user->isInstructor() || $user->isManager()) {
             return redirect()->route('dashboard');
         }
@@ -198,6 +227,12 @@ class WorkoutController extends Controller
 
     public function destroy(Request $request, $id)
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!($user->isInstructor() || $user->isManager())) {
+            return $this->studentWorkoutNotice();
+        }
+
         $workout   = Workout::findOrFail($id);
         $studentId = $request->input('student_id');
         $student   = $this->resolveStudent($studentId ? (int) $studentId : null);
@@ -206,9 +241,6 @@ class WorkoutController extends Controller
 
         WorkoutExercise::where('workout_id', $id)->delete();
         $workout->delete();
-
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
 
         if ($user->isInstructor() || $user->isManager()) {
             return redirect()->route('dashboard');

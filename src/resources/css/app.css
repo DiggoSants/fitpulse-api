@@ -129,6 +129,28 @@
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
+
+    div[style*="grid-template-columns:1fr 1fr"][style*="margin-bottom:16px"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    .freq-card,
+    #gami-card {
+        min-width: 0;
+    }
+
+    .freq-card > div:first-child,
+    #gami-card > div:first-child {
+        flex-wrap: wrap;
+        align-items: flex-start !important;
+    }
+
+    #gami-card a,
+    #gami-card button,
+    .freq-btn {
+        max-width: 100%;
+        white-space: normal !important;
+    }
 }
 
 @media (max-width: 420px) {

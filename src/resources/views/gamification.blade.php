@@ -781,9 +781,11 @@
         try {
             const res = await fetch(`/plan-groups/${id}/join`, {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept':       'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 },
             });
@@ -808,8 +810,10 @@
     (async function loadGroups() {
         try {
             const res    = await fetch("{{ route('plan-groups.index', [], false) }}", {
+                credentials: 'same-origin',
                 headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
             });
+            if (!res.ok) throw new Error('Erro ao carregar grupos.');
             const json   = await res.json();
             const groups = (json.data ?? []).filter(g => g.has_vacancy);
             document.getElementById('groups-loading').style.display = 'none';

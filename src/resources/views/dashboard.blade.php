@@ -1110,6 +1110,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept':       'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 },
             });
@@ -1202,7 +1203,7 @@
 
         async function loadHeatmap() {
             try {
-                const res  = await fetch(endpoint, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                const res  = await fetch(endpoint, { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
                 const json = await res.json();
                 const data = json.data ?? [];
 
@@ -1283,10 +1284,22 @@
 
         let allProducts = [], currentFilter = 'all', selectedProduct = null, currentQty = 1;
 
+        async function readShopJsonResponse(res) {
+            try {
+                return await res.json();
+            } catch (e) {
+                if (res.status === 419) return { message: 'Sua sessão expirou. Atualize a página e tente novamente.' };
+                if (res.status === 401 || res.status === 403) return { message: 'Você não tem permissão para concluir esta ação.' };
+                if (res.status >= 500) return { message: 'Erro interno no servidor. Confira os logs do Railway.' };
+                return { message: 'O servidor respondeu de um jeito inesperado.' };
+            }
+        }
+
         async function loadProducts() {
             try {
-                const res  = await fetch(ENDPOINT_PRODUCTS, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
-                const json = await res.json();
+                const res  = await fetch(ENDPOINT_PRODUCTS, { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                const json = await readShopJsonResponse(res);
+                if (!res.ok) throw new Error(json.message || 'Erro ao carregar produtos.');
                 allProducts = json.data ?? [];
                 document.getElementById('shop-skeleton').style.display = 'none';
                 if (!allProducts.length) { document.getElementById('shop-empty').style.display = 'block'; return; }
@@ -1354,8 +1367,8 @@
             const btn = document.getElementById('shop-modal-confirm-btn');
             btn.disabled = true; btn.textContent = 'Processando...';
             try {
-                const res = await fetch(ENDPOINT_SALE, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF }, body: JSON.stringify({ product_id: selectedProduct.id, quantity: currentQty }) });
-                const data = await res.json();
+                const res = await fetch(ENDPOINT_SALE, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': CSRF }, body: JSON.stringify({ product_id: selectedProduct.id, quantity: currentQty }) });
+                const data = await readShopJsonResponse(res);
                 if (res.ok) { closeShopModal(); showShopToast('Compra realizada com sucesso! 🎉', 'success'); }
                 else { showShopToast(data.message || 'Erro ao processar compra.', 'error'); }
             } catch (e) { showShopToast('Erro de conexão. Tente novamente.', 'error'); }
@@ -1385,7 +1398,7 @@
         document.getElementById('eq-modal-body').innerHTML = '';
         if (!eqData.length) {
             try {
-                const res  = await fetch(EP_EQ_STUDENT, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                const res  = await fetch(EP_EQ_STUDENT, { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
                 if (!res.ok) throw new Error('Falha ao carregar equipamentos.');
                 const json = await res.json();
                 eqData = json.data ?? [];
@@ -1428,7 +1441,7 @@
         if (!MAINT_NOTIFY_ALLOWED_ROLES.includes(DASH_USER_ROLE)) return;
 
         try {
-            const res  = await fetch("{{ route('maintenance.index', [], false) }}", { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+            const res  = await fetch("{{ route('maintenance.index', [], false) }}", { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
             const json = await res.json();
             const inMaint = json.in_maintenance ?? [];
             if (!inMaint.length) return;

@@ -114,13 +114,15 @@
     <script>
     (function () {
         const DAYS  = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-        const endpoint = "{{ route('reports.frequency.heatmap') }}";
+        const endpoint = "{{ route('reports.frequency.heatmap', [], false) }}";
 
         async function loadHeatmap() {
             try {
                 const res  = await fetch(endpoint, {
+                    credentials: 'same-origin',
                     headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
                 });
+                if (!res.ok) throw new Error('Erro ao carregar o mapa de frequencia.');
                 const json = await res.json();
                 const data = json.data ?? [];
 

@@ -205,16 +205,30 @@
 
     <script>
         // ── Estado global ─────────────────────────────────────────────────────
-        const EP_RESOLVE = "{{ route('maintenance.resolve', ':id') }}";
+        const EP_RESOLVE = "{{ route('maintenance.resolve', ['id' => ':id'], false) }}";
         const CSRF     = document.querySelector('meta[name="csrf-token"]').content;
-        const EP_MAINT = "{{ route('maintenance.index') }}";
-        const EP_EQ    = "{{ route('equipment.index') }}";
-        const EP_STORE = "{{ route('maintenance.store') }}";
-        const EP_EQ_STORE = "{{ route('equipment.store') }}";
+        const EP_MAINT = "{{ route('maintenance.index', [], false) }}";
+        const EP_EQ    = "{{ route('equipment.index', [], false) }}";
+        const EP_STORE = "{{ route('maintenance.store', [], false) }}";
+        const EP_EQ_STORE = "{{ route('equipment.store', [], false) }}";
 
         let allRequests  = [];
         let allEquipment = [];
         let currentFilter = 'all';
+
+        async function readJsonResponse(res) {
+            try {
+                return await res.json();
+            } catch (e) {
+                if (res.status === 419) {
+                    return { message: 'Sua sessão expirou. Atualize a página e tente novamente.' };
+                }
+                if (res.status === 401 || res.status === 403) {
+                    return { message: 'Você não tem permissão para executar esta ação nesta sessão.' };
+                }
+                return { message: 'O servidor respondeu de um jeito inesperado. Veja os logs do Railway para o detalhe.' };
+            }
+        }
 
         // ── Inicialização ─────────────────────────────────────────────────────
         async function init() {
@@ -467,15 +481,17 @@
             try {
                 const res = await fetch(EP_STORE, {
                     method: 'POST',
+                    credentials: 'same-origin',
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept':       'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': CSRF,
                     },
                     body: JSON.stringify({ equipment_id: equipmentId, description }),
                 });
 
-                const data = await res.json();
+                const data = await readJsonResponse(res);
 
                 if (res.ok) {
                     closeReportModal();
@@ -485,7 +501,7 @@
                     showToast(data.message || 'Erro ao registrar.', 'error');
                 }
             } catch (e) {
-                showToast('Erro de conexão. Tente novamente.', 'error');
+                showToast('Não consegui falar com o servidor agora. Confira a sessão e tente novamente.', 'error');
             } finally {
                 btn.disabled    = false;
                 btn.textContent = 'Registrar problema';
@@ -501,15 +517,17 @@
             try {
                 const res = await fetch(EP_RESOLVE.replace(':id', id), {
                     method: 'PUT',
+                    credentials: 'same-origin',
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept':       'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': CSRF,
                     },
                     body: JSON.stringify({}),
                 });
 
-                const data = await res.json();
+                const data = await readJsonResponse(res);
 
                 if (res.ok) {
                     showToast('✓ ' + data.message, 'success');
@@ -520,7 +538,7 @@
                     btn.innerHTML = original;
                 }
             } catch (e) {
-                showToast('Erro de conexão. Tente novamente.', 'error');
+                showToast('Não consegui falar com o servidor agora. Confira a sessão e tente novamente.', 'error');
                 btn.disabled  = false;
                 btn.innerHTML = original;
             }
@@ -541,15 +559,17 @@
             try {
                 const res = await fetch(EP_EQ_STORE, {
                     method: 'POST',
+                    credentials: 'same-origin',
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept':       'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': CSRF,
                     },
                     body: JSON.stringify({ name }),
                 });
 
-                const data = await res.json();
+                const data = await readJsonResponse(res);
 
                 if (res.ok) {
                     document.getElementById('eq-name-input').value = '';
@@ -560,7 +580,7 @@
                     showToast(data.errors?.name?.[0] || data.message || 'Erro ao cadastrar.', 'error');
                 }
             } catch (e) {
-                showToast('Erro de conexão. Tente novamente.', 'error');
+                showToast('Não consegui falar com o servidor agora. Confira a sessão e tente novamente.', 'error');
             } finally {
                 btn.disabled    = false;
                 btn.textContent = 'Cadastrar';

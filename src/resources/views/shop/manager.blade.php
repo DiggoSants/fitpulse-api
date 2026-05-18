@@ -234,7 +234,7 @@ function confirmResolve(result) {
     if (window._confirmResolve) window._confirmResolve(result);
 }
         const CSRF             = document.querySelector('meta[name="csrf-token"]').content;
-const PRODUCT_ENDPOINT = "{{ route('products.store') }}";
+const PRODUCT_ENDPOINT = "{{ route('products.store', [], false) }}";
 const PRODUCT_BASE_URL = "{{ url('/products') }}";
 const managerProducts  = @json($managerProducts);
 

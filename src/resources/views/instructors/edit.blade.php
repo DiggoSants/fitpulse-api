@@ -14,7 +14,7 @@
                     <p class="workout-form-kicker">Gerenciamento</p>
                     <h1 class="workout-form-title">Editar Instrutor</h1>
                 </div>
-                <a href="{{ route('instructors.index') }}" class="workout-form-back">← Voltar</a>
+                <a href="{{ route('dashboard') }}" class="workout-form-back">← Voltar</a>
             </div>
 
             @if($errors->any())
@@ -59,7 +59,7 @@
 
                     <div class="profile-form-row" style="margin-top: 8px;">
                         <button type="submit" class="btn-save">Atualizar</button>
-                        <a href="{{ route('instructors.index') }}" class="btn-cancel">Cancelar</a>
+                        <a href="{{ route('dashboard') }}" class="btn-cancel">Cancelar</a>
                     </div>
 
                 </form>

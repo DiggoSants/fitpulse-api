@@ -1,6 +1,6 @@
 <x-app-layout>
 
-    <a href="{{ route('instructors.index') }}">← Voltar</a>
+    <a href="{{ route('dashboard') }}">← Voltar</a>
 
     <h1>{{ $instructor->user->name }}</h1>
 

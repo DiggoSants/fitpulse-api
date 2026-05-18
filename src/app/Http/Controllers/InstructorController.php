@@ -12,8 +12,7 @@ class InstructorController extends Controller
 
     public function index()
     {
-        $instructors = Instructor::with(['user', 'students'])->get();
-        return view('instructors.index', compact('instructors'));
+        return redirect()->route('dashboard');
     }
 
     public function create()
@@ -42,13 +41,12 @@ class InstructorController extends Controller
             'invite_code' => Instructor::generateInviteCode(),
         ]);
 
-        return redirect()->route('instructors.index')->with('success', 'Instrutor cadastrado com sucesso!');
+        return redirect()->route('dashboard')->with('success', 'Instrutor cadastrado com sucesso!');
     }
 
     public function show($id)
     {
-        $instructor = Instructor::with(['user', 'students.user'])->findOrFail($id);
-        return view('instructors.show', compact('instructor'));
+        return redirect()->route('dashboard');
     }
 
     public function edit($id)
@@ -68,7 +66,7 @@ class InstructorController extends Controller
             'specialty' => $request->specialty,
         ]);
 
-        return redirect()->route('instructors.index')->with('success', 'Instrutor atualizado com sucesso!');
+        return redirect()->route('dashboard')->with('success', 'Instrutor atualizado com sucesso!');
     }
 
     public function destroy($id)
@@ -77,7 +75,7 @@ class InstructorController extends Controller
         $instructor->students()->update(['instructor_id' => null]);
         $instructor->delete();
 
-        return redirect()->route('instructors.index')->with('success', 'Instrutor removido com sucesso!');
+        return redirect()->route('dashboard')->with('success', 'Instrutor removido com sucesso!');
     }
 
     public function regenerateCode($id)

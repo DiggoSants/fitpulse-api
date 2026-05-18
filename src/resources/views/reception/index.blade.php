@@ -207,6 +207,7 @@
         async function loadPendingStudents() {
             try {
                 const res  = await fetch(URL_PENDING, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                if (!res.ok) throw new Error('Falha ao carregar alunos pendentes.');
                 const json = await res.json();
                 allStudents = json.data ?? [];
                 document.getElementById('stat-pending').textContent    = allStudents.length;
@@ -216,7 +217,9 @@
             } catch (e) {
                 document.getElementById('rec-skeleton').style.display  = 'none';
                 document.getElementById('rec-table-wrap').style.display = 'block';
+                document.getElementById('stat-pending').textContent = '0';
                 renderStudentsTable([]);
+                showToast('Não foi possível carregar os alunos pendentes agora.', 'error');
             }
         }
 

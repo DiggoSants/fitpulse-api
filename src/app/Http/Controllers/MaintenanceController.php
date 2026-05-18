@@ -25,7 +25,7 @@ class MaintenanceController extends Controller
             ->map(function ($request) {
                 return [
                     'id'          => $request->id,
-                    'equipment'   => $request->equipment->name,
+                    'equipment'   => $request->equipment?->name ?? 'Equipamento removido',
                     'description' => $request->description,
                     'status'      => $request->status,
                     'created_at'  => $request->created_at->format('d/m/Y H:i'),

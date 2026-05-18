@@ -1106,6 +1106,7 @@
         try {
             const res = await fetch("{{ route('frequency.register') }}", {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept':       'application/json',
@@ -1113,7 +1114,12 @@
                 },
             });
 
-            const data = await res.json();
+            let data = {};
+            try {
+                data = await res.json();
+            } catch (parseError) {
+                data = { message: 'Não consegui confirmar sua presença agora. Atualize a página e tente de novo.' };
+            }
 
             if (res.ok) {
                 btn.className = 'freq-btn freq-btn--done';
@@ -1148,7 +1154,7 @@
         } catch (e) {
             btn.disabled      = false;
             btn.style.opacity = '1';
-            showFreqToast('Erro de conexão. Tente novamente.', 'error');
+            showFreqToast('Não consegui falar com o servidor agora. Confira a internet e tente de novo.', 'error');
         }
     }
 
@@ -1380,9 +1386,13 @@
         if (!eqData.length) {
             try {
                 const res  = await fetch(EP_EQ_STUDENT, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                if (!res.ok) throw new Error('Falha ao carregar equipamentos.');
                 const json = await res.json();
                 eqData = json.data ?? [];
-            } catch (e) { console.error(e); }
+            } catch (e) {
+                console.error(e);
+                eqData = [];
+            }
         }
         document.getElementById('eq-modal-loading').style.display = 'none';
         renderEqModal();

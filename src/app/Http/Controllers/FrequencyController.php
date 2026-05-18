@@ -44,7 +44,7 @@ class FrequencyController extends Controller
 
         if ($existingToday) {
             return response()->json([
-                'message' => 'PresenÃ§a jÃ¡ registrada hoje.',
+                'message' => 'Presença já registrada hoje.',
                 'data'    => [
                     'registered_at' => $existingToday->created_at->format('d/m/Y H:i:s'),
                     'points_earned' => 0,

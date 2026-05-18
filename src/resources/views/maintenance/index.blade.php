@@ -225,6 +225,7 @@
         async function loadMaintenance() {
             try {
                 const res  = await fetch(EP_MAINT, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                if (!res.ok) throw new Error('Falha ao carregar manutenção.');
                 const json = await res.json();
 
                 // Resumo
@@ -237,6 +238,13 @@
 
             } catch (e) {
                 console.error('Maint error:', e);
+                document.getElementById('requests-skeleton').style.display = 'none';
+                document.getElementById('requests-list').style.display = 'none';
+                document.getElementById('requests-empty').style.display = 'block';
+                document.getElementById('summary-maintenance').textContent = '0';
+                document.getElementById('summary-open').textContent = '0';
+                document.getElementById('summary-resolved').textContent = '0';
+                showToast('Não foi possível carregar as solicitações agora.', 'error');
             }
         }
 
@@ -244,12 +252,19 @@
         async function loadEquipment() {
             try {
                 const res  = await fetch(EP_EQ, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                if (!res.ok) throw new Error('Falha ao carregar equipamentos.');
                 const json = await res.json();
                 allEquipment = json.data ?? [];
                 renderEquipment();
                 populateEquipmentSelect();
             } catch (e) {
                 console.error('Equipment error:', e);
+                allEquipment = [];
+                document.getElementById('eq-skeleton').style.display = 'none';
+                document.getElementById('eq-list').style.display = 'none';
+                document.getElementById('eq-empty').style.display = 'block';
+                populateEquipmentSelect();
+                showToast('Não foi possível carregar os equipamentos agora.', 'error');
             }
         }
 

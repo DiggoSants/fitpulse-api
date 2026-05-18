@@ -1,4 +1,47 @@
 <x-app-layout>
+    @push('styles')
+        <style>
+            .shop-report-summary {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 12px;
+                margin-bottom: 28px;
+            }
+
+            @media (max-width: 768px) {
+                .shop-report-summary {
+                    grid-template-columns: 1fr;
+                    margin-bottom: 18px;
+                }
+
+                .shop-report-summary .mgr-stat-card {
+                    min-width: 0;
+                }
+
+                .shop-report-actions {
+                    width: 100%;
+                    align-items: stretch !important;
+                }
+
+                .shop-report-actions a {
+                    width: 100%;
+                    justify-content: center;
+                    white-space: normal;
+                    text-align: center;
+                }
+
+                .shop-report-table {
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                }
+
+                .shop-report-table .mgr-table {
+                    min-width: 720px;
+                }
+            }
+        </style>
+    @endpush
+
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
@@ -10,7 +53,7 @@
                         <h2 class="dash-hero__title">Vendas da Lojinha</h2>
                         <p class="dash-hero__sub">Receita, lucro e volume por produto.</p>
                     </div>
-                    <div class="dash-hero__right">
+                    <div class="dash-hero__right shop-report-actions">
                         <span class="dash-hero__pulse">
                             <span class="dash-hero__pulse-dot"></span>
                             GERENTE
@@ -28,7 +71,7 @@
             </div>
 
             {{-- Cards de resumo --}}
-            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:28px;">
+            <div class="shop-report-summary">
                 <div class="mgr-stat-card">
                     <span class="mgr-stat-card__label">Receita Total</span>
                     <strong class="mgr-stat-card__value">
@@ -51,7 +94,7 @@
             </div>
 
             {{-- Tabela de produtos --}}
-            <div class="mgr-table-wrap">
+            <div class="mgr-table-wrap shop-report-table">
                 <table class="mgr-table">
                     <thead>
                         <tr>

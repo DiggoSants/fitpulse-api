@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 use App\Models\Student;
 use App\Models\Instructor;
 use App\Models\Plan;
@@ -20,6 +21,18 @@ class ReceptionController extends Controller
 
     public function pendingEnrollmentData()
     {
+        User::whereDoesntHave('student')
+            ->whereDoesntHave('instructor')
+            ->whereDoesntHave('manager')
+            ->whereDoesntHave('receptionist')
+            ->get(['id'])
+            ->each(function (User $user) {
+                Student::firstOrCreate(
+                    ['user_id' => $user->id],
+                    ['status' => 'active']
+                );
+            });
+
         $students = Student::with('user')
             ->whereHas('user', function ($q) {
                 $q->whereDoesntHave('instructor')

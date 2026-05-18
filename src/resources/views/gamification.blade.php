@@ -807,7 +807,7 @@
     }
     (async function loadGroups() {
         try {
-            const res    = await fetch("{{ route('plan-groups.index') }}", {
+            const res    = await fetch("{{ route('plan-groups.index', [], false) }}", {
                 headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
             });
             const json   = await res.json();

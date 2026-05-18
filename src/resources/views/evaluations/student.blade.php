@@ -244,7 +244,7 @@
     <script>
         // ── Formulário ────────────────────────────────────────────
         const CSRF     = document.querySelector('meta[name="csrf-token"]').content;
-        const ENDPOINT = "{{ route('evaluations.store') }}";
+        const ENDPOINT = "{{ route('evaluations.store', [], false) }}";
 
         document.getElementById('eval-form').addEventListener('submit', async function (e) {
             e.preventDefault();

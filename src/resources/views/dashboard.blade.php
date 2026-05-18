@@ -1104,7 +1104,7 @@
         btn.style.opacity = '.6';
 
         try {
-            const res = await fetch("{{ route('frequency.register') }}", {
+            const res = await fetch("{{ route('frequency.register', [], false) }}", {
                 method: 'POST',
                 credentials: 'same-origin',
                 headers: {
@@ -1198,7 +1198,7 @@
     // ── HEATMAP ──────────────────────────────────────────────────────────
     (function () {
         const DAYS  = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-        const endpoint = "{{ route('reports.frequency.heatmap') }}";
+        const endpoint = "{{ route('reports.frequency.heatmap', [], false) }}";
 
         async function loadHeatmap() {
             try {
@@ -1278,8 +1278,8 @@
     // ── LOJINHA ──────────────────────────────────────────────────────────
     (function () {
         const CSRF = document.querySelector('meta[name="csrf-token"]').content;
-        const ENDPOINT_PRODUCTS = "{{ route('products.index') }}";
-        const ENDPOINT_SALE     = "{{ route('sales.store') }}";
+        const ENDPOINT_PRODUCTS = "{{ route('products.index', [], false) }}";
+        const ENDPOINT_SALE     = "{{ route('sales.store', [], false) }}";
 
         let allProducts = [], currentFilter = 'all', selectedProduct = null, currentQty = 1;
 
@@ -1373,7 +1373,7 @@
     })();
 
     // ── EQUIPAMENTOS ─────────────────────────────────────────────────────
-    const EP_EQ_STUDENT = "{{ route('equipment.index') }}";
+    const EP_EQ_STUDENT = "{{ route('equipment.index', [], false) }}";
     let eqData = [], eqModalFilter = 'all';
 
     window.openEquipmentModal = async function () {
@@ -1428,7 +1428,7 @@
         if (!MAINT_NOTIFY_ALLOWED_ROLES.includes(DASH_USER_ROLE)) return;
 
         try {
-            const res  = await fetch("{{ route('maintenance.index') }}", { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+            const res  = await fetch("{{ route('maintenance.index', [], false) }}", { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
             const json = await res.json();
             const inMaint = json.in_maintenance ?? [];
             if (!inMaint.length) return;

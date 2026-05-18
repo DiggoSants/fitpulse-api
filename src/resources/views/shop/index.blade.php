@@ -85,8 +85,8 @@
 <div id="shop-toast" class="shop-toast" style="display:none;"></div>
     <script>
         const CSRF   = document.querySelector('meta[name="csrf-token"]').content;
-        const ENDPOINT_PRODUCTS = "{{ route('products.index') }}";
-        const ENDPOINT_SALE     = "{{ route('sales.store') }}";
+        const ENDPOINT_PRODUCTS = "{{ route('products.index', [], false) }}";
+        const ENDPOINT_SALE     = "{{ route('sales.store', [], false) }}";
 
         let allProducts    = [];
         let currentFilter  = 'all';

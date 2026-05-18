@@ -187,10 +187,10 @@
 
     <script>
         const CSRF            = document.querySelector('meta[name="csrf-token"]').content;
-        const URL_PENDING     = "{{ route('reception.pending.data') }}";
-        const URL_INSTRUCTORS = "{{ route('reception.instructors') }}";
-        const URL_ENROLL      = "{{ route('reception.enroll') }}";
-        const URL_PLANS       = "{{ route('reception.plans') }}";  {{-- ✅ rota dedicada --}}
+        const URL_PENDING     = "{{ route('reception.pending.data', [], false) }}";
+        const URL_INSTRUCTORS = "{{ route('reception.instructors', [], false) }}";
+        const URL_ENROLL      = "{{ route('reception.enroll', [], false) }}";
+        const URL_PLANS       = "{{ route('reception.plans', [], false) }}";  {{-- ✅ rota dedicada --}}
 
         let allStudents    = [];
         let allInstructors = [];
@@ -386,7 +386,8 @@
             try {
                 const res  = await fetch(URL_ENROLL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': CSRF },
                     body: JSON.stringify({ student_id: selectedStudentId, plan_id: planId, instructor_id: instId }),
                 });
                 const data = await res.json();

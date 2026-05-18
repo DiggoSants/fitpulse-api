@@ -206,7 +206,7 @@
 
         async function loadPendingStudents() {
             try {
-                const res  = await fetch(URL_PENDING, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                const res  = await fetch(URL_PENDING, { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
                 if (!res.ok) throw new Error('Falha ao carregar alunos pendentes.');
                 const json = await res.json();
                 allStudents = json.data ?? [];
@@ -225,7 +225,7 @@
 
         async function loadInstructors() {
             try {
-                const res  = await fetch(URL_INSTRUCTORS, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                const res  = await fetch(URL_INSTRUCTORS, { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
                 const json = await res.json();
                 allInstructors = json.data ?? [];
                 document.getElementById('stat-instructors').textContent = allInstructors.length;
@@ -256,7 +256,7 @@
         async function loadPlans() {
             try {
                 {{-- ✅ Usa rota própria — sem middleware enrolled --}}
-                const res  = await fetch(URL_PLANS, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                const res  = await fetch(URL_PLANS, { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
                 const json = await res.json();
                 allPlans   = json.data ?? [];
                 const sel  = document.getElementById('select-plan');

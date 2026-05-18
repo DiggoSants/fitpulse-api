@@ -355,7 +355,7 @@
     </style>
 
     <script>
-    const EXERCISE_VIDEO_URL = "{{ route('exercise.video') }}";
+    const EXERCISE_VIDEO_URL = "{{ route('exercise.video', [], false) }}";
 
     async function openExerciseModal(exerciseName, sets, reps, rest) {
         const modal = document.getElementById('exercise-modal');
@@ -371,7 +371,11 @@
         document.getElementById('yt-iframe').src               = '';
 
         try {
-            const res  = await fetch(EXERCISE_VIDEO_URL + '?q=' + encodeURIComponent(exerciseName));
+            const res  = await fetch(EXERCISE_VIDEO_URL + '?q=' + encodeURIComponent(exerciseName), {
+                credentials: 'same-origin',
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            });
+            if (!res.ok) throw new Error('Erro ao carregar video.');
             const data = await res.json();
 
             document.getElementById('modal-loading').style.display = 'none';

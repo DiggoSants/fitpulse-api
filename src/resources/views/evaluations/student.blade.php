@@ -255,7 +255,8 @@
             try {
                 const res  = await fetch(ENDPOINT, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': CSRF },
                     body: JSON.stringify({
                         weight:   document.getElementById('eval-weight').value,
                         height:   document.getElementById('eval-height').value,

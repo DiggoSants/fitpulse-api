@@ -238,7 +238,7 @@
         // ── Carregar manutenção (resumo + solicitações) ───────────────────────
         async function loadMaintenance() {
             try {
-                const res  = await fetch(EP_MAINT, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                const res  = await fetch(EP_MAINT, { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
                 if (!res.ok) throw new Error('Falha ao carregar manutenção.');
                 const json = await res.json();
 
@@ -265,7 +265,7 @@
         // ── Carregar equipamentos ─────────────────────────────────────────────
         async function loadEquipment() {
             try {
-                const res  = await fetch(EP_EQ, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                const res  = await fetch(EP_EQ, { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
                 if (!res.ok) throw new Error('Falha ao carregar equipamentos.');
                 const json = await res.json();
                 allEquipment = json.data ?? [];

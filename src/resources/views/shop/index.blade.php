@@ -93,12 +93,31 @@
         let selectedProduct = null;
         let currentQty     = 1;
 
+        async function readJsonResponse(res) {
+            try {
+                return await res.json();
+            } catch (e) {
+                if (res.status === 419) {
+                    return { message: 'Sua sessão expirou. Atualize a página e tente novamente.' };
+                }
+                if (res.status === 401 || res.status === 403) {
+                    return { message: 'Você não tem permissão para concluir esta ação.' };
+                }
+                if (res.status >= 500) {
+                    return { message: 'Erro interno no servidor. Confira os logs do Railway.' };
+                }
+                return { message: 'O servidor respondeu de um jeito inesperado.' };
+            }
+        }
+
         async function loadProducts() {
             try {
                 const res  = await fetch(ENDPOINT_PRODUCTS, {
+                    credentials: 'same-origin',
                     headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
                 });
-                const json = await res.json();
+                const json = await readJsonResponse(res);
+                if (!res.ok) throw new Error(json.message || 'Erro ao carregar produtos.');
                 allProducts = json.data ?? [];
 
                 document.getElementById('shop-skeleton').style.display = 'none';
@@ -237,15 +256,17 @@
             try {
                 const res = await fetch(ENDPOINT_SALE, {
                     method: 'POST',
+                    credentials: 'same-origin',
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept':       'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': CSRF,
                     },
                     body: JSON.stringify({ product_id: selectedProduct.id, quantity: currentQty }),
                 });
 
-                const data = await res.json();
+                const data = await readJsonResponse(res);
 
                 if (res.ok) {
                     closeShopModal();

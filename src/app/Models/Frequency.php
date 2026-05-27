@@ -8,6 +8,7 @@ class Frequency extends Model
 {
     protected $fillable = [
         'student_id',
+        'enrollment_id',
     ];
 
     protected $casts = [
@@ -17,5 +18,10 @@ class Frequency extends Model
     public function student()
     {
         return $this->belongsTo(Student::class);
+    }
+
+    public function enrollment()
+    {
+        return $this->belongsTo(Enrollment::class);
     }
 }

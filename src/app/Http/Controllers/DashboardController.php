@@ -115,12 +115,33 @@ class DashboardController extends Controller
 
         $activeEnrollment = $student->activeEnrollment();
         $checkedInToday = Frequency::where('student_id', $student->id)
+            ->where(function ($query) use ($activeEnrollment) {
+                $query->where('enrollment_id', $activeEnrollment->id)
+                    ->orWhere(function ($legacyQuery) use ($activeEnrollment) {
+                        $legacyQuery->whereNull('enrollment_id')
+                            ->where('created_at', '>=', $activeEnrollment->created_at);
+                    });
+            })
             ->whereDate('created_at', today())
             ->exists();
         $lastFrequency = Frequency::where('student_id', $student->id)
+            ->where(function ($query) use ($activeEnrollment) {
+                $query->where('enrollment_id', $activeEnrollment->id)
+                    ->orWhere(function ($legacyQuery) use ($activeEnrollment) {
+                        $legacyQuery->whereNull('enrollment_id')
+                            ->where('created_at', '>=', $activeEnrollment->created_at);
+                    });
+            })
             ->latest()
             ->first();
         $frequencyThisWeek = Frequency::where('student_id', $student->id)
+            ->where(function ($query) use ($activeEnrollment) {
+                $query->where('enrollment_id', $activeEnrollment->id)
+                    ->orWhere(function ($legacyQuery) use ($activeEnrollment) {
+                        $legacyQuery->whereNull('enrollment_id')
+                            ->where('created_at', '>=', $activeEnrollment->created_at);
+                    });
+            })
             ->whereBetween('created_at', [
                 now()->startOfWeek(\Carbon\Carbon::SUNDAY),
                 now()->endOfWeek(\Carbon\Carbon::SATURDAY),

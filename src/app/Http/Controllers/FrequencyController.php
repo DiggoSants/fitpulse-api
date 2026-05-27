@@ -32,13 +32,22 @@ class FrequencyController extends Controller
             return response()->json(['message' => $message], 403);
         }
 
-        if (!$student->isEnrolled()) {
+        $activeEnrollment = $student->activeEnrollment();
+
+        if (!$activeEnrollment) {
             return response()->json([
                 'message' => 'Você não possui matrícula ativa.',
             ], 403);
         }
 
         $existingToday = Frequency::where('student_id', $student->id)
+            ->where(function ($query) use ($activeEnrollment) {
+                $query->where('enrollment_id', $activeEnrollment->id)
+                    ->orWhere(function ($legacyQuery) use ($activeEnrollment) {
+                        $legacyQuery->whereNull('enrollment_id')
+                            ->where('created_at', '>=', $activeEnrollment->created_at);
+                    });
+            })
             ->whereDate('created_at', today())
             ->first();
 
@@ -55,7 +64,8 @@ class FrequencyController extends Controller
         }
 
         $frequency = Frequency::create([
-            'student_id' => $student->id,
+            'student_id'     => $student->id,
+            'enrollment_id'  => $activeEnrollment->id,
         ]);
 
         $user->addPoints(self::POINTS_PER_DAY);

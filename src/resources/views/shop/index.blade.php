@@ -132,7 +132,6 @@
             } catch (e) {
                 document.getElementById('shop-skeleton').style.display = 'none';
                 document.getElementById('shop-empty').style.display    = 'block';
-                console.error('Shop error:', e);
             }
         }
 

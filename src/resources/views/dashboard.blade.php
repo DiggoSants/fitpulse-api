@@ -319,7 +319,7 @@
                                             @if($plan->status === 'active')
                                                 <form action="{{ route('plans.destroy', $plan->id) }}" method="POST" style="margin:0;">
                                                     @csrf @method('DELETE')
-                                                    <button type="submit" class="mgr-btn-del" onclick="return confirm('Inativar este plano?')" title="Inativar plano">
+                                                    <button type="button" class="mgr-btn-del" onclick="confirmManagerPlanInactivation(this)" title="Inativar plano">
                                                         <svg width="11" height="11" viewBox="0 0 14 16" fill="none" style="stroke:#f87171; stroke-width:1.8; stroke-linecap:round;"><path d="M1 3.5h12M4.5 3.5V2a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v1.5M5.5 7v5M8.5 7v5M2.5 3.5l.9 10a.5.5 0 00.5.5h6.2a.5.5 0 00.5-.5l.9-10"/></svg>
                                                     </button>
                                                 </form>
@@ -921,6 +921,26 @@
     </div>
 </div>
 
+<div id="manager-plan-confirm-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#161616; border:1px solid rgba(255,255,255,0.10); border-radius:20px; width:100%; max-width:380px; overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,0.50);">
+        <div style="padding:22px 24px 0;">
+            <div style="width:44px; height:44px; border-radius:12px; background:rgba(214,21,50,0.12); border:1px solid rgba(214,21,50,0.25); display:flex; align-items:center; justify-content:center; margin-bottom:14px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="stroke:#f87171; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;">
+                    <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+            </div>
+            <p style="font-size:16px; font-weight:800; color:#f5f5f5; margin:0 0 6px;">Inativar plano?</p>
+            <p style="font-size:13px; color:rgba(255,255,255,0.55); margin:0 0 22px; line-height:1.5;">Ele não aparecerá para novas matrículas. As matrículas e o histórico existentes continuam salvos.</p>
+        </div>
+        <div style="display:flex; gap:10px; justify-content:flex-end; padding:0 24px 22px;">
+            <button type="button" class="btn-ghost" onclick="closeManagerPlanConfirm()">Cancelar</button>
+            <button type="button" class="btn-del" onclick="submitManagerPlanInactivation()">Inativar</button>
+        </div>
+    </div>
+</div>
+
 {{-- MODAL EQUIPAMENTOS --}}
 <div id="equipment-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:20px;">
     <div style="background:#161616; border:1px solid rgba(255,255,255,0.10); border-radius:20px; width:100%; max-width:560px; box-shadow:0 24px 60px rgba(0,0,0,0.50); animation:shopModalIn .22s ease; overflow:hidden;">
@@ -1404,7 +1424,6 @@
                 const json = await res.json();
                 eqData = json.data ?? [];
             } catch (e) {
-                console.error(e);
                 eqData = [];
             }
         }
@@ -1466,7 +1485,7 @@
             notifyOverlay.style.display = 'flex';
             document.body.style.overflow = 'hidden';
             localStorage.setItem(MAINT_NOTIFY_STORAGE_KEY, notifySignature);
-        } catch (e) { console.error('Notify check error:', e); }
+        } catch (e) {}
     }
 
     setTimeout(checkMaintenanceNotify, 1200);
@@ -1479,5 +1498,27 @@
 
     function confirmCancelPlan() { document.getElementById('cancel-modal-overlay').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
     function closeCancelModal()  { document.getElementById('cancel-modal-overlay').style.display = 'none'; document.body.style.overflow = ''; }
+
+    let managerPlanFormToSubmit = null;
+
+    function confirmManagerPlanInactivation(button) {
+        managerPlanFormToSubmit = button.closest('form');
+        const overlay = document.getElementById('manager-plan-confirm-overlay');
+        if (!overlay) return;
+        overlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeManagerPlanConfirm() {
+        managerPlanFormToSubmit = null;
+        const overlay = document.getElementById('manager-plan-confirm-overlay');
+        if (!overlay) return;
+        overlay.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    function submitManagerPlanInactivation() {
+        if (managerPlanFormToSubmit) managerPlanFormToSubmit.submit();
+    }
 </script>
 </x-app-layout>

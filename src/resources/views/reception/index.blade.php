@@ -243,7 +243,8 @@
                 document.getElementById('stat-instructors').textContent = allInstructors.length;
                 renderInstructorsList();
             } catch (e) {
-                console.error('Erro ao carregar instrutores:', e);
+                allInstructors = [];
+                renderInstructorsList();
             }
         }
 
@@ -279,7 +280,7 @@
                     sel.appendChild(opt);
                 });
             } catch (e) {
-                console.error('Erro ao carregar planos:', e);
+                showToast('Não foi possível carregar os planos agora.', 'error');
             }
         }
 

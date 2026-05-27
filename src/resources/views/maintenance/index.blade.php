@@ -251,7 +251,6 @@
                 renderRequests();
 
             } catch (e) {
-                console.error('Maint error:', e);
                 document.getElementById('requests-skeleton').style.display = 'none';
                 document.getElementById('requests-list').style.display = 'none';
                 document.getElementById('requests-empty').style.display = 'block';
@@ -272,7 +271,6 @@
                 renderEquipment();
                 populateEquipmentSelect();
             } catch (e) {
-                console.error('Equipment error:', e);
                 allEquipment = [];
                 document.getElementById('eq-skeleton').style.display = 'none';
                 document.getElementById('eq-list').style.display = 'none';

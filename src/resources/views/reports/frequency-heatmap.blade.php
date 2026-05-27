@@ -188,7 +188,6 @@
             } catch (e) {
                 document.getElementById('hm-skeleton').style.display = 'none';
                 document.getElementById('hm-empty').style.display    = 'block';
-                console.error('Heatmap error:', e);
             }
         }
 

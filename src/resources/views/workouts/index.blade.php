@@ -131,8 +131,8 @@
                             <form action="{{ route('workouts.destroy', $workout->id) }}" method="POST" style="margin:0;">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn-del"
-                                        onclick="return confirm('Deletar este treino?')">
+                                <button type="button" class="btn-del"
+                                        onclick="openWorkoutDeleteConfirm(this)">
                                     <svg viewBox="0 0 14 16" fill="none"
                                          style="stroke:currentColor; stroke-width:1.8; stroke-linecap:round; width:12px; height:12px;">
                                         <path d="M1 3.5h12M4.5 3.5V2a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v1.5M5.5 7v5M8.5 7v5M2.5 3.5l.9 10a.5.5 0 00.5.5h6.2a.5.5 0 00.5-.5l.9-10"/>
@@ -200,6 +200,25 @@
     {{-- ══════════════════════════════════════════════════════
          MODAL DE TUTORIAL DO EXERCÍCIO
     ══════════════════════════════════════════════════════ --}}
+    <div id="workout-delete-overlay" style="display:none; position:fixed; inset:0; z-index:9999; align-items:center; justify-content:center; padding:20px; background:rgba(0,0,0,.68); backdrop-filter:blur(4px);">
+        <div style="width:100%; max-width:380px; border-radius:20px; background:#151515; border:1px solid rgba(255,255,255,.10); box-shadow:0 24px 70px rgba(0,0,0,.45); overflow:hidden;">
+            <div style="padding:24px 24px 10px;">
+                <div style="width:44px; height:44px; border-radius:14px; display:flex; align-items:center; justify-content:center; background:rgba(214,21,50,.12); border:1px solid rgba(214,21,50,.25); margin-bottom:14px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="stroke:#f87171; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;">
+                        <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>
+                        <path d="M10 11v5M14 11v5"/>
+                    </svg>
+                </div>
+                <h2 style="font-size:18px; font-weight:800; margin:0 0 8px; color:#fff;">Deletar treino?</h2>
+                <p style="font-size:13px; line-height:1.5; color:rgba(255,255,255,.62); margin:0;">Essa ação remove o treino selecionado e seus exercícios vinculados.</p>
+            </div>
+            <div style="display:flex; gap:10px; justify-content:flex-end; padding:18px 24px 24px;">
+                <button type="button" class="btn-ghost" onclick="closeWorkoutDeleteConfirm()">Cancelar</button>
+                <button type="button" class="btn-del" onclick="submitWorkoutDelete()">Deletar</button>
+            </div>
+        </div>
+    </div>
+
     <div id="exercise-modal" style="
         display:none;
         position:fixed; inset:0; z-index:9999;
@@ -377,6 +396,24 @@
     </style>
 
     <script>
+    let workoutDeleteForm = null;
+
+    function openWorkoutDeleteConfirm(button) {
+        workoutDeleteForm = button.closest('form');
+        document.getElementById('workout-delete-overlay').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeWorkoutDeleteConfirm() {
+        workoutDeleteForm = null;
+        document.getElementById('workout-delete-overlay').style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    function submitWorkoutDelete() {
+        if (workoutDeleteForm) workoutDeleteForm.submit();
+    }
+
     const EXERCISE_VIDEO_URL = "{{ route('exercise.video', [], false) }}";
 
     async function openExerciseModal(exerciseName, sets, reps, rest) {

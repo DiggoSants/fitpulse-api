@@ -202,6 +202,7 @@
         </div>
     </div>
 </div>
+<div id="product-toast" style="display:none; position:fixed; right:20px; bottom:20px; z-index:100000; max-width:min(360px, calc(100vw - 40px)); padding:12px 14px; border-radius:14px; background:rgba(22,163,74,.94); color:#fff; font-size:13px; font-weight:700; box-shadow:0 18px 40px rgba(0,0,0,.35);"></div>
     @php
         $managerProducts = $products->map(function ($product) {
             return [
@@ -232,6 +233,17 @@
 function confirmResolve(result) {
     document.getElementById('confirm-overlay').style.display = 'none';
     if (window._confirmResolve) window._confirmResolve(result);
+}
+
+function showProductToast(message, type = 'success') {
+    const toast = document.getElementById('product-toast');
+    toast.textContent = message;
+    toast.style.background = type === 'error' ? 'rgba(214,21,50,.96)' : 'rgba(22,163,74,.94)';
+    toast.style.display = 'block';
+    clearTimeout(window._productToastTimer);
+    window._productToastTimer = setTimeout(() => {
+        toast.style.display = 'none';
+    }, 3500);
 }
         const CSRF             = document.querySelector('meta[name="csrf-token"]').content;
 const PRODUCT_ENDPOINT = "{{ route('products.store', [], false) }}";
@@ -317,14 +329,14 @@ document.getElementById('product-form').addEventListener('submit', async functio
         });
         const response = await readJsonResponse(res);
         if (res.ok) {
-            alert(response.message || 'Produto salvo com sucesso!');
-            location.reload();
+            showProductToast(response.message || 'Produto salvo com sucesso!');
+            setTimeout(() => location.reload(), 650);
         } else {
-            alert(response.errors ? Object.values(response.errors).flat().join('\n') : (response.message || 'Erro ao salvar produto.'));
+            showProductToast(response.errors ? Object.values(response.errors).flat().join(' ') : (response.message || 'Erro ao salvar produto.'), 'error');
             setSubmitLoading(false);
         }
     } catch (e) {
-        alert('Não consegui falar com o servidor. Atualize a página e tente novamente.');
+        showProductToast('Não consegui falar com o servidor. Atualize a página e tente novamente.', 'error');
         setSubmitLoading(false);
     }
 });
@@ -360,9 +372,9 @@ async function deleteProduct(id, btn) {
         });
         const response = await readJsonResponse(res);
         if (res.ok) { location.reload(); }
-        else { alert(response.message || 'Erro ao inativar.'); setButtonLoading(btn, false, 'Inativar'); }
+        else { showProductToast(response.message || 'Erro ao inativar.', 'error'); setButtonLoading(btn, false, 'Inativar'); }
     } catch (e) {
-        alert('Não consegui falar com o servidor. Atualize a página e tente novamente.');
+        showProductToast('Não consegui falar com o servidor. Atualize a página e tente novamente.', 'error');
         setButtonLoading(btn, false, 'Inativar');
     }
 }
@@ -380,9 +392,9 @@ async function restoreProduct(id, btn) {
         });
         const response = await readJsonResponse(res);
         if (res.ok) { location.reload(); }
-        else { alert(response.message || 'Erro ao ativar.'); setButtonLoading(btn, false, 'Ativar'); }
+        else { showProductToast(response.message || 'Erro ao ativar.', 'error'); setButtonLoading(btn, false, 'Ativar'); }
     } catch (e) {
-        alert('Não consegui falar com o servidor. Atualize a página e tente novamente.');
+        showProductToast('Não consegui falar com o servidor. Atualize a página e tente novamente.', 'error');
         setButtonLoading(btn, false, 'Ativar');
     }
 }

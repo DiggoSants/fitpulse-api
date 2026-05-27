@@ -195,6 +195,9 @@
     border-radius: 22px;
     width: 100%;
     max-width: 480px;
+    max-height: calc(100dvh - 40px);
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
     box-shadow: 0 24px 60px rgba(0,0,0,0.55);
     animation: recModalIn .22s ease;
@@ -218,6 +221,7 @@
     justify-content: space-between;
     padding: 18px 22px 16px;
     border-bottom: 1px solid rgba(255,255,255,0.07);
+    flex-shrink: 0;
 }
 
 [data-theme="light"] .rec-modal__header {
@@ -258,6 +262,10 @@
     display: flex;
     flex-direction: column;
     gap: 18px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Footer */
@@ -266,10 +274,13 @@
     gap: 10px;
     padding: 14px 22px 20px;
     border-top: 1px solid rgba(255,255,255,0.07);
+    flex-shrink: 0;
+    background: #161616;
 }
 
 [data-theme="light"] .rec-modal__footer {
     border-top-color: rgba(0,0,0,0.07);
+    background: #fff;
 }
 
 /* ── Campos do formulário ────────────────────────────────── */
@@ -762,5 +773,14 @@
 
     .rec-modal {
         border-radius: 16px;
+        max-height: calc(100dvh - 24px);
+    }
+
+    .rec-modal__body {
+        padding: 16px;
+    }
+
+    .rec-modal__footer {
+        padding: 12px 16px 16px;
     }
 }

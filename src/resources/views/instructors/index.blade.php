@@ -28,7 +28,7 @@
         <div class="student-card student-card--ok">
 
             <div class="student-card__header">
-                <div class="student-avatar">{{ strtoupper(substr($instructor->user->name, 0, 2)) }}</div>
+                <div class="student-avatar">{{ mb_strtoupper(mb_substr($instructor->user->name, 0, 2)) }}</div>
                 <div style="flex:1; min-width:0;">
                     <p class="student-card__name">{{ $instructor->user->name }}</p>
                     <p class="student-card__email">{{ $instructor->user->email }}</p>

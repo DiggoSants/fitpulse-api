@@ -12,7 +12,7 @@
             {{-- Avatar com iniciais + nome + email --}}
             <div class="profile-page-header__user">
                 <div class="profile-page-header__avatar">
-                    {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
+                    {{ mb_strtoupper(mb_substr(Auth::user()->name, 0, 2)) }}
                 </div>
                 <div class="profile-page-header__user-info">
                     <span class="profile-page-header__user-name">{{ Auth::user()->name }}</span>

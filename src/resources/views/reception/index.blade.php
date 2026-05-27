@@ -131,6 +131,18 @@
                 </div>
 
                 <div class="rec-field">
+                    <label class="rec-label" for="select-payment-method">Forma de pagamento</label>
+                    <div class="rec-select-wrap">
+                        <select id="select-payment-method" class="rec-select">
+                            <option value="pix">Pix - confirmacao imediata</option>
+                            <option value="credit_card">Cartao de credito</option>
+                            <option value="boleto">Boleto - aguardando compensacao</option>
+                        </select>
+                        <svg class="rec-select-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                </div>
+
+                <div class="rec-field">
                     <label class="rec-label" for="input-instructor-code">Instrutor</label>
                     <div class="rec-instructor-list" id="instructor-list">
                         <p class="rec-instructor-list__empty">Carregando instrutores...</p>
@@ -327,6 +339,7 @@
             document.getElementById('modal-student-display-email').textContent = email;
             document.getElementById('modal-student-avatar').textContent       = name.substring(0, 2).toUpperCase();
             document.getElementById('select-plan').value       = '';
+            document.getElementById('select-payment-method').value = 'pix';
             document.getElementById('input-instructor-code').value = '';
             document.getElementById('input-instructor-code').classList.remove('rec-code-input--error');
             document.getElementById('instructor-code-error').style.display = 'none';
@@ -375,9 +388,10 @@
 
         async function confirmEnroll() {
             const planId = document.getElementById('select-plan').value;
+            const paymentMethod = document.getElementById('select-payment-method').value;
             const instId = selectedInstructorId;
-            if (!selectedStudentId || !planId || !instId) {
-                showToast('Selecione aluno, plano e digite um código de instrutor válido para continuar.', 'error');
+            if (!selectedStudentId || !planId || !paymentMethod || !instId) {
+                showToast('Selecione aluno, plano, pagamento e digite um codigo de instrutor valido para continuar.', 'error');
                 return;
             }
             const btn = document.getElementById('btn-confirm-enroll');
@@ -388,7 +402,7 @@
                     method: 'POST',
                     credentials: 'same-origin',
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': CSRF },
-                    body: JSON.stringify({ student_id: selectedStudentId, plan_id: planId, instructor_id: instId }),
+                    body: JSON.stringify({ student_id: selectedStudentId, plan_id: planId, instructor_id: instId, payment_method: paymentMethod }),
                 });
                 const data = await res.json();
                 if (res.ok) {
@@ -413,6 +427,7 @@
             document.getElementById('success-msg').textContent = `${d.student ?? 'Aluno'} foi matriculado com sucesso!`;
             document.getElementById('success-details').innerHTML = `
                 <div class="rec-success-detail-row"><span class="rec-success-detail-label">Plano</span><span class="rec-success-detail-value">${escHtml(d.plan ?? '—')}</span></div>
+                <div class="rec-success-detail-row"><span class="rec-success-detail-label">Pagamento</span><span class="rec-success-detail-value">${escHtml(paymentLabel(d.payment_method, d.payment_status))}</span></div>
                 <div class="rec-success-detail-row"><span class="rec-success-detail-label">Instrutor</span><span class="rec-success-detail-value">${escHtml(d.instructor ?? '—')}</span></div>
                 <div class="rec-success-detail-row"><span class="rec-success-detail-label">Início</span><span class="rec-success-detail-value">${escHtml(d.start_date ?? '—')}</span></div>
                 <div class="rec-success-detail-row"><span class="rec-success-detail-label">Vencimento</span><span class="rec-success-detail-value">${escHtml(d.end_date ?? '—')}</span></div>
@@ -435,6 +450,12 @@
                 toast.style.opacity = '0';
                 setTimeout(() => { toast.style.display = 'none'; toast.style.opacity = '1'; }, 300);
             }, 4000);
+        }
+
+        function paymentLabel(method, status) {
+            const methods = { pix: 'Pix', credit_card: 'Cartao', boleto: 'Boleto' };
+            const statuses = { confirmed: 'confirmado', pending: 'pendente', rejected: 'recusado' };
+            return `${methods[method] ?? method ?? 'Pagamento'} (${statuses[status] ?? status ?? 'registrado'})`;
         }
 
         function escHtml(str) {

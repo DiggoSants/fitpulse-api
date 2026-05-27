@@ -10,17 +10,21 @@ use App\Models\Plan;
 use App\Models\Enrollment;
 use App\Models\PlanRenewal;
 use App\Models\Billing;
+use App\Services\BillingService;
 use Carbon\Carbon;
 
 class RenewalController extends Controller
 {
-    public function renew(Request $request)
+    public function renew(Request $request, BillingService $billingService)
     {
         $request->validate([
-            'plan_id' => ['required', 'exists:plans,id'],
+            'plan_id'        => ['required', 'exists:plans,id'],
+            'payment_method' => ['required', 'in:credit_card,pix,boleto'],
         ], [
-            'plan_id.required' => 'Selecione um plano para renovar',
-            'plan_id.exists'   => 'Plano inválido',
+            'plan_id.required'        => 'Selecione um plano para renovar',
+            'plan_id.exists'          => 'Plano inválido',
+            'payment_method.required' => 'Informe o metodo de pagamento',
+            'payment_method.in'       => 'Metodo de pagamento invalido.',
         ]);
 
         /** @var \App\Models\User $user */
@@ -58,7 +62,7 @@ class RenewalController extends Controller
             ], 422);
         }
 
-        DB::transaction(function () use ($student, $plan, $currentEnrollment) {
+        $billing = DB::transaction(function () use ($student, $plan, $currentEnrollment, $request, $billingService) {
             // Nova matrícula começa no dia seguinte ao vencimento da atual
             $startDate = $currentEnrollment->end_date->addDay();
             $endDate   = $startDate->copy()->addDays($plan->duration_days);
@@ -79,27 +83,19 @@ class RenewalController extends Controller
                 'renewed_at'        => now(),
             ]);
 
-            // Cria billing pendente — aluno tem 1 dia para pagar
-            Billing::create([
-                'student_id'    => $student->id,
-                'plan_id'       => $plan->id,
-                'enrollment_id' => $newEnrollment->id,
-                'amount'        => $plan->price,
-                'status'        => 'pending',
-                'paid_at'       => null,
-            ]);
-
             // Marca renewed_at e mantém status active por 1 dia
             $student->update([
                 'renewed_at'   => now(),
                 'status'       => 'active',
                 'is_defaulter' => false,
             ]);
+
+            return $billingService->createForEnrollment($student, $newEnrollment, $request->payment_method);
         });
 
         return redirect()
             ->route('plans.renewals')
-            ->with('success', 'Plano renovado com sucesso! Você tem 1 dia para realizar o pagamento.');
+            ->with('success', 'Plano renovado! ' . $billingService->messageForStatus($billing->status));
     }
     public function history()
     {

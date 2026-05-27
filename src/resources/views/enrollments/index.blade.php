@@ -79,6 +79,35 @@
                 <span class="profile-field-error">{{ $message }}</span>
             @enderror
 
+            <p class="enrollment-section-label">Forma de pagamento</p>
+            <div class="payment-method-grid">
+                <label class="payment-method-option">
+                    <input type="radio" name="payment_method" value="pix" {{ old('payment_method', 'pix') === 'pix' ? 'checked' : '' }}>
+                    <span>
+                        <strong>Pix</strong>
+                        <small>Confirmacao imediata</small>
+                    </span>
+                </label>
+                <label class="payment-method-option">
+                    <input type="radio" name="payment_method" value="credit_card" {{ old('payment_method') === 'credit_card' ? 'checked' : '' }}>
+                    <span>
+                        <strong>Cartao</strong>
+                        <small>Credito</small>
+                    </span>
+                </label>
+                <label class="payment-method-option">
+                    <input type="radio" name="payment_method" value="boleto" {{ old('payment_method') === 'boleto' ? 'checked' : '' }}>
+                    <span>
+                        <strong>Boleto</strong>
+                        <small>Aguardando compensacao</small>
+                    </span>
+                </label>
+            </div>
+
+            @error('payment_method')
+                <span class="profile-field-error">{{ $message }}</span>
+            @enderror
+
             @if($plans->count())
                 <div class="enrollment-actions" style="margin-top: 8px;">
                     <button type="submit" class="btn-save">Confirmar Matrícula</button>

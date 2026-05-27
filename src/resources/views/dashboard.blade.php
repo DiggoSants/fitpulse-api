@@ -982,6 +982,7 @@
 <script>
     const DASH_USER_ROLE = @json(Auth::user()->role());
     const DASH_USER_ID = @json(Auth::id());
+    const DASH_IS_ENROLLED = @json(($enrolled ?? true) !== false);
     const MAINT_NOTIFY_ALLOWED_ROLES = ['student', 'instructor', 'manager'];
     const MAINT_NOTIFY_STORAGE_KEY = `fitpulse:maintenance-notify-seen:${DASH_USER_ID}`;
 
@@ -1439,6 +1440,7 @@
 
     async function checkMaintenanceNotify() {
         if (!MAINT_NOTIFY_ALLOWED_ROLES.includes(DASH_USER_ROLE)) return;
+        if (DASH_USER_ROLE === 'student' && !DASH_IS_ENROLLED) return;
 
         try {
             const res  = await fetch("{{ route('maintenance.index', [], false) }}", { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });

@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Billing;
 use App\Models\Student;
+use App\Services\BillingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class BillingController extends Controller
 {
-    public function process(Request $request)
+    public function process(Request $request, BillingService $billingService)
     {
         $request->validate([
             'payment_method' => ['required', 'in:credit_card,pix,boleto'],
@@ -42,51 +43,20 @@ class BillingController extends Controller
             ], 422);
         }
 
-        $status = match ($request->payment_method) {
-            'boleto'      => 'pending',
-            'pix'         => 'confirmed',
-            'credit_card' => rand(1, 10) <= 9 ? 'confirmed' : 'rejected',
-        };
-
-        $billing = DB::transaction(function () use ($student, $enrollment, $status) {
-            $billing = Billing::create([
-                'student_id'    => $student->id,
-                'plan_id'       => $enrollment->plan_id,
-                'enrollment_id' => $enrollment->id,
-                'amount'        => $enrollment->plan->price,
-                'status'        => $status,
-                'paid_at'       => $status === 'confirmed' ? now() : null,
-            ]);
-
-            if ($status === 'rejected') {
-                $student->update(['is_defaulter' => true]);
-            }
-
-            if ($status === 'confirmed') {
-                $student->update(['is_defaulter' => false]);
-
-                if ($student->isDelinquent()) {
-                    $student->activate();
-                }
-            }
-
-            return $billing;
-        });
-
-        $messages = [
-            'pending'   => 'Boleto gerado! Aguardando compensacao.',
-            'confirmed' => 'Pagamento confirmado com sucesso!',
-            'rejected'  => 'Pagamento recusado. Verifique seus dados.',
-        ];
+        $billing = DB::transaction(fn () => $billingService->createForEnrollment(
+            $student,
+            $enrollment,
+            $request->payment_method
+        ));
 
         return $this->billingResponse($request, [
-            'message' => $messages[$status],
+            'message' => $billingService->messageForStatus($billing->status),
             'data'    => [
                 'billing_id'     => $billing->id,
                 'amount'         => $billing->amount,
                 'status'         => $billing->status,
                 'paid_at'        => $billing->paid_at?->format('d/m/Y H:i'),
-                'payment_method' => $request->payment_method,
+                'payment_method' => $billing->payment_method,
             ],
         ], 201);
     }
@@ -123,6 +93,7 @@ class BillingController extends Controller
                     'plan_name'    => $billing->plan->name,
                     'amount'       => $billing->amount,
                     'status'       => $billing->status,
+                    'payment_method' => $billing->payment_method,
                     'paid_at'      => $billing->paid_at?->format('d/m/Y H:i'),
                     'created_at'   => $billing->created_at->format('d/m/Y H:i'),
                 ];

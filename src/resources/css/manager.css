@@ -2338,3 +2338,67 @@
     background: #fff !important;
     color: #111 !important;
 }
+
+@media (max-width: 768px) {
+    .mgr-stats,
+    .report-cards-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .mgr-section-head,
+    .mgr-filters,
+    .dash-plan-card,
+    .report-card__footer {
+        align-items: stretch;
+    }
+
+    .mgr-section-head > *,
+    .dash-plan-card__left,
+    .dash-plan-card__right,
+    .report-card__footer > * {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .mgr-search,
+    .mgr-filter,
+    .mgr-tab {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .mgr-tabs,
+    .mgr-filters {
+        display: grid;
+        grid-template-columns: 1fr;
+        overflow: visible;
+    }
+
+    .mgr-table-wrap {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .mgr-table {
+        min-width: 720px;
+    }
+
+    .mgr-student-cell__name,
+    .mgr-student-cell__email,
+    .dash-plan-card__name,
+    .dash-plan-card__desc {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .dash-plan-card__right {
+        width: 100%;
+        align-items: flex-start;
+    }
+
+    .dash-plan-card__duration {
+        text-align: left;
+    }
+}

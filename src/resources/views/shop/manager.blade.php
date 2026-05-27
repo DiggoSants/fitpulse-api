@@ -115,7 +115,7 @@
                                             <div class="mgr-student-cell">
                                                 <div class="mgr-student-cell__avatar"
                                                     style="background:rgba(214,21,50,0.15); color:#f87171; font-size:11px;">
-                                                    {{ strtoupper(substr($product->name, 0, 2)) }}
+                                                    {{ mb_strtoupper(mb_substr($product->name, 0, 2)) }}
                                                 </div>
                                                 <div class="mgr-student-cell__content">
                                                     <span class="mgr-student-cell__name">{{ $product->name }}</span>

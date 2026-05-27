@@ -232,7 +232,7 @@
                             <button type="button" class="eval-accordion__btn" onclick="toggleAccordion(this)">
                                 <div style="display:flex; align-items:center; gap:14px; flex:1; min-width:0;">
                                     <div class="eval-avatar">
-                                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                                        {{ mb_strtoupper(mb_substr($user->name, 0, 1)) }}
                                     </div>
                                     <div>
                                         <div class="eval-name">{{ $user->name }}</div>

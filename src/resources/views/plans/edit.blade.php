@@ -126,7 +126,12 @@
                     </div>
 
                     {{-- Info de alunos vinculados --}}
-                    @php $enrolledCount = $plan->enrollments()->count(); @endphp
+                    @php
+                        $enrolledCount = $plan->enrollments()
+                            ->where('status', 'active')
+                            ->where('end_date', '>=', now()->toDateString())
+                            ->count();
+                    @endphp
                     @if($enrolledCount > 0)
                         <div class="enrollment-info" style="margin-top:18px;">
                             <strong>{{ $enrolledCount }} aluno(s)</strong> matriculado(s) neste plano.
@@ -152,8 +157,6 @@
                             <button
                                 type="button"
                                 class="btn-del"
-                                onclick="document.getElementById('destroyForm').submit()"
-                                onclickconfirm="return confirm('Inativar este plano?')"
                                 onclick="if(confirm('Inativar este plano? O histórico será preservado.')) document.getElementById('destroyForm').submit()"
                             >
                                 <svg width="13" height="15" viewBox="0 0 14 16" fill="none"

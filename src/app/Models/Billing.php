@@ -10,6 +10,7 @@ class Billing extends Model
         'student_id',
         'plan_id',
         'enrollment_id',
+        'payment_method',
         'amount',
         'status',
         'paid_at',

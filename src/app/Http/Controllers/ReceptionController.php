@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Student;
 use App\Models\Instructor;
 use App\Models\Plan;
 use App\Models\Enrollment;
 use App\Models\Receptionist;
+use App\Services\BillingService;
 use Carbon\Carbon;
 
 class ReceptionController extends Controller
@@ -86,16 +88,19 @@ class ReceptionController extends Controller
         return response()->json(['data' => $instructors]);
     }
 
-    public function enroll(Request $request)
+    public function enroll(Request $request, BillingService $billingService)
     {
         $request->validate([
-            'student_id'    => ['required', 'exists:students,id'],
-            'plan_id'       => ['required', 'exists:plans,id'],
-            'instructor_id' => ['required', 'exists:instructors,id'],
+            'student_id'     => ['required', 'exists:students,id'],
+            'plan_id'        => ['required', 'exists:plans,id'],
+            'instructor_id'  => ['required', 'exists:instructors,id'],
+            'payment_method' => ['required', 'in:credit_card,pix,boleto'],
         ], [
             'student_id.required'    => 'Selecione o aluno',
             'plan_id.required'       => 'Selecione o plano',
             'instructor_id.required' => 'Selecione o instrutor',
+            'payment_method.required' => 'Informe o metodo de pagamento',
+            'payment_method.in' => 'Metodo de pagamento invalido.',
         ]);
 
         /** @var \App\Models\User $user */
@@ -124,24 +129,33 @@ class ReceptionController extends Controller
         $startDate = Carbon::today();
         $endDate   = $startDate->copy()->addDays($plan->duration_days);
 
-        $enrollment = Enrollment::create([
-            'student_id'      => $student->id,
-            'plan_id'         => $plan->id,
-            'receptionist_id' => $receptionist?->id,
-            'start_date'      => $startDate,
-            'end_date'        => $endDate,
-            'status'          => 'active',
-        ]);
+        [$enrollment, $billing] = DB::transaction(function () use ($student, $plan, $receptionist, $startDate, $endDate, $instructor, $request, $billingService) {
+            $enrollment = Enrollment::create([
+                'student_id'      => $student->id,
+                'plan_id'         => $plan->id,
+                'receptionist_id' => $receptionist?->id,
+                'start_date'      => $startDate,
+                'end_date'        => $endDate,
+                'status'          => 'active',
+            ]);
 
-        $student->update(['instructor_id' => $instructor->id]);
+            $student->update(['instructor_id' => $instructor->id]);
+
+            $billing = $billingService->createForEnrollment($student, $enrollment, $request->payment_method);
+
+            return [$enrollment, $billing];
+        });
 
         return response()->json([
-            'message' => 'Matrícula realizada com sucesso!',
+            'message' => 'Matricula realizada com sucesso! ' . $billingService->messageForStatus($billing->status),
             'data'    => [
                 'enrollment_id'  => $enrollment->id,
+                'billing_id'     => $billing->id,
                 'student'        => $student->user->name,
                 'plan'           => $plan->name,
                 'instructor'     => $instructor->user->name,
+                'payment_method' => $billing->payment_method,
+                'payment_status' => $billing->status,
                 'start_date'     => $enrollment->start_date->format('d/m/Y'),
                 'end_date'       => $enrollment->end_date->format('d/m/Y'),
                 'receptionist'   => $receptionist?->user->name ?? 'Gerente',

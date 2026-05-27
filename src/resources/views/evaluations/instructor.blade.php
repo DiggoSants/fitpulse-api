@@ -63,7 +63,7 @@
                                 style="width:100%; background:none; border:none; padding:14px 18px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:12px; text-align:left;">
                                 <div style="display:flex; align-items:center; gap:14px; flex:1; min-width:0;">
                                     <div style="width:38px; height:38px; border-radius:10px; background:rgba(214,21,50,0.12); border:1px solid rgba(214,21,50,0.20); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:15px; font-weight:700; color:#f87171;">
-                                        {{ strtoupper(substr($student->user->name, 0, 1)) }}
+                                        {{ mb_strtoupper(mb_substr($student->user->name, 0, 1)) }}
                                     </div>
                                     <div>
                                         <div class="eval-student-name" style="font-size:13px; font-weight:700;">{{ $student->user->name }}</div>

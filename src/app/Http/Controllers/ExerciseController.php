@@ -9,7 +9,12 @@ class ExerciseController extends Controller
 {
     public function index()
     {
-        $exercises = Exercise::all();
+        $exercises = Exercise::query()
+            ->orderByRaw("CASE WHEN muscle_group IS NULL OR muscle_group = '' THEN 1 ELSE 0 END")
+            ->orderBy('muscle_group')
+            ->orderBy('name')
+            ->get();
+
         return view('exercises.index', compact('exercises'));
     }
 

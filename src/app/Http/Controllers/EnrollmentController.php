@@ -11,6 +11,7 @@ use App\Models\Instructor;
 use App\Models\Enrollment;
 use App\Services\BillingService;
 use Carbon\Carbon;
+use Illuminate\Validation\ValidationException;
 
 class EnrollmentController extends Controller
 {
@@ -63,26 +64,27 @@ class EnrollmentController extends Controller
         $endDate   = $startDate->copy()->addDays($plan->duration_days);
 
         $billing = DB::transaction(function () use ($student, $instructor, $plan, $startDate, $endDate, $request, $billingService) {
-            Enrollment::where('student_id', $student->id)
-                ->where('status', 'active')
-                ->update([
-                    'status'       => 'cancelled',
-                    'cancelled_at' => now(),
+            $lockedStudent = Student::whereKey($student->id)->lockForUpdate()->firstOrFail();
+
+            if ($lockedStudent->isEnrolled()) {
+                throw ValidationException::withMessages([
+                    'plan_id' => 'Voce ja possui uma matricula ativa.',
                 ]);
+            }
 
             $enrollment = Enrollment::create([
-                'student_id' => $student->id,
+                'student_id' => $lockedStudent->id,
                 'plan_id'    => $plan->id,
                 'start_date' => $startDate,
                 'end_date'   => $endDate,
                 'status'     => 'active',
             ]);
 
-            $student->update([
+            $lockedStudent->update([
                 'instructor_id' => $instructor->id,
             ]);
 
-            return $billingService->createForEnrollment($student, $enrollment, $request->payment_method);
+            return $billingService->createForEnrollment($lockedStudent, $enrollment, $request->payment_method);
         });
 
         return redirect()
@@ -113,6 +115,14 @@ class EnrollmentController extends Controller
                     'message' => 'Você não tem permissão para cancelar esta matrícula.',
                 ], 403);
             }
+        } elseif (!$user->isManager()) {
+            if (!$request->expectsJson()) {
+                return back()->with('error', 'Apenas o próprio aluno ou um gerente podem cancelar matrículas.');
+            }
+
+            return response()->json([
+                'message' => 'Apenas o próprio aluno ou um gerente podem cancelar matrículas.',
+            ], 403);
         }
 
         // Verifica se já foi cancelada

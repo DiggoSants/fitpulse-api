@@ -130,8 +130,16 @@ class ReceptionController extends Controller
         $endDate   = $startDate->copy()->addDays($plan->duration_days);
 
         [$enrollment, $billing] = DB::transaction(function () use ($student, $plan, $receptionist, $startDate, $endDate, $instructor, $request, $billingService) {
+            $lockedStudent = Student::whereKey($student->id)->lockForUpdate()->firstOrFail();
+
+            if ($lockedStudent->isEnrolled()) {
+                abort(response()->json([
+                    'message' => 'Este aluno ja possui uma matricula ativa.',
+                ], 422));
+            }
+
             $enrollment = Enrollment::create([
-                'student_id'      => $student->id,
+                'student_id'      => $lockedStudent->id,
                 'plan_id'         => $plan->id,
                 'receptionist_id' => $receptionist?->id,
                 'start_date'      => $startDate,
@@ -139,9 +147,9 @@ class ReceptionController extends Controller
                 'status'          => 'active',
             ]);
 
-            $student->update(['instructor_id' => $instructor->id]);
+            $lockedStudent->update(['instructor_id' => $instructor->id]);
 
-            $billing = $billingService->createForEnrollment($student, $enrollment, $request->payment_method);
+            $billing = $billingService->createForEnrollment($lockedStudent, $enrollment, $request->payment_method);
 
             return [$enrollment, $billing];
         });

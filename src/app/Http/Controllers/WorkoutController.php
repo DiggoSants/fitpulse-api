@@ -41,6 +41,11 @@ class WorkoutController extends Controller
     {
         /** @var \App\Models\User $user */
         $user    = Auth::user();
+
+        if ($user->isInstructor() || $user->isManager()) {
+            return redirect()->route('dashboard');
+        }
+
         $student = Student::where('user_id', $user->id)->firstOrFail();
 
         $allWorkouts = Workout::with('workoutExercises')

@@ -396,6 +396,31 @@ nav [x-show] {
     border-top-color: rgba(0,0,0,0.07);
 }
 
+.nav-mobile-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    padding: 8px;
+    color: #fff;
+    border-radius: 10px;
+    transition: color .18s, background .18s;
+}
+
+.nav-mobile-toggle:hover {
+    background: rgba(255,255,255,0.08);
+}
+
+[data-theme="light"] .nav-mobile-toggle {
+    color: #111;
+}
+
+[data-theme="light"] .nav-mobile-toggle:hover {
+    background: rgba(0,0,0,0.06);
+}
+
 .nav-mobile-link {
     display: block;
     padding: 9px 14px;
@@ -468,6 +493,34 @@ nav [x-show] {
 [data-theme="light"] .nav-mobile-user__email {
     color: rgba(0,0,0,0.40);
 }
+
+.nav-mobile-account {
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.nav-mobile-account__name {
+    font-weight: 700;
+    font-size: 14px;
+    color: #fff;
+}
+
+.nav-mobile-account__email {
+    font-size: 12px;
+    color: rgba(255,255,255,0.40);
+    margin-top: 2px;
+}
+
+[data-theme="light"] .nav-mobile-account {
+    border-top-color: rgba(0,0,0,0.08);
+}
+
+[data-theme="light"] .nav-mobile-account__name {
+    color: #111;
+}
+
+[data-theme="light"] .nav-mobile-account__email {
+    color: rgba(0,0,0,0.45);
+}
 /* Responsive nav links mobile */
 .nav-mobile-menu a,
 .nav-mobile-menu button {
@@ -532,4 +585,3 @@ nav [x-show] {
 [data-theme="light"] .origin-top-right a:hover, [data-theme="light"] .origin-top-right button:hover {
     background: rgba(0,0,0,0.05) !important;
 }
-

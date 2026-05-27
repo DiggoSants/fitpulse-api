@@ -32,22 +32,34 @@ class BillingController extends Controller
             ], 422);
         }
 
-        $existingBilling = Billing::where('enrollment_id', $enrollment->id)
-            ->whereIn('status', ['pending', 'confirmed'])
-            ->first();
+        [$billing, $wasCreated] = DB::transaction(function () use ($student, $enrollment, $request, $billingService) {
+            Student::whereKey($student->id)->lockForUpdate()->firstOrFail();
 
-        if ($existingBilling) {
+            $existingBilling = Billing::where('enrollment_id', $enrollment->id)
+                ->whereIn('status', ['pending', 'confirmed'])
+                ->lockForUpdate()
+                ->first();
+
+            if ($existingBilling) {
+                return [$existingBilling, false];
+            }
+
+            return [
+                $billingService->createForEnrollment(
+                    $student,
+                    $enrollment,
+                    $request->payment_method
+                ),
+                true,
+            ];
+        });
+
+        if (!$wasCreated) {
             return $this->billingResponse($request, [
-                'message' => 'Ja existe um pagamento ' . ($existingBilling->isPending() ? 'pendente' : 'confirmado') . ' para esta matricula.',
-                'data'    => $existingBilling,
+                'message' => 'Ja existe um pagamento ' . ($billing->isPending() ? 'pendente' : 'confirmado') . ' para esta matricula.',
+                'data'    => $billing,
             ], 422);
         }
-
-        $billing = DB::transaction(fn () => $billingService->createForEnrollment(
-            $student,
-            $enrollment,
-            $request->payment_method
-        ));
 
         return $this->billingResponse($request, [
             'message' => $billingService->messageForStatus($billing->status),

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Frequency;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Student;
-use App\Models\Frequency;
+use Illuminate\Support\Facades\DB;
 
 class FrequencyController extends Controller
 {
@@ -40,22 +41,41 @@ class FrequencyController extends Controller
             ], 403);
         }
 
-        $existingToday = Frequency::where('student_id', $student->id)
-            ->where(function ($query) use ($activeEnrollment) {
-                $query->where('enrollment_id', $activeEnrollment->id)
-                    ->orWhere(function ($legacyQuery) use ($activeEnrollment) {
-                        $legacyQuery->whereNull('enrollment_id')
-                            ->where('created_at', '>=', $activeEnrollment->created_at);
-                    });
-            })
-            ->whereDate('created_at', today())
-            ->first();
+        [$frequency, $pointsEarned, $status] = DB::transaction(function () use ($student, $activeEnrollment, $user) {
+            Student::whereKey($student->id)->lockForUpdate()->firstOrFail();
 
-        if ($existingToday) {
+            $existingToday = Frequency::where('student_id', $student->id)
+                ->where(function ($query) use ($activeEnrollment) {
+                    $query->where('enrollment_id', $activeEnrollment->id)
+                        ->orWhere(function ($legacyQuery) use ($activeEnrollment) {
+                            $legacyQuery->whereNull('enrollment_id')
+                                ->where('created_at', '>=', $activeEnrollment->created_at);
+                        });
+                })
+                ->whereDate('created_at', today())
+                ->first();
+
+            if ($existingToday) {
+                return [$existingToday, 0, 200];
+            }
+
+            $frequency = Frequency::create([
+                'student_id'    => $student->id,
+                'enrollment_id' => $activeEnrollment->id,
+            ]);
+
+            $user->addPoints(self::POINTS_PER_DAY);
+
+            return [$frequency, self::POINTS_PER_DAY, 201];
+        });
+
+        $user->refresh();
+
+        if ($pointsEarned === 0) {
             return response()->json([
                 'message' => 'Presença já registrada hoje.',
                 'data'    => [
-                    'registered_at' => $existingToday->created_at->format('d/m/Y H:i:s'),
+                    'registered_at' => $frequency->created_at->format('d/m/Y H:i:s'),
                     'points_earned' => 0,
                     'total_points'  => $user->points,
                     'points_to_next'=> $user->pointsToNextReward(),
@@ -63,24 +83,15 @@ class FrequencyController extends Controller
             ]);
         }
 
-        $frequency = Frequency::create([
-            'student_id'     => $student->id,
-            'enrollment_id'  => $activeEnrollment->id,
-        ]);
-
-        $user->addPoints(self::POINTS_PER_DAY);
-        $pointsEarned = self::POINTS_PER_DAY;
-        $user->refresh();
-
         return response()->json([
-            'message'       => 'Presença registrada com sucesso!',
-            'data'          => [
+            'message' => 'Presença registrada com sucesso!',
+            'data'    => [
                 'registered_at' => $frequency->created_at->format('d/m/Y H:i:s'),
                 'points_earned' => $pointsEarned,
                 'total_points'  => $user->points,
                 'points_to_next'=> $user->pointsToNextReward(),
             ],
-        ], 201);
+        ], $status);
     }
 
     public function heatmap()
@@ -96,6 +107,7 @@ class FrequencyController extends Controller
             ->get()
             ->map(function ($item) {
                 $days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+
                 return [
                     'day_of_week' => (int) $item->day_of_week,
                     'day_name'    => $days[$item->day_of_week],

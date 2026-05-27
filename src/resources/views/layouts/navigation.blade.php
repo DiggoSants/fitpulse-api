@@ -158,7 +158,7 @@
 
             {{-- Botão hamburguer mobile --}}
             <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" style="background:none; border:none; cursor:pointer; padding:8px; color:#fff;">
+                <button @click="open = ! open" class="nav-mobile-toggle" aria-label="Abrir menu" type="button">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -244,10 +244,10 @@
                 @endif
             @endif
         </div>
-        <div class="pt-4 pb-1" style="border-top:1px solid rgba(255,255,255,0.08);">
+        <div class="pt-4 pb-1 nav-mobile-account">
             <div class="px-4">
-                <div style="font-weight:700; font-size:14px; color:#fff;">{{ Auth::user()->name }}</div>
-                <div style="font-size:12px; color:rgba(255,255,255,0.4); margin-top:2px;">{{ Auth::user()->email }}</div>
+                <div class="nav-mobile-account__name">{{ Auth::user()->name }}</div>
+                <div class="nav-mobile-account__email">{{ Auth::user()->email }}</div>
             </div>
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">

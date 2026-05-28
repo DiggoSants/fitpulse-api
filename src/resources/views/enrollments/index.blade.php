@@ -102,13 +102,6 @@
                         <small>Aprovação automática</small>
                     </span>
                 </label>
-                <label class="payment-method-option">
-                    <input type="radio" name="payment_method" value="boleto" {{ old('payment_method') === 'boleto' ? 'checked' : '' }}>
-                    <span>
-                        <strong>Boleto</strong>
-                        <small>Aguardando compensacao</small>
-                    </span>
-                </label>
             </div>
 
             @error('payment_method')

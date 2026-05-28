@@ -137,7 +137,6 @@
                             <option value="pix">Pix - confirmacao imediata</option>
                             <option value="debit_card">Débito - confirmação imediata</option>
                             <option value="credit_card">Crédito</option>
-                            <option value="boleto">Boleto - aguardando compensacao</option>
                         </select>
                         <svg class="rec-select-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </div>

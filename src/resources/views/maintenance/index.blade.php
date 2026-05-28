@@ -434,10 +434,19 @@
         }
 
         function sortEquipment(items) {
-            return [...items].sort((a, b) => String(a.name ?? '').localeCompare(String(b.name ?? ''), 'pt-BR', {
-                sensitivity: 'base',
-                numeric: true,
-            }));
+            return [...items].sort((a, b) => {
+                const aInMaintenance = a.status === 'manutencao' ? 0 : 1;
+                const bInMaintenance = b.status === 'manutencao' ? 0 : 1;
+
+                if (aInMaintenance !== bInMaintenance) {
+                    return aInMaintenance - bInMaintenance;
+                }
+
+                return String(a.name ?? '').localeCompare(String(b.name ?? ''), 'pt-BR', {
+                    sensitivity: 'base',
+                    numeric: true,
+                });
+            });
         }
 
         function normalizeSearch(value) {

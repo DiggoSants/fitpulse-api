@@ -128,7 +128,6 @@
                                 <div style="display:flex; flex-direction:column; gap:8px;">
                                     @foreach([
                                         ['pix',    'PIX',           'Aprovação imediata'],
-                                        ['boleto', 'Boleto',        'Prazo de até 3 dias úteis'],
                                         ['debit_card', 'Débito',    'Aprovação imediata'],
                                         ['credit_card', 'Crédito',  'Aprovação automática'],
                                     ] as [$val, $label, $hint])

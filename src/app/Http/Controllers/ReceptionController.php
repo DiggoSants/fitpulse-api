@@ -94,7 +94,7 @@ class ReceptionController extends Controller
             'student_id'     => ['required', 'exists:students,id'],
             'plan_id'        => ['required', 'exists:plans,id'],
             'instructor_id'  => ['required', 'exists:instructors,id'],
-            'payment_method' => ['required', 'in:credit_card,debit_card,pix,boleto'],
+            'payment_method' => ['required', 'in:credit_card,debit_card,pix'],
         ], [
             'student_id.required'    => 'Selecione o aluno',
             'plan_id.required'       => 'Selecione o plano',

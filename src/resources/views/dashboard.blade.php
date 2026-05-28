@@ -525,7 +525,7 @@
                                     <div class="workout-block">
                                         <div class="workout-block__name">
                                             {{ $workout->name }}
-                                            <div style="display:flex; align-items:center; gap:8px;">
+                                            <div class="workout-block__summary" style="display:flex; align-items:center; gap:8px;">
                                                 <span>{{ $workout->workoutExercises->count() }} exerc.</span>
                                                 <button type="button" class="btn-workout-action" style="font-size:11px; padding:4px 12px;" onclick="toggleWorkout('workout-inst-{{ $workout->id }}')" id="btn-workout-inst-{{ $workout->id }}">Ver exercícios ▾</button>
                                             </div>
@@ -548,7 +548,7 @@
                                                 <p style="font-size:13px; color:var(--text-muted); opacity:.6;">Nenhum exercício neste treino.</p>
                                             @endif
                                         </div>
-                                        <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+                                        <div class="workout-block__actions" style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
                                             <a href="{{ route('workouts.edit', [$workout->id, 'student_id' => $student->id]) }}" class="btn-workout-action">
                                                 <svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z"/></svg>
                                                 Editar

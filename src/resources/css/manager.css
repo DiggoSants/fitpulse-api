@@ -2402,3 +2402,50 @@
         text-align: left;
     }
 }
+
+@media (max-width: 768px) {
+    #students-section .mgr-section-head {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    #students-section .section-label {
+        margin-bottom: 0 !important;
+    }
+
+    #students-section .mgr-filters {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        padding: 4px;
+        border-radius: 18px;
+        background: rgba(255,255,255,0.025);
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    #students-section .mgr-filter {
+        width: auto;
+        min-height: 42px;
+        padding: 9px 10px;
+        border-radius: 14px;
+        font-size: 12px;
+        line-height: 1.15;
+        white-space: nowrap;
+    }
+
+    #students-section .mgr-filter.is-active {
+        box-shadow: 0 8px 22px rgba(214,21,50,0.12);
+    }
+
+    #students-section .mgr-search {
+        width: 100%;
+        min-width: 0;
+    }
+
+    [data-theme="light"] #students-section .mgr-filters {
+        background: rgba(0,0,0,0.025);
+        border-color: rgba(0,0,0,0.08);
+    }
+}

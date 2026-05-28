@@ -137,7 +137,16 @@
 
                 {{-- Lista de equipamentos --}}
                 <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:24px;">
-                    <h3 style="font-size:18px;" class="ev-section-title">Equipamentos Cadastrados</h3>
+                    <div class="mgr-section-head" style="margin-bottom:16px;">
+                        <h3 style="font-size:18px; margin:0;" class="ev-section-title">Equipamentos Cadastrados</h3>
+                        <input
+                            type="text"
+                            id="eq-search"
+                            class="mgr-search"
+                            placeholder="Buscar equipamento..."
+                            oninput="searchEquipment()"
+                        >
+                    </div>
 
                     <div id="eq-skeleton" style="display:flex; flex-direction:column; gap:10px;">
                         @for($i = 0; $i < 4; $i++)
@@ -215,6 +224,7 @@
         let allRequests  = [];
         let allEquipment = [];
         let currentFilter = 'all';
+        let equipmentSearch = '';
 
         async function readJsonResponse(res) {
             try {
@@ -267,7 +277,7 @@
                 const res  = await fetch(EP_EQ, { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
                 if (!res.ok) throw new Error('Falha ao carregar equipamentos.');
                 const json = await res.json();
-                allEquipment = json.data ?? [];
+                allEquipment = sortEquipment(json.data ?? []);
                 renderEquipment();
                 populateEquipmentSelect();
             } catch (e) {
@@ -359,19 +369,29 @@
             document.getElementById('eq-skeleton').style.display = 'none';
             const list  = document.getElementById('eq-list');
             const empty = document.getElementById('eq-empty');
+            const query = normalizeSearch(equipmentSearch);
+            const filtered = allEquipment.filter(eq => normalizeSearch(eq.name).includes(query));
 
             list.innerHTML = '';
 
             if (!allEquipment.length) {
                 list.style.display  = 'none';
                 empty.style.display = 'block';
+                empty.textContent = 'Nenhum equipamento cadastrado.';
+                return;
+            }
+
+            if (!filtered.length) {
+                list.style.display  = 'none';
+                empty.style.display = 'block';
+                empty.textContent = 'Nenhum equipamento encontrado para esta busca.';
                 return;
             }
 
             empty.style.display = 'none';
             list.style.display  = 'flex';
 
-            allEquipment.forEach(eq => {
+            filtered.forEach(eq => {
                 const inMaint = eq.status === 'manutencao';
                 const row = document.createElement('div');
                 row.style.cssText = `
@@ -408,11 +428,31 @@
             });
         }
 
+        function searchEquipment() {
+            equipmentSearch = document.getElementById('eq-search')?.value ?? '';
+            renderEquipment();
+        }
+
+        function sortEquipment(items) {
+            return [...items].sort((a, b) => String(a.name ?? '').localeCompare(String(b.name ?? ''), 'pt-BR', {
+                sensitivity: 'base',
+                numeric: true,
+            }));
+        }
+
+        function normalizeSearch(value) {
+            return String(value ?? '')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase()
+                .trim();
+        }
+
         // ── Popular select do modal ───────────────────────────────────────────
         function populateEquipmentSelect() {
             const sel = document.getElementById('report-equipment-select');
             sel.innerHTML = '<option value="">Selecione o equipamento...</option>';
-            allEquipment.forEach(eq => {
+            sortEquipment(allEquipment).forEach(eq => {
                 const opt = document.createElement('option');
                 opt.value       = eq.id;
                 opt.textContent = eq.name + (eq.status === 'manutencao' ? ' ⚠ (em manutenção)' : '');

@@ -241,6 +241,7 @@
     align-items: center;
     gap: 10px;
     min-width: 0;
+    overflow: hidden;
     padding: 12px 14px;
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
@@ -254,14 +255,20 @@
     background: var(--surface-2);
 }
 
-.payment-method-option input {
-    width: 16px;
-    height: 16px;
+.enrollment-card .payment-method-option input[type="radio"] {
+    width: 16px !important;
+    min-width: 16px !important;
+    max-width: 16px !important;
+    height: 16px !important;
+    min-height: 16px;
+    margin: 0;
+    padding: 0;
     accent-color: var(--red);
-    flex-shrink: 0;
+    flex: 0 0 16px;
 }
 
 .payment-method-option span {
+    flex: 1 1 auto;
     min-width: 0;
     display: flex;
     flex-direction: column;
@@ -278,6 +285,7 @@
     color: var(--text-muted);
     font-size: 10px;
     line-height: 1.25;
+    overflow-wrap: anywhere;
 }
 
 [data-theme="light"] .payment-method-option {
@@ -588,6 +596,19 @@
 @media (max-width: 640px) {
     .payment-method-grid {
         grid-template-columns: 1fr;
+    }
+
+    .payment-method-option {
+        gap: 12px;
+        padding: 14px 16px;
+    }
+
+    .payment-method-option strong {
+        font-size: 14px;
+    }
+
+    .payment-method-option small {
+        font-size: 12px;
     }
 
     .plan-modal-overlay {

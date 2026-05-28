@@ -35,7 +35,7 @@ class EnrollmentController extends Controller
         $request->validate([
             'plan_id'        => ['required', 'exists:plans,id'],
             'invite_code'    => ['required', 'string'],
-            'payment_method' => ['required', 'in:credit_card,pix,boleto'],
+            'payment_method' => ['required', 'in:credit_card,debit_card,pix,boleto'],
         ], [
             'payment_method.required' => 'Informe o metodo de pagamento',
             'payment_method.in' => 'Metodo de pagamento invalido.',

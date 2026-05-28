@@ -237,10 +237,17 @@
                             </span>
                         </label>
                         <label class="payment-method-option">
+                            <input type="radio" name="payment_method" value="debit_card" {{ old('payment_method') === 'debit_card' ? 'checked' : '' }}>
+                            <span>
+                                <strong>Débito</strong>
+                                <small>Confirmação imediata</small>
+                            </span>
+                        </label>
+                        <label class="payment-method-option">
                             <input type="radio" name="payment_method" value="credit_card" {{ old('payment_method') === 'credit_card' ? 'checked' : '' }}>
                             <span>
-                                <strong>Cartao</strong>
-                                <small>Credito</small>
+                                <strong>Crédito</strong>
+                                <small>Aprovação automática</small>
                             </span>
                         </label>
                         <label class="payment-method-option">

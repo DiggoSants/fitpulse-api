@@ -14,10 +14,10 @@ class BillingController extends Controller
     public function process(Request $request, BillingService $billingService)
     {
         $request->validate([
-            'payment_method' => ['required', 'in:credit_card,pix,boleto'],
+            'payment_method' => ['required', 'in:credit_card,debit_card,pix,boleto'],
         ], [
             'payment_method.required' => 'Informe o metodo de pagamento',
-            'payment_method.in'       => 'Metodo invalido. Use: credit_card, pix ou boleto',
+            'payment_method.in'       => 'Metodo invalido. Use: credit_card, debit_card, pix ou boleto',
         ]);
 
         /** @var \App\Models\User $user */

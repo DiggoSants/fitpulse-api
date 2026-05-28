@@ -9,7 +9,7 @@ use InvalidArgumentException;
 
 class BillingService
 {
-    public const PAYMENT_METHODS = ['credit_card', 'pix', 'boleto'];
+    public const PAYMENT_METHODS = ['credit_card', 'debit_card', 'pix', 'boleto'];
 
     public function createForEnrollment(Student $student, Enrollment $enrollment, string $paymentMethod): Billing
     {
@@ -55,13 +55,17 @@ class BillingService
     {
         return match ($this->normalizePaymentMethod($paymentMethod)) {
             'boleto' => 'pending',
-            'pix' => 'confirmed',
+            'pix', 'debit_card' => 'confirmed',
             'credit_card' => random_int(1, 10) <= 9 ? 'confirmed' : 'rejected',
         };
     }
 
     public function normalizePaymentMethod(string $paymentMethod): string
     {
+        if ($paymentMethod === 'card') {
+            $paymentMethod = 'credit_card';
+        }
+
         if (!in_array($paymentMethod, self::PAYMENT_METHODS, true)) {
             throw new InvalidArgumentException('Metodo de pagamento invalido.');
         }

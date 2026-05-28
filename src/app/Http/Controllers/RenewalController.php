@@ -19,7 +19,7 @@ class RenewalController extends Controller
     {
         $request->validate([
             'plan_id'        => ['required', 'exists:plans,id'],
-            'payment_method' => ['required', 'in:credit_card,pix,boleto'],
+            'payment_method' => ['required', 'in:credit_card,debit_card,pix,boleto'],
         ], [
             'plan_id.required'        => 'Selecione um plano para renovar',
             'plan_id.exists'          => 'Plano inválido',

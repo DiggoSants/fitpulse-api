@@ -28,4 +28,9 @@ class Plan extends Model
     {
         return $query->where('status', 'active');
     }
+
+    public function scopeOrderedByPrice($query)
+    {
+        return $query->orderBy('price')->orderBy('name');
+    }
 }

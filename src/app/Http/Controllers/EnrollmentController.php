@@ -25,7 +25,7 @@ class EnrollmentController extends Controller
             return redirect()->route('dashboard');
         }
 
-        $plans = Plan::active()->get();
+        $plans = Plan::active()->orderedByPrice()->get();
 
         return view('enrollments.index', compact('plans'));
     }

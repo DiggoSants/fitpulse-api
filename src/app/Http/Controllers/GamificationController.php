@@ -44,7 +44,7 @@ class GamificationController extends Controller
         }
 
         // Carregamento de página — retorna a view com dados necessários
-        $plans = Plan::where('status', 'active')->get();
+        $plans = Plan::active()->orderedByPrice()->get();
 
         if ($group) {
             $group->load('members', 'plan');

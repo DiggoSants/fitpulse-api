@@ -20,6 +20,7 @@ class ReportController extends Controller
                           ->where('end_date', '>=', now()->toDateString());
                 }
             ])
+            ->orderedByPrice()
             ->get()
             ->map(function ($plan) {
                 return [

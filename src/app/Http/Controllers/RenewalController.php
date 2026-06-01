@@ -109,7 +109,7 @@ class RenewalController extends Controller
             ->latest('end_date')
             ->first();
 
-        $plans = Plan::where('status', 'active')->get();
+        $plans = Plan::active()->orderedByPrice()->get();
 
         $renewals = PlanRenewal::with(['plan', 'oldEnrollment', 'newEnrollment'])
             ->where('student_id', $student->id)

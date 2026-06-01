@@ -76,7 +76,7 @@ class DashboardController extends Controller
                 'students.workouts.workoutExercises.exercise',
             ])->get();
 
-            $plans = Plan::orderBy('name')->get();
+            $plans = Plan::orderedByPrice()->get();
 
             return view('dashboard', [
                 'studentsData'     => $studentsData,

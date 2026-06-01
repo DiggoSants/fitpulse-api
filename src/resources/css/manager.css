@@ -548,6 +548,63 @@
     }
 }
 
+@media (max-width: 640px) {
+    .mgr-workout-row {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+        padding: 14px !important;
+    }
+
+    .mgr-workout-main {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .mgr-workout-meta,
+    .mgr-workout-name,
+    .mgr-workout-sub {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .mgr-workout-name,
+    .mgr-workout-sub {
+        display: block;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        overflow-wrap: anywhere;
+    }
+
+    .mgr-workout-actions {
+        grid-column: 1 / -1;
+        width: 100%;
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) 44px;
+        gap: 8px !important;
+        align-items: stretch;
+    }
+
+    .mgr-workout-actions .mgr-btn-sm {
+        width: 100%;
+        min-height: 40px;
+        justify-content: center;
+    }
+
+    .mgr-workout-actions form {
+        width: 44px;
+        margin: 0 !important;
+    }
+
+    .mgr-workout-actions .mgr-btn-del {
+        width: 44px;
+        height: 40px;
+        border-radius: 14px;
+    }
+}
+
 .mgr-card__left {
     transition: background .22s ease;
 }

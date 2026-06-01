@@ -65,7 +65,7 @@ class ReceptionController extends Controller
     public function activePlans()
     {
         $plans = Plan::active()
-            ->orderBy('name')
+            ->orderedByPrice()
             ->get(['id', 'name', 'price', 'duration_days']);
 
         return response()->json(['data' => $plans]);

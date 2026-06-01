@@ -15,7 +15,7 @@ class PlanController extends Controller
                 $query->where('status', 'active')
                     ->where('end_date', '>=', now()->toDateString());
             }
-        ])->get();
+        ])->orderedByPrice()->get();
 
         return response()->json(['data' => $plans]);
     }

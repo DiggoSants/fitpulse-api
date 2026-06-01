@@ -59,18 +59,18 @@
                         @endphp
                         <div class="eval-accordion" style="border-radius:14px; border:1px solid rgba(255,255,255,0.07); background:rgba(255,255,255,0.03); overflow:hidden;">
 
-                            <button type="button" onclick="toggleAccordion(this)"
+                            <button type="button" class="eval-accordion__btn" onclick="toggleAccordion(this)"
                                 style="width:100%; background:none; border:none; padding:14px 18px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:12px; text-align:left;">
-                                <div style="display:flex; align-items:center; gap:14px; flex:1; min-width:0;">
+                                <div class="eval-student-main" style="display:flex; align-items:center; gap:14px; flex:1; min-width:0;">
                                     <div style="width:38px; height:38px; border-radius:10px; background:rgba(214,21,50,0.12); border:1px solid rgba(214,21,50,0.20); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:15px; font-weight:700; color:#f87171;">
                                         {{ mb_strtoupper(mb_substr($student->user->name, 0, 1)) }}
                                     </div>
-                                    <div>
+                                    <div class="eval-student-text">
                                         <div class="eval-student-name" style="font-size:13px; font-weight:700;">{{ $student->user->name }}</div>
                                         <div class="eval-student-email" style="font-size:11px; margin-top:2px;">{{ $student->user->email }}</div>
                                     </div>
                                 </div>
-                                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                <div class="eval-student-metrics" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                                     @if($last)
                                         <span class="ev-chip ev-chip--kg">{{ $last->weight }} kg</span>
                                         <span class="ev-chip ev-chip--imc">IMC {{ $last->imc }}</span>

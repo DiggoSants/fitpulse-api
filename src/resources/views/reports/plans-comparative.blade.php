@@ -1,6 +1,116 @@
 <x-app-layout>
     @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+        <style>
+            .plan-comparison-cards {
+                display: none;
+            }
+
+            @media (max-width: 700px) {
+                .plan-comparison-table {
+                    display: none;
+                }
+
+                .plan-comparison-cards {
+                    display: grid;
+                    gap: 12px;
+                }
+
+                .plan-comparison-card {
+                    border: 1px solid rgba(255,255,255,0.08);
+                    border-radius: 16px;
+                    background: rgba(255,255,255,0.04);
+                    padding: 16px;
+                    overflow: hidden;
+                }
+
+                .plan-comparison-card__top {
+                    display: flex;
+                    align-items: flex-start;
+                    justify-content: space-between;
+                    gap: 12px;
+                    margin-bottom: 12px;
+                }
+
+                .plan-comparison-card__name {
+                    margin: 0;
+                    color: var(--text-white);
+                    font-size: 18px;
+                    font-weight: 800;
+                    line-height: 1.2;
+                    overflow-wrap: anywhere;
+                }
+
+                .plan-comparison-card__desc {
+                    margin: 6px 0 0;
+                    color: var(--text-muted);
+                    font-size: 13px;
+                    line-height: 1.55;
+                }
+
+                .plan-comparison-card__grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 10px;
+                    margin-top: 12px;
+                }
+
+                .plan-comparison-card__metric {
+                    border: 1px solid rgba(255,255,255,0.07);
+                    border-radius: 12px;
+                    background: rgba(255,255,255,0.03);
+                    padding: 10px;
+                    min-width: 0;
+                }
+
+                .plan-comparison-card__metric span {
+                    display: block;
+                    color: var(--text-muted);
+                    font-size: 10px;
+                    font-weight: 800;
+                    letter-spacing: .08em;
+                    text-transform: uppercase;
+                    margin-bottom: 5px;
+                }
+
+                .plan-comparison-card__metric strong {
+                    display: block;
+                    color: var(--text-white);
+                    font-size: 13px;
+                    font-weight: 800;
+                    line-height: 1.25;
+                    overflow-wrap: anywhere;
+                }
+
+                .plan-comparison-card__benefits {
+                    margin-top: 10px;
+                    border-top: 1px solid rgba(255,255,255,0.07);
+                    padding-top: 10px;
+                    color: var(--text-muted);
+                    font-size: 13px;
+                    line-height: 1.5;
+                    overflow-wrap: anywhere;
+                }
+
+                [data-theme="light"] .plan-comparison-card {
+                    background: #fff;
+                    border-color: rgba(0,0,0,0.08);
+                }
+
+                [data-theme="light"] .plan-comparison-card__name,
+                [data-theme="light"] .plan-comparison-card__metric strong {
+                    color: #111;
+                }
+
+                [data-theme="light"] .plan-comparison-card__metric {
+                    background: rgba(0,0,0,0.03);
+                    border-color: rgba(0,0,0,0.07);
+                }
+
+                [data-theme="light"] .plan-comparison-card__benefits {
+                    border-top-color: rgba(0,0,0,0.08);
+                }
+            }
+        </style>
     @endpush
 
     <div class="py-6">
@@ -53,7 +163,7 @@
 
             {{-- TABELA --}}
             @if(count($plans) > 0)
-                <div class="mgr-table-wrap">
+                <div class="mgr-table-wrap plan-comparison-table">
                     <table class="mgr-table">
                         <thead>
                             <tr>
@@ -107,6 +217,40 @@
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+
+                <div class="plan-comparison-cards">
+                    @foreach($plans as $plan)
+                        <article class="plan-comparison-card">
+                            <div class="plan-comparison-card__top">
+                                <div>
+                                    <p class="plan-comparison-card__name">{{ $plan['name'] }}</p>
+                                    <p class="plan-comparison-card__desc">
+                                        {{ $plan['description'] ?: 'Sem descrição cadastrada.' }}
+                                    </p>
+                                </div>
+                                <span class="mgr-badge-{{ $plan['active_students'] > 0 ? 'ok' : 'neutral' }}">
+                                    {{ $plan['active_students'] }} aluno(s)
+                                </span>
+                            </div>
+
+                            <div class="plan-comparison-card__grid">
+                                <div class="plan-comparison-card__metric">
+                                    <span>Preço</span>
+                                    <strong>R$ {{ number_format($plan['price'], 2, ',', '.') }}</strong>
+                                </div>
+                                <div class="plan-comparison-card__metric">
+                                    <span>Duração</span>
+                                    <strong>{{ $plan['duration_days'] }} dias</strong>
+                                </div>
+                            </div>
+
+                            <div class="plan-comparison-card__benefits">
+                                <strong style="display:block;color:var(--text-white);font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;">Benefícios</strong>
+                                {{ $plan['benefits'] ?: 'Sem benefícios cadastrados.' }}
+                            </div>
+                        </article>
+                    @endforeach
                 </div>
             @else
                 <div class="empty-state" style="padding:4rem 1rem;">

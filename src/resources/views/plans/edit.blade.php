@@ -1,8 +1,4 @@
 <x-app-layout>
-    @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    @endpush
-
     <div class="py-6 form-page">
         <div class="form-watermark" aria-hidden="true">
             <span>PLANO</span>
@@ -130,7 +126,12 @@
                     </div>
 
                     {{-- Info de alunos vinculados --}}
-                    @php $enrolledCount = $plan->enrollments()->count(); @endphp
+                    @php
+                        $enrolledCount = $plan->enrollments()
+                            ->where('status', 'active')
+                            ->where('end_date', '>=', now()->toDateString())
+                            ->count();
+                    @endphp
                     @if($enrolledCount > 0)
                         <div class="enrollment-info" style="margin-top:18px;">
                             <strong>{{ $enrolledCount }} aluno(s)</strong> matriculado(s) neste plano.
@@ -156,9 +157,7 @@
                             <button
                                 type="button"
                                 class="btn-del"
-                                onclick="document.getElementById('destroyForm').submit()"
-                                onclickconfirm="return confirm('Inativar este plano?')"
-                                onclick="if(confirm('Inativar este plano? O histórico será preservado.')) document.getElementById('destroyForm').submit()"
+                                onclick="openPlanInactiveConfirm()"
                             >
                                 <svg width="13" height="15" viewBox="0 0 14 16" fill="none"
                                      style="stroke:#f87171; stroke-width:1.8; stroke-linecap:round;">
@@ -196,7 +195,43 @@
         </div>
     </div>
 
+    @if($plan->status === 'active')
+        <div id="plan-confirm-overlay" style="display:none; position:fixed; inset:0; z-index:9999; align-items:center; justify-content:center; padding:20px; background:rgba(0,0,0,.68); backdrop-filter:blur(4px);">
+            <div style="width:100%; max-width:380px; border-radius:20px; background:#151515; border:1px solid rgba(255,255,255,.10); box-shadow:0 24px 70px rgba(0,0,0,.45); overflow:hidden;">
+                <div style="padding:24px 24px 10px;">
+                    <div style="width:44px; height:44px; border-radius:14px; display:flex; align-items:center; justify-content:center; background:rgba(214,21,50,.12); border:1px solid rgba(214,21,50,.25); margin-bottom:14px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="stroke:#f87171; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;">
+                            <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                            <line x1="12" y1="9" x2="12" y2="13"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                    </div>
+                    <h2 style="font-size:18px; font-weight:800; margin:0 0 8px; color:#fff;">Inativar plano?</h2>
+                    <p style="font-size:13px; line-height:1.5; color:rgba(255,255,255,.62); margin:0;">O plano deixa de aparecer para novas matrículas, mas o histórico e as matrículas existentes serão preservados.</p>
+                </div>
+                <div style="display:flex; gap:10px; justify-content:flex-end; padding:18px 24px 24px;">
+                    <button type="button" class="btn-ghost" onclick="closePlanInactiveConfirm()">Cancelar</button>
+                    <button type="button" class="btn-del" onclick="document.getElementById('destroyForm').submit()">Inativar</button>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <script>
+        function openPlanInactiveConfirm() {
+            const overlay = document.getElementById('plan-confirm-overlay');
+            if (!overlay) return;
+            overlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePlanInactiveConfirm() {
+            const overlay = document.getElementById('plan-confirm-overlay');
+            if (!overlay) return;
+            overlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
         document.getElementById('btnSave').addEventListener('click', function () {
             const btn = this;
             btn.innerHTML = `

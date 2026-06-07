@@ -1,8 +1,4 @@
 <x-app-layout>
-    @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    @endpush
-
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             @if(session('success'))
@@ -323,7 +319,7 @@
                                             @if($plan->status === 'active')
                                                 <form action="{{ route('plans.destroy', $plan->id) }}" method="POST" style="margin:0;">
                                                     @csrf @method('DELETE')
-                                                    <button type="submit" class="mgr-btn-del" onclick="return confirm('Inativar este plano?')" title="Inativar plano">
+                                                    <button type="button" class="mgr-btn-del" onclick="confirmManagerPlanInactivation(this)" title="Inativar plano">
                                                         <svg width="11" height="11" viewBox="0 0 14 16" fill="none" style="stroke:#f87171; stroke-width:1.8; stroke-linecap:round;"><path d="M1 3.5h12M4.5 3.5V2a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v1.5M5.5 7v5M8.5 7v5M2.5 3.5l.9 10a.5.5 0 00.5.5h6.2a.5.5 0 00.5-.5l.9-10"/></svg>
                                                     </button>
                                                 </form>
@@ -529,7 +525,7 @@
                                     <div class="workout-block">
                                         <div class="workout-block__name">
                                             {{ $workout->name }}
-                                            <div style="display:flex; align-items:center; gap:8px;">
+                                            <div class="workout-block__summary" style="display:flex; align-items:center; gap:8px;">
                                                 <span>{{ $workout->workoutExercises->count() }} exerc.</span>
                                                 <button type="button" class="btn-workout-action" style="font-size:11px; padding:4px 12px;" onclick="toggleWorkout('workout-inst-{{ $workout->id }}')" id="btn-workout-inst-{{ $workout->id }}">Ver exercícios ▾</button>
                                             </div>
@@ -552,7 +548,7 @@
                                                 <p style="font-size:13px; color:var(--text-muted); opacity:.6;">Nenhum exercício neste treino.</p>
                                             @endif
                                         </div>
-                                        <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+                                        <div class="workout-block__actions" style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
                                             <a href="{{ route('workouts.edit', [$workout->id, 'student_id' => $student->id]) }}" class="btn-workout-action">
                                                 <svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z"/></svg>
                                                 Editar
@@ -925,6 +921,26 @@
     </div>
 </div>
 
+<div id="manager-plan-confirm-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#161616; border:1px solid rgba(255,255,255,0.10); border-radius:20px; width:100%; max-width:380px; overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,0.50);">
+        <div style="padding:22px 24px 0;">
+            <div style="width:44px; height:44px; border-radius:12px; background:rgba(214,21,50,0.12); border:1px solid rgba(214,21,50,0.25); display:flex; align-items:center; justify-content:center; margin-bottom:14px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="stroke:#f87171; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;">
+                    <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+            </div>
+            <p style="font-size:16px; font-weight:800; color:#f5f5f5; margin:0 0 6px;">Inativar plano?</p>
+            <p style="font-size:13px; color:rgba(255,255,255,0.55); margin:0 0 22px; line-height:1.5;">Ele não aparecerá para novas matrículas. As matrículas e o histórico existentes continuam salvos.</p>
+        </div>
+        <div style="display:flex; gap:10px; justify-content:flex-end; padding:0 24px 22px;">
+            <button type="button" class="btn-ghost" onclick="closeManagerPlanConfirm()">Cancelar</button>
+            <button type="button" class="btn-del" onclick="submitManagerPlanInactivation()">Inativar</button>
+        </div>
+    </div>
+</div>
+
 {{-- MODAL EQUIPAMENTOS --}}
 <div id="equipment-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:20px;">
     <div style="background:#161616; border:1px solid rgba(255,255,255,0.10); border-radius:20px; width:100%; max-width:560px; box-shadow:0 24px 60px rgba(0,0,0,0.50); animation:shopModalIn .22s ease; overflow:hidden;">
@@ -986,6 +1002,7 @@
 <script>
     const DASH_USER_ROLE = @json(Auth::user()->role());
     const DASH_USER_ID = @json(Auth::id());
+    const DASH_IS_ENROLLED = @json(($enrolled ?? true) !== false);
     const MAINT_NOTIFY_ALLOWED_ROLES = ['student', 'instructor', 'manager'];
     const MAINT_NOTIFY_STORAGE_KEY = `fitpulse:maintenance-notify-seen:${DASH_USER_ID}`;
 
@@ -1108,16 +1125,23 @@
         btn.style.opacity = '.6';
 
         try {
-            const res = await fetch("{{ route('frequency.register') }}", {
+            const res = await fetch("{{ route('frequency.register', [], false) }}", {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept':       'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 },
             });
 
-            const data = await res.json();
+            let data = {};
+            try {
+                data = await res.json();
+            } catch (parseError) {
+                data = { message: 'Não consegui confirmar sua presença agora. Atualize a página e tente de novo.' };
+            }
 
             if (res.ok) {
                 btn.className = 'freq-btn freq-btn--done';
@@ -1152,7 +1176,7 @@
         } catch (e) {
             btn.disabled      = false;
             btn.style.opacity = '1';
-            showFreqToast('Erro de conexão. Tente novamente.', 'error');
+            showFreqToast('Não consegui falar com o servidor agora. Confira a internet e tente de novo.', 'error');
         }
     }
 
@@ -1196,11 +1220,11 @@
     // ── HEATMAP ──────────────────────────────────────────────────────────
     (function () {
         const DAYS  = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-        const endpoint = "{{ route('reports.frequency.heatmap') }}";
+        const endpoint = "{{ route('reports.frequency.heatmap', [], false) }}";
 
         async function loadHeatmap() {
             try {
-                const res  = await fetch(endpoint, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                const res  = await fetch(endpoint, { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
                 const json = await res.json();
                 const data = json.data ?? [];
 
@@ -1276,15 +1300,27 @@
     // ── LOJINHA ──────────────────────────────────────────────────────────
     (function () {
         const CSRF = document.querySelector('meta[name="csrf-token"]').content;
-        const ENDPOINT_PRODUCTS = "{{ route('products.index') }}";
-        const ENDPOINT_SALE     = "{{ route('sales.store') }}";
+        const ENDPOINT_PRODUCTS = "{{ route('products.index', [], false) }}";
+        const ENDPOINT_SALE     = "{{ route('sales.store', [], false) }}";
 
         let allProducts = [], currentFilter = 'all', selectedProduct = null, currentQty = 1;
 
+        async function readShopJsonResponse(res) {
+            try {
+                return await res.json();
+            } catch (e) {
+                if (res.status === 419) return { message: 'Sua sessão expirou. Atualize a página e tente novamente.' };
+                if (res.status === 401 || res.status === 403) return { message: 'Você não tem permissão para concluir esta ação.' };
+                if (res.status >= 500) return { message: 'Erro interno no servidor. Confira os logs do Railway.' };
+                return { message: 'O servidor respondeu de um jeito inesperado.' };
+            }
+        }
+
         async function loadProducts() {
             try {
-                const res  = await fetch(ENDPOINT_PRODUCTS, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
-                const json = await res.json();
+                const res  = await fetch(ENDPOINT_PRODUCTS, { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                const json = await readShopJsonResponse(res);
+                if (!res.ok) throw new Error(json.message || 'Erro ao carregar produtos.');
                 allProducts = json.data ?? [];
                 document.getElementById('shop-skeleton').style.display = 'none';
                 if (!allProducts.length) { document.getElementById('shop-empty').style.display = 'block'; return; }
@@ -1352,8 +1388,8 @@
             const btn = document.getElementById('shop-modal-confirm-btn');
             btn.disabled = true; btn.textContent = 'Processando...';
             try {
-                const res = await fetch(ENDPOINT_SALE, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF }, body: JSON.stringify({ product_id: selectedProduct.id, quantity: currentQty }) });
-                const data = await res.json();
+                const res = await fetch(ENDPOINT_SALE, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': CSRF }, body: JSON.stringify({ product_id: selectedProduct.id, quantity: currentQty }) });
+                const data = await readShopJsonResponse(res);
                 if (res.ok) { closeShopModal(); showShopToast('Compra realizada com sucesso! 🎉', 'success'); }
                 else { showShopToast(data.message || 'Erro ao processar compra.', 'error'); }
             } catch (e) { showShopToast('Erro de conexão. Tente novamente.', 'error'); }
@@ -1371,7 +1407,7 @@
     })();
 
     // ── EQUIPAMENTOS ─────────────────────────────────────────────────────
-    const EP_EQ_STUDENT = "{{ route('equipment.index') }}";
+    const EP_EQ_STUDENT = "{{ route('equipment.index', [], false) }}";
     let eqData = [], eqModalFilter = 'all';
 
     window.openEquipmentModal = async function () {
@@ -1383,10 +1419,13 @@
         document.getElementById('eq-modal-body').innerHTML = '';
         if (!eqData.length) {
             try {
-                const res  = await fetch(EP_EQ_STUDENT, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                const res  = await fetch(EP_EQ_STUDENT, { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                if (!res.ok) throw new Error('Falha ao carregar equipamentos.');
                 const json = await res.json();
                 eqData = json.data ?? [];
-            } catch (e) { console.error(e); }
+            } catch (e) {
+                eqData = [];
+            }
         }
         document.getElementById('eq-modal-loading').style.display = 'none';
         renderEqModal();
@@ -1420,9 +1459,10 @@
 
     async function checkMaintenanceNotify() {
         if (!MAINT_NOTIFY_ALLOWED_ROLES.includes(DASH_USER_ROLE)) return;
+        if (DASH_USER_ROLE === 'student' && !DASH_IS_ENROLLED) return;
 
         try {
-            const res  = await fetch("{{ route('maintenance.index') }}", { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+            const res  = await fetch("{{ route('maintenance.index', [], false) }}", { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
             const json = await res.json();
             const inMaint = json.in_maintenance ?? [];
             if (!inMaint.length) return;
@@ -1445,7 +1485,7 @@
             notifyOverlay.style.display = 'flex';
             document.body.style.overflow = 'hidden';
             localStorage.setItem(MAINT_NOTIFY_STORAGE_KEY, notifySignature);
-        } catch (e) { console.error('Notify check error:', e); }
+        } catch (e) {}
     }
 
     setTimeout(checkMaintenanceNotify, 1200);
@@ -1458,5 +1498,27 @@
 
     function confirmCancelPlan() { document.getElementById('cancel-modal-overlay').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
     function closeCancelModal()  { document.getElementById('cancel-modal-overlay').style.display = 'none'; document.body.style.overflow = ''; }
+
+    let managerPlanFormToSubmit = null;
+
+    function confirmManagerPlanInactivation(button) {
+        managerPlanFormToSubmit = button.closest('form');
+        const overlay = document.getElementById('manager-plan-confirm-overlay');
+        if (!overlay) return;
+        overlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeManagerPlanConfirm() {
+        managerPlanFormToSubmit = null;
+        const overlay = document.getElementById('manager-plan-confirm-overlay');
+        if (!overlay) return;
+        overlay.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    function submitManagerPlanInactivation() {
+        if (managerPlanFormToSubmit) managerPlanFormToSubmit.submit();
+    }
 </script>
 </x-app-layout>

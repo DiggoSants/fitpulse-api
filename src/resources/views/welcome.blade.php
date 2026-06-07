@@ -10,8 +10,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-    @vite(['resources/css/style.css', 'resources/js/script.js'])
-</head>
+    @if (file_exists(public_path('hot')))
+      @vite(['resources/css/style.css', 'resources/js/script.js'])
+    @else
+      <x-vite-build-assets :entries="['resources/css/style.css', 'resources/js/script.js']" />
+    @endif
+  </head>
 <body>
 
 <header class="topbar">
@@ -498,10 +502,10 @@
           <p>Treinos completos, acompanhamento e um ambiente feito pra evoluir.</p>
           <a class="offer-link" href="{{ route('register') }}">MATRICULE-SE →</a>
         </div>
-        <img class="about-img-main" src="{{ asset('img\Fit couple standing.jpg') }}" alt="Pessoas treinando">
+        <img class="about-img-main" src="{{ asset('img/Fit couple standing.jpg') }}" alt="Pessoas treinando">
         <button class="about-video" type="button" id="openVideo"
                 data-video="{{ asset('video/video.mp4') }}">
-          <img src="img/gym.jpg" alt="Assistir vídeo">
+          <img src="{{ asset('img/gym.jpg') }}" alt="Assistir vídeo">
           <span class="play" aria-hidden="true">▶</span>
         </button>
       </div>

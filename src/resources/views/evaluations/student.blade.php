@@ -1,9 +1,4 @@
 <x-app-layout>
-    @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
-    @endpush
-
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
@@ -249,7 +244,7 @@
     <script>
         // ── Formulário ────────────────────────────────────────────
         const CSRF     = document.querySelector('meta[name="csrf-token"]').content;
-        const ENDPOINT = "{{ route('evaluations.store') }}";
+        const ENDPOINT = "{{ route('evaluations.store', [], false) }}";
 
         document.getElementById('eval-form').addEventListener('submit', async function (e) {
             e.preventDefault();
@@ -260,7 +255,8 @@
             try {
                 const res  = await fetch(ENDPOINT, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': CSRF },
                     body: JSON.stringify({
                         weight:   document.getElementById('eval-weight').value,
                         height:   document.getElementById('eval-height').value,

@@ -2,12 +2,7 @@
     @php
         $workoutCreateUrl = route('workouts.create', request()->filled('student_id') ? ['student_id' => request('student_id')] : []);
     @endphp
-
-    @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    @endpush
-
-    <div class="form-page">
+<div class="form-page">
 
         <div class="form-watermark" aria-hidden="true">
             <span>FIT</span>
@@ -167,7 +162,7 @@
     </style>
 
     <script>
-    const IMAGE_SEARCH_URL = "{{ route('exercise.images') }}";
+    const IMAGE_SEARCH_URL = "{{ route('exercise.images', [], false) }}";
 
     let debounceTimer = null;
     let lastQuery     = '';
@@ -212,7 +207,11 @@
         }
 
         try {
-            const res  = await fetch(IMAGE_SEARCH_URL + '?q=' + encodeURIComponent(query));
+            const res  = await fetch(IMAGE_SEARCH_URL + '?q=' + encodeURIComponent(query), {
+                credentials: 'same-origin',
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            });
+            if (!res.ok) throw new Error('Erro ao buscar imagens.');
             const data = await res.json();
 
             grid.innerHTML = '';

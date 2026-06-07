@@ -43,18 +43,22 @@ Route::middleware('auth')->group(function () {
 });
 
 // ── Alunos ────────────────────────────────────────────────────────────────────
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::resource('students', StudentController::class);
+Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
+    Route::get('/students', [StudentController::class, 'index'])->name('students.index');
 });
 
 // ── Exercícios ─────────────────────────────────
-Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
-    Route::resource('exercises', ExerciseController::class);
+Route::middleware(['auth', 'verified', 'enrolled', 'role:student,manager,instructor'])->group(function () {
+    Route::get('/exercises', [ExerciseController::class, 'index'])->name('exercises.index');
+});
+
+Route::middleware(['auth', 'verified', 'role:manager,instructor'])->group(function () {
+    Route::resource('exercises', ExerciseController::class)->except(['index', 'show']);
     Route::get('/exercise-images', [ExerciseController::class, 'searchImages'])->name('exercise.images');
 });
 
 // ── Treinos ───────────────────────────────────────────────────────────────────
-Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
+Route::middleware(['auth', 'verified', 'enrolled', 'role:student,manager,instructor'])->group(function () {
     Route::resource('workouts', WorkoutController::class)->only([
         'create',
         'store',
@@ -91,7 +95,7 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
 });
 
 // ── Renovação de planos (ANTES do resource para evitar conflito de rota) ──────
-Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
+Route::middleware(['auth', 'verified', 'enrolled', 'role:student'])->group(function () {
     Route::get('/plans/renewals', [RenewalController::class, 'history'])->name('plans.renewals');
     Route::post('/plans/renew',   [RenewalController::class, 'renew'])->name('plans.renew');
 });
@@ -103,7 +107,7 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
 });
 
 // ── Mensalidade ───────────────────────────────────────────────────────────────
-Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
+Route::middleware(['auth', 'verified', 'enrolled', 'role:student'])->group(function () {
     Route::get('/billing',          [BillingController::class, 'index'])->name('billing.index');
     Route::post('/billing/process', [BillingController::class, 'process'])->name('billing.process');
 });
@@ -127,7 +131,7 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
 });
 
 // ── Frequência ────────────────────────────────────────────────────────────────
-Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
+Route::middleware(['auth', 'verified', 'enrolled', 'role:student'])->group(function () {
     Route::post('/frequency/register', [FrequencyController::class, 'register'])->name('frequency.register');
 });
 
@@ -135,6 +139,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/exercise-video', function (\Illuminate\Http\Request $request) {
         $query = urlencode($request->q . ' exercício como executar corretamente');
         $key   = env('YOUTUBE_API_KEY');
+
+        if (!$key || trim((string) $request->q) === '') {
+            return response()->json(['video_id' => null]);
+        }
 
         // videoDuration=short = vídeos de até 4 minutos
         // order=relevance = mais relevante primeiro
@@ -148,7 +156,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
              . "&order=relevance"
              . "&key={$key}";
 
-        $data    = json_decode(file_get_contents($url), true);
+        $rawData = @file_get_contents($url);
+        $data    = $rawData ? json_decode($rawData, true) : [];
         $videoId = $data['items'][0]['id']['videoId'] ?? null;
         return response()->json(['video_id' => $videoId]);
     })->name('exercise.video');
@@ -161,7 +170,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // Compra — alunos matriculados e gerentes
-Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
+Route::middleware(['auth', 'verified', 'enrolled', 'role:student'])->group(function () {
     Route::post('/sales', [ShopController::class, 'sale'])->name('sales.store');
     Route::get('/lojinha', [ShopController::class, 'studentView'])->name('shop.index');
 });
@@ -176,14 +185,14 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
 });
 
 // ── Avaliação física ──────────────────────────────────────────────────────────
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'role:student,manager,instructor'])->group(function () {
     Route::post('/evaluations',                          [EvaluationController::class, 'store'])->name('evaluations.store');
     Route::get('/evaluations/{user_id}',                 [EvaluationController::class, 'history'])->name('evaluations.history');
     Route::get('/reports/physical/evolution/{user_id}',  [EvaluationController::class, 'evolution'])->name('reports.physical.evolution');
 });
 
 // ── Evolução Física — views ───────────────────────────────────────────────────
-Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
+Route::middleware(['auth', 'verified', 'enrolled', 'role:student'])->group(function () {
     Route::get('/evolucao', [EvaluationController::class, 'studentPage'])->name('evaluations.page');
 });
 
@@ -214,7 +223,7 @@ Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
 });
 
 // ── Gamificação e planos conjuntos ────────────────────────────────────────────
-Route::middleware(['auth', 'verified', 'enrolled'])->group(function () {
+Route::middleware(['auth', 'verified', 'enrolled', 'role:student'])->group(function () {
     Route::get('/gamification',             [GamificationController::class, 'index'])->name('gamification.index');
     Route::get('/plan-groups',              [GamificationController::class, 'listGroups'])->name('plan-groups.index');
     Route::post('/plan-groups',             [GamificationController::class, 'createGroup'])->name('plan-groups.store');

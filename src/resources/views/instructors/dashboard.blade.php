@@ -1,6 +1,4 @@
 <x-app-layout>
-  @vite(['resources/css/app.css','resources/js/app.js'])
-
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
@@ -265,7 +263,7 @@
                         <div class="workout-block">
                             <div class="workout-block__name">
                                 {{ $workout->name }}
-                                <div style="display:flex; align-items:center; gap:8px;">
+                                <div class="workout-block__summary" style="display:flex; align-items:center; gap:8px;">
                                     <span>{{ $workout->workoutExercises->count() }} exerc.</span>
                                     <button
                                         type="button"
@@ -304,7 +302,7 @@
                                 @endif
                             </div>
 
-                            <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+                            <div class="workout-block__actions" style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
                                 <a href="{{ route('workouts.edit', [$workout->id, 'student_id' => $student->id]) }}"
                                    class="btn-workout-action">
                                     <svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">

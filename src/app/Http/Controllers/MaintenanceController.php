@@ -25,7 +25,7 @@ class MaintenanceController extends Controller
             ->map(function ($request) {
                 return [
                     'id'          => $request->id,
-                    'equipment'   => $request->equipment->name,
+                    'equipment'   => $request->equipment?->name ?? 'Equipamento removido',
                     'description' => $request->description,
                     'status'      => $request->status,
                     'created_at'  => $request->created_at->format('d/m/Y H:i'),
@@ -48,7 +48,7 @@ class MaintenanceController extends Controller
 
     public function equipment()
     {
-        $equipment = Equipment::all()->map(function ($item) {
+        $equipment = Equipment::orderBy('name')->get()->map(function ($item) {
             return [
                 'id'     => $item->id,
                 'name'   => $item->name,
@@ -68,7 +68,7 @@ class MaintenanceController extends Controller
         ]);
 
         $equipment = Equipment::create([
-            'name'   => $request->name,
+            'name'   => trim($request->name),
             'status' => 'ativo',
         ]);
 

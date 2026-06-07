@@ -1,8 +1,4 @@
 <x-app-layout>
-    @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    @endpush
-
     <div class="py-6 form-page">
         <div class="form-watermark" aria-hidden="true">
             <span>PAG</span>
@@ -132,8 +128,8 @@
                                 <div style="display:flex; flex-direction:column; gap:8px;">
                                     @foreach([
                                         ['pix',    'PIX',           'Aprovação imediata'],
-                                        ['boleto', 'Boleto',        'Prazo de até 3 dias úteis'],
-                                        ['card',   'Cartão de Crédito', 'Aprovação imediata'],
+                                        ['debit_card', 'Débito',    'Aprovação imediata'],
+                                        ['credit_card', 'Crédito',  'Aprovação automática'],
                                     ] as [$val, $label, $hint])
                                         <label style="
                                             display:flex; align-items:center; gap:14px;
@@ -249,7 +245,16 @@
                                         </p>
                                         <p style="font-size:11px; color:var(--text-muted); margin:0;">
                                             {{ \Carbon\Carbon::parse($payment->payment_date ?? $payment->created_at)->format('d/m/Y') }}
-                                            · {{ ucfirst($payment->payment_method ?? 'pix') }}
+                                            @php
+                                                $methodLabel = match($payment->payment_method ?? 'pix') {
+                                                    'pix' => 'PIX',
+                                                    'debit_card' => 'Débito',
+                                                    'credit_card', 'card' => 'Crédito',
+                                                    'boleto' => 'Boleto',
+                                                    default => $payment->payment_method ?? 'Pagamento',
+                                                };
+                                            @endphp
+                                            · {{ $methodLabel }}
                                         </p>
                                     </div>
                                 </div>

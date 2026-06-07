@@ -1,8 +1,4 @@
 <x-app-layout>
-    @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    @endpush
-
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
@@ -119,7 +115,7 @@
                                             <div class="mgr-student-cell">
                                                 <div class="mgr-student-cell__avatar"
                                                     style="background:rgba(214,21,50,0.15); color:#f87171; font-size:11px;">
-                                                    {{ strtoupper(substr($product->name, 0, 2)) }}
+                                                    {{ mb_strtoupper(mb_substr($product->name, 0, 2)) }}
                                                 </div>
                                                 <div class="mgr-student-cell__content">
                                                     <span class="mgr-student-cell__name">{{ $product->name }}</span>
@@ -206,6 +202,7 @@
         </div>
     </div>
 </div>
+<div id="product-toast" style="display:none; position:fixed; right:20px; bottom:20px; z-index:100000; max-width:min(360px, calc(100vw - 40px)); padding:12px 14px; border-radius:14px; background:rgba(22,163,74,.94); color:#fff; font-size:13px; font-weight:700; box-shadow:0 18px 40px rgba(0,0,0,.35);"></div>
     @php
         $managerProducts = $products->map(function ($product) {
             return [
@@ -237,9 +234,22 @@ function confirmResolve(result) {
     document.getElementById('confirm-overlay').style.display = 'none';
     if (window._confirmResolve) window._confirmResolve(result);
 }
+
+function showProductToast(message, type = 'success') {
+    const toast = document.getElementById('product-toast');
+    toast.textContent = message;
+    toast.style.background = type === 'error' ? 'rgba(214,21,50,.96)' : 'rgba(22,163,74,.94)';
+    toast.style.display = 'block';
+    clearTimeout(window._productToastTimer);
+    window._productToastTimer = setTimeout(() => {
+        toast.style.display = 'none';
+    }, 3500);
+}
         const CSRF             = document.querySelector('meta[name="csrf-token"]').content;
-const PRODUCT_ENDPOINT = "{{ route('products.store') }}";
-const PRODUCT_BASE_URL = "{{ url('/products') }}";
+const PRODUCT_ENDPOINT = "{{ route('products.store', [], false) }}";
+const PRODUCT_UPDATE_ENDPOINT = "{{ route('products.update', ['id' => '__ID__'], false) }}";
+const PRODUCT_DELETE_ENDPOINT = "{{ route('products.destroy', ['id' => '__ID__'], false) }}";
+const PRODUCT_RESTORE_ENDPOINT = "{{ route('products.restore', ['id' => '__ID__'], false) }}";
 const managerProducts  = @json($managerProducts);
 
 let editingProductId = null;
@@ -268,6 +278,27 @@ function setSubmitLoading(loading) {
     spinner.style.display    = loading ? 'block' : 'none';
 }
 
+function endpoint(template, id) {
+    return template.replace('__ID__', encodeURIComponent(id));
+}
+
+async function readJsonResponse(res) {
+    try {
+        return await res.json();
+    } catch (e) {
+        if (res.status === 419) {
+            return { message: 'Sua sessão expirou. Atualize a página e tente novamente.' };
+        }
+        if (res.status === 401 || res.status === 403) {
+            return { message: 'Você não tem permissão para gerenciar produtos nesta sessão.' };
+        }
+        if (res.status >= 500) {
+            return { message: 'Erro interno no servidor. Confira os logs do Railway.' };
+        }
+        return { message: 'O servidor respondeu de um jeito inesperado.' };
+    }
+}
+
 document.getElementById('product-form').addEventListener('submit', async function (event) {
     event.preventDefault();
     setSubmitLoading(true);
@@ -281,25 +312,31 @@ document.getElementById('product-form').addEventListener('submit', async functio
         cost:        document.getElementById('product-cost').value,
     };
 
-    const url    = editingProductId ? `${PRODUCT_BASE_URL}/${editingProductId}` : PRODUCT_ENDPOINT;
+    const url    = editingProductId ? endpoint(PRODUCT_UPDATE_ENDPOINT, editingProductId) : PRODUCT_ENDPOINT;
     const method = editingProductId ? 'PUT' : 'POST';
 
     try {
         const res      = await fetch(url, {
             method,
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': CSRF,
+            },
             body: JSON.stringify(data),
         });
-        const response = await res.json();
+        const response = await readJsonResponse(res);
         if (res.ok) {
-            alert(response.message || 'Produto salvo com sucesso!');
-            location.reload();
+            showProductToast(response.message || 'Produto salvo com sucesso!');
+            setTimeout(() => location.reload(), 650);
         } else {
-            alert(response.message || 'Erro ao salvar produto.');
+            showProductToast(response.errors ? Object.values(response.errors).flat().join(' ') : (response.message || 'Erro ao salvar produto.'), 'error');
             setSubmitLoading(false);
         }
     } catch (e) {
-        alert('Erro de conexão.');
+        showProductToast('Não consegui falar com o servidor. Atualize a página e tente novamente.', 'error');
         setSubmitLoading(false);
     }
 });
@@ -328,15 +365,16 @@ async function deleteProduct(id, btn) {
     setButtonLoading(btn, true, 'Inativando...');
 
     try {
-        const res      = await fetch(`${PRODUCT_BASE_URL}/${id}`, {
+        const res      = await fetch(endpoint(PRODUCT_DELETE_ENDPOINT, id), {
             method: 'DELETE',
-            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
+            credentials: 'same-origin',
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': CSRF },
         });
-        const response = await res.json();
+        const response = await readJsonResponse(res);
         if (res.ok) { location.reload(); }
-        else { alert(response.message || 'Erro ao inativar.'); setButtonLoading(btn, false, 'Inativar'); }
+        else { showProductToast(response.message || 'Erro ao inativar.', 'error'); setButtonLoading(btn, false, 'Inativar'); }
     } catch (e) {
-        alert('Erro de conexão.');
+        showProductToast('Não consegui falar com o servidor. Atualize a página e tente novamente.', 'error');
         setButtonLoading(btn, false, 'Inativar');
     }
 }
@@ -347,15 +385,16 @@ async function restoreProduct(id, btn) {
     setButtonLoading(btn, true, 'Ativando...');
 
     try {
-        const res      = await fetch(`${PRODUCT_BASE_URL}/${id}/restore`, {
+        const res      = await fetch(endpoint(PRODUCT_RESTORE_ENDPOINT, id), {
             method: 'POST',
-            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
+            credentials: 'same-origin',
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': CSRF },
         });
-        const response = await res.json();
+        const response = await readJsonResponse(res);
         if (res.ok) { location.reload(); }
-        else { alert(response.message || 'Erro ao ativar.'); setButtonLoading(btn, false, 'Ativar'); }
+        else { showProductToast(response.message || 'Erro ao ativar.', 'error'); setButtonLoading(btn, false, 'Ativar'); }
     } catch (e) {
-        alert('Erro de conexão.');
+        showProductToast('Não consegui falar com o servidor. Atualize a página e tente novamente.', 'error');
         setButtonLoading(btn, false, 'Ativar');
     }
 }

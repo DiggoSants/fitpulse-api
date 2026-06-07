@@ -3,12 +3,7 @@
         $workoutCreateUrl = route('workouts.create', request()->filled('student_id') ? ['student_id' => request('student_id')] : []);
         $exerciseCreateUrl = route('exercises.create', request()->filled('student_id') ? ['student_id' => request('student_id')] : []);
     @endphp
-
-    @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    @endpush
-
-    <div class="py-6">
+<div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 exercise-library-shell">
 
            <div class="exercise-library-header">
@@ -23,13 +18,15 @@
     <div class="exercise-library-header__actions">
         <a href="{{ $workoutCreateUrl }}" class="workout-form-back">← Voltar</a>
 
-        <a href="{{ $exerciseCreateUrl }}" class="btn-save exercise-library-header__new">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <line x1="7" y1="1" x2="7" y2="13" />
-                <line x1="1" y1="7" x2="13" y2="7" />
-            </svg>
-            Novo Exercício
-        </a>
+        @if(Auth::user()->isInstructor() || Auth::user()->isManager())
+            <a href="{{ $exerciseCreateUrl }}" class="btn-save exercise-library-header__new">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <line x1="7" y1="1" x2="7" y2="13" />
+                    <line x1="1" y1="7" x2="13" y2="7" />
+                </svg>
+                Novo Exercício
+            </a>
+        @endif
     </div>
 </div>
 
@@ -59,20 +56,22 @@
                 </div>
             </div>
 
-            <div class="exercise-library-card__actions">
-                <a href="/exercises/{{ $exercise->id }}/edit"
-                   class="exercise-library-btn exercise-library-btn--edit">
-                    Editar
-                </a>
+            @if(Auth::user()->isInstructor() || Auth::user()->isManager())
+                <div class="exercise-library-card__actions">
+                    <a href="/exercises/{{ $exercise->id }}/edit"
+                       class="exercise-library-btn exercise-library-btn--edit">
+                        Editar
+                    </a>
 
-                <form action="/exercises/{{ $exercise->id }}" method="POST" style="margin:0;">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="exercise-library-btn exercise-library-btn--delete">
-                        🗑 Deletar
-                    </button>
-                </form>
-            </div>
+                    <form action="/exercises/{{ $exercise->id }}" method="POST" style="margin:0;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="exercise-library-btn exercise-library-btn--delete">
+                            🗑 Deletar
+                        </button>
+                    </form>
+                </div>
+            @endif
         </li>
     @endforeach
 </ul>

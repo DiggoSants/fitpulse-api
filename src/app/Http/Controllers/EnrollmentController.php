@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\Plan;
 use App\Models\Student;
 use App\Models\Instructor;
 use App\Models\Enrollment;
+use App\Services\BillingService;
 use Carbon\Carbon;
+use Illuminate\Validation\ValidationException;
 
 class EnrollmentController extends Controller
 {
@@ -22,17 +25,20 @@ class EnrollmentController extends Controller
             return redirect()->route('dashboard');
         }
 
-        $plans = Plan::all();
+        $plans = Plan::active()->orderedByPrice()->get();
 
         return view('enrollments.index', compact('plans'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, BillingService $billingService)
     {
         $request->validate([
-            'plan_id'     => ['required', 'exists:plans,id'],
-            'invite_code' => ['required', 'string'],
+            'plan_id'        => ['required', 'exists:plans,id'],
+            'invite_code'    => ['required', 'string'],
+            'payment_method' => ['required', 'in:credit_card,debit_card,pix'],
         ], [
+            'payment_method.required' => 'Informe o metodo de pagamento',
+            'payment_method.in' => 'Metodo de pagamento invalido.',
             'plan_id.required'     => 'Selecione um plano',
             'plan_id.exists'       => 'Plano inválido',
             'invite_code.required' => 'Insira o código do seu instrutor',
@@ -53,32 +59,37 @@ class EnrollmentController extends Controller
         $student = Student::where('user_id', $user->id)->firstOrFail();
 
         // Cancela matrículas ativas anteriores
-        Enrollment::where('student_id', $student->id)
-            ->where('status', 'active')
-            ->update([
-                'status'       => 'cancelled',
-                'cancelled_at' => now(),
-            ]);
-
-        $plan      = Plan::findOrFail($request->plan_id);
+        $plan      = Plan::where('status', 'active')->findOrFail($request->plan_id);
         $startDate = Carbon::today();
         $endDate   = $startDate->copy()->addDays($plan->duration_days);
 
-        Enrollment::create([
-            'student_id' => $student->id,
-            'plan_id'    => $plan->id,
-            'start_date' => $startDate,
-            'end_date'   => $endDate,
-            'status'     => 'active',
-        ]);
+        $billing = DB::transaction(function () use ($student, $instructor, $plan, $startDate, $endDate, $request, $billingService) {
+            $lockedStudent = Student::whereKey($student->id)->lockForUpdate()->firstOrFail();
 
-        $student->update([
-            'instructor_id' => $instructor->id,
-        ]);
+            if ($lockedStudent->isEnrolled()) {
+                throw ValidationException::withMessages([
+                    'plan_id' => 'Voce ja possui uma matricula ativa.',
+                ]);
+            }
+
+            $enrollment = Enrollment::create([
+                'student_id' => $lockedStudent->id,
+                'plan_id'    => $plan->id,
+                'start_date' => $startDate,
+                'end_date'   => $endDate,
+                'status'     => 'active',
+            ]);
+
+            $lockedStudent->update([
+                'instructor_id' => $instructor->id,
+            ]);
+
+            return $billingService->createForEnrollment($lockedStudent, $enrollment, $request->payment_method);
+        });
 
         return redirect()
             ->route('dashboard')
-            ->with('success', 'Matrícula realizada com sucesso!');
+            ->with('success', 'Matricula realizada! ' . $billingService->messageForStatus($billing->status));
     }
 
     public function cancel(Request $request, $id)
@@ -104,6 +115,14 @@ class EnrollmentController extends Controller
                     'message' => 'Você não tem permissão para cancelar esta matrícula.',
                 ], 403);
             }
+        } elseif (!$user->isManager()) {
+            if (!$request->expectsJson()) {
+                return back()->with('error', 'Apenas o próprio aluno ou um gerente podem cancelar matrículas.');
+            }
+
+            return response()->json([
+                'message' => 'Apenas o próprio aluno ou um gerente podem cancelar matrículas.',
+            ], 403);
         }
 
         // Verifica se já foi cancelada

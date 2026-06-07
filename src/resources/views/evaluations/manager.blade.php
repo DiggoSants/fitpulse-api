@@ -1,7 +1,5 @@
 <x-app-layout>
     @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
         <style>
             /* ── EVAL ACCORDION — tema-aware ── */
             .eval-wrap {
@@ -232,16 +230,16 @@
                         <div class="eval-accordion">
 
                             <button type="button" class="eval-accordion__btn" onclick="toggleAccordion(this)">
-                                <div style="display:flex; align-items:center; gap:14px; flex:1; min-width:0;">
+                                <div class="eval-student-main" style="display:flex; align-items:center; gap:14px; flex:1; min-width:0;">
                                     <div class="eval-avatar">
-                                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                                        {{ mb_strtoupper(mb_substr($user->name, 0, 1)) }}
                                     </div>
-                                    <div>
+                                    <div class="eval-student-text">
                                         <div class="eval-name">{{ $user->name }}</div>
                                         <div class="eval-email">{{ $user->email }}</div>
                                     </div>
                                 </div>
-                                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                <div class="eval-student-metrics" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                                     @if($last)
                                         <span class="ev-chip ev-chip--kg">{{ $last->weight }} kg</span>
                                         <span class="ev-chip ev-chip--imc">IMC {{ $last->imc }}</span>

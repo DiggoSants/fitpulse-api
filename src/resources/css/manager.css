@@ -548,6 +548,63 @@
     }
 }
 
+@media (max-width: 640px) {
+    .mgr-workout-row {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+        padding: 14px !important;
+    }
+
+    .mgr-workout-main {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .mgr-workout-meta,
+    .mgr-workout-name,
+    .mgr-workout-sub {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .mgr-workout-name,
+    .mgr-workout-sub {
+        display: block;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        overflow-wrap: anywhere;
+    }
+
+    .mgr-workout-actions {
+        grid-column: 1 / -1;
+        width: 100%;
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) 44px;
+        gap: 8px !important;
+        align-items: stretch;
+    }
+
+    .mgr-workout-actions .mgr-btn-sm {
+        width: 100%;
+        min-height: 40px;
+        justify-content: center;
+    }
+
+    .mgr-workout-actions form {
+        width: 44px;
+        margin: 0 !important;
+    }
+
+    .mgr-workout-actions .mgr-btn-del {
+        width: 44px;
+        height: 40px;
+        border-radius: 14px;
+    }
+}
+
 .mgr-card__left {
     transition: background .22s ease;
 }
@@ -2337,4 +2394,319 @@
 [data-theme="light"] #report-modal-overlay select.ev-input option {
     background: #fff !important;
     color: #111 !important;
+}
+
+@media (max-width: 768px) {
+    .mgr-stats,
+    .report-cards-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .mgr-section-head,
+    .mgr-filters,
+    .dash-plan-card,
+    .report-card__footer {
+        align-items: stretch;
+    }
+
+    .mgr-section-head > *,
+    .dash-plan-card__left,
+    .dash-plan-card__right,
+    .report-card__footer > * {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .mgr-search,
+    .mgr-filter,
+    .mgr-tab {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .mgr-tabs,
+    .mgr-filters {
+        display: grid;
+        grid-template-columns: 1fr;
+        overflow: visible;
+    }
+
+    .mgr-table-wrap {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .mgr-table {
+        min-width: 720px;
+    }
+
+    .mgr-student-cell__name,
+    .mgr-student-cell__email,
+    .dash-plan-card__name,
+    .dash-plan-card__desc {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .dash-plan-card__right {
+        width: 100%;
+        align-items: flex-start;
+    }
+
+    .dash-plan-card__duration {
+        text-align: left;
+    }
+}
+
+@media (max-width: 768px) {
+    #students-section .mgr-section-head {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    #students-section .section-label {
+        margin-bottom: 0 !important;
+    }
+
+    #students-section .mgr-filters {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        padding: 4px;
+        border-radius: 18px;
+        background: rgba(255,255,255,0.025);
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    #students-section .mgr-filter {
+        width: auto;
+        min-height: 42px;
+        padding: 9px 10px;
+        border-radius: 14px;
+        font-size: 12px;
+        line-height: 1.15;
+        white-space: nowrap;
+    }
+
+    #students-section .mgr-filter.is-active {
+        box-shadow: 0 8px 22px rgba(214,21,50,0.12);
+    }
+
+    #students-section .mgr-search {
+        width: 100%;
+        min-width: 0;
+    }
+
+    [data-theme="light"] #students-section .mgr-filters {
+        background: rgba(0,0,0,0.025);
+        border-color: rgba(0,0,0,0.08);
+    }
+}
+
+@media (max-width: 768px) {
+    #maint-summary.mgr-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    #maint-summary .mgr-stat-card {
+        padding: 12px 10px;
+        border-radius: 14px;
+        min-width: 0;
+    }
+
+    #maint-summary .mgr-stat-card__label {
+        min-height: 24px;
+        font-size: 9px;
+        line-height: 1.2;
+        margin-bottom: 7px;
+        overflow-wrap: anywhere;
+    }
+
+    #maint-summary .mgr-stat-card__value {
+        font-size: 30px;
+    }
+
+    #maint-summary .mgr-stat-card__sub {
+        font-size: 11px;
+        line-height: 1.2;
+    }
+
+    #requests-section .mgr-section-head {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    #requests-section .section-label {
+        margin: 0 !important;
+        line-height: 1.25;
+    }
+
+    #requests-section .mgr-filters {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+    }
+
+    #requests-section .mgr-filter {
+        width: auto;
+        min-height: 40px;
+        padding: 8px 6px;
+        border-radius: 12px;
+        font-size: 11px;
+        line-height: 1.1;
+        white-space: nowrap;
+    }
+
+    .mgr-card {
+        grid-template-columns: 1fr;
+        overflow: hidden;
+    }
+
+    .mgr-card__left {
+        border-right: 0;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        padding: 18px 16px;
+        min-width: 0;
+    }
+
+    .mgr-card__left-top {
+        display: grid;
+        grid-template-columns: 56px minmax(0, 1fr);
+        align-items: center;
+        gap: 7px 12px;
+        text-align: left;
+    }
+
+    .mgr-inst-big-avatar {
+        grid-row: 1 / span 4;
+        width: 56px;
+        height: 56px;
+        font-size: 18px;
+    }
+
+    .mgr-inst-label,
+    .mgr-inst-name,
+    .mgr-inst-specialty,
+    .mgr-inst-badge {
+        min-width: 0;
+        max-width: 100%;
+        justify-self: start;
+    }
+
+    .mgr-inst-name {
+        white-space: normal;
+        overflow-wrap: anywhere;
+        line-height: 1.15;
+    }
+
+    .mgr-inst-specialty {
+        width: auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .mgr-inst-badge {
+        position: static;
+        transform: none;
+        white-space: normal;
+        line-height: 1.15;
+    }
+
+    .mgr-card__right {
+        padding: 0;
+        min-width: 0;
+    }
+
+    .mgr-right-header {
+        padding: 14px 16px;
+        gap: 8px;
+    }
+
+    .mgr-right-count {
+        white-space: normal;
+        text-align: right;
+    }
+
+    .mgr-student-row {
+        display: grid;
+        grid-template-columns: 36px minmax(0, 1fr);
+        gap: 10px;
+        align-items: center;
+    }
+
+    .mgr-student-info,
+    .mgr-student-name,
+    .mgr-student-email {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .mgr-student-name,
+    .mgr-student-email {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .mgr-student-right {
+        grid-column: 1 / -1;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        align-items: stretch;
+    }
+
+    .mgr-btn-criar {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .mgr-workout-row {
+        display: grid;
+        grid-template-columns: 34px minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .mgr-workout-name {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .mgr-workout-btns {
+        grid-column: 1 / -1;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .user-option,
+    .user-option__label,
+    .user-option__content {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .user-option__label {
+        gap: 10px !important;
+        padding: 12px !important;
+        overflow: hidden;
+    }
+
+    .user-option__name,
+    .user-option__email {
+        display: block;
+        min-width: 0;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 }

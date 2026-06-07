@@ -13,7 +13,11 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     
        @stack('styles')
-       @vite(['resources/css/app.css', 'resources/js/app.js'])
+       @if (file_exists(public_path('hot')))
+           @vite(['resources/css/app.css', 'resources/js/app.js'])
+       @else
+           <x-vite-build-assets :entries="['resources/css/app.css', 'resources/js/app.js']" />
+       @endif
 
         <style>
             body { background: #0a0a0a !important; color: #fff !important; font-family: 'Montserrat', sans-serif !important; }

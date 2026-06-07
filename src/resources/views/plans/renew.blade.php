@@ -1,6 +1,5 @@
 <x-app-layout>
     @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
         <style>
             /* ── Plano atual card ── */
             .renew-plan-card {
@@ -227,6 +226,31 @@
                             @endforeach
                         </ul>
                     @endif
+
+                    <p class="enrollment-section-label">Forma de pagamento</p>
+                    <div class="payment-method-grid">
+                        <label class="payment-method-option">
+                            <input type="radio" name="payment_method" value="pix" {{ old('payment_method', 'pix') === 'pix' ? 'checked' : '' }}>
+                            <span>
+                                <strong>Pix</strong>
+                                <small>Confirmacao imediata</small>
+                            </span>
+                        </label>
+                        <label class="payment-method-option">
+                            <input type="radio" name="payment_method" value="debit_card" {{ old('payment_method') === 'debit_card' ? 'checked' : '' }}>
+                            <span>
+                                <strong>Débito</strong>
+                                <small>Confirmação imediata</small>
+                            </span>
+                        </label>
+                        <label class="payment-method-option">
+                            <input type="radio" name="payment_method" value="credit_card" {{ old('payment_method') === 'credit_card' ? 'checked' : '' }}>
+                            <span>
+                                <strong>Crédito</strong>
+                                <small>Aprovação automática</small>
+                            </span>
+                        </label>
+                    </div>
 
                     @if($activeEnrollment)
                         <div class="renew-info-box">

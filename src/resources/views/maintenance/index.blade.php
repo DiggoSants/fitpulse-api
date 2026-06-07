@@ -1,8 +1,4 @@
 <x-app-layout>
-    @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    @endpush
-
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
@@ -141,7 +137,16 @@
 
                 {{-- Lista de equipamentos --}}
                 <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:24px;">
-                    <h3 style="font-size:18px;" class="ev-section-title">Equipamentos Cadastrados</h3>
+                    <div class="mgr-section-head" style="margin-bottom:16px;">
+                        <h3 style="font-size:18px; margin:0;" class="ev-section-title">Equipamentos Cadastrados</h3>
+                        <input
+                            type="text"
+                            id="eq-search"
+                            class="mgr-search"
+                            placeholder="Buscar equipamento..."
+                            oninput="searchEquipment()"
+                        >
+                    </div>
 
                     <div id="eq-skeleton" style="display:flex; flex-direction:column; gap:10px;">
                         @for($i = 0; $i < 4; $i++)
@@ -209,16 +214,31 @@
 
     <script>
         // ── Estado global ─────────────────────────────────────────────────────
-        const EP_RESOLVE = "{{ route('maintenance.resolve', ':id') }}";
+        const EP_RESOLVE = "{{ route('maintenance.resolve', ['id' => ':id'], false) }}";
         const CSRF     = document.querySelector('meta[name="csrf-token"]').content;
-        const EP_MAINT = "{{ route('maintenance.index') }}";
-        const EP_EQ    = "{{ route('equipment.index') }}";
-        const EP_STORE = "{{ route('maintenance.store') }}";
-        const EP_EQ_STORE = "{{ route('equipment.store') }}";
+        const EP_MAINT = "{{ route('maintenance.index', [], false) }}";
+        const EP_EQ    = "{{ route('equipment.index', [], false) }}";
+        const EP_STORE = "{{ route('maintenance.store', [], false) }}";
+        const EP_EQ_STORE = "{{ route('equipment.store', [], false) }}";
 
         let allRequests  = [];
         let allEquipment = [];
         let currentFilter = 'all';
+        let equipmentSearch = '';
+
+        async function readJsonResponse(res) {
+            try {
+                return await res.json();
+            } catch (e) {
+                if (res.status === 419) {
+                    return { message: 'Sua sessão expirou. Atualize a página e tente novamente.' };
+                }
+                if (res.status === 401 || res.status === 403) {
+                    return { message: 'Você não tem permissão para executar esta ação nesta sessão.' };
+                }
+                return { message: 'O servidor respondeu de um jeito inesperado. Veja os logs do Railway para o detalhe.' };
+            }
+        }
 
         // ── Inicialização ─────────────────────────────────────────────────────
         async function init() {
@@ -228,7 +248,8 @@
         // ── Carregar manutenção (resumo + solicitações) ───────────────────────
         async function loadMaintenance() {
             try {
-                const res  = await fetch(EP_MAINT, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                const res  = await fetch(EP_MAINT, { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                if (!res.ok) throw new Error('Falha ao carregar manutenção.');
                 const json = await res.json();
 
                 // Resumo
@@ -240,20 +261,32 @@
                 renderRequests();
 
             } catch (e) {
-                console.error('Maint error:', e);
+                document.getElementById('requests-skeleton').style.display = 'none';
+                document.getElementById('requests-list').style.display = 'none';
+                document.getElementById('requests-empty').style.display = 'block';
+                document.getElementById('summary-maintenance').textContent = '0';
+                document.getElementById('summary-open').textContent = '0';
+                document.getElementById('summary-resolved').textContent = '0';
+                showToast('Não foi possível carregar as solicitações agora.', 'error');
             }
         }
 
         // ── Carregar equipamentos ─────────────────────────────────────────────
         async function loadEquipment() {
             try {
-                const res  = await fetch(EP_EQ, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                const res  = await fetch(EP_EQ, { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                if (!res.ok) throw new Error('Falha ao carregar equipamentos.');
                 const json = await res.json();
-                allEquipment = json.data ?? [];
+                allEquipment = sortEquipment(json.data ?? []);
                 renderEquipment();
                 populateEquipmentSelect();
             } catch (e) {
-                console.error('Equipment error:', e);
+                allEquipment = [];
+                document.getElementById('eq-skeleton').style.display = 'none';
+                document.getElementById('eq-list').style.display = 'none';
+                document.getElementById('eq-empty').style.display = 'block';
+                populateEquipmentSelect();
+                showToast('Não foi possível carregar os equipamentos agora.', 'error');
             }
         }
 
@@ -336,19 +369,29 @@
             document.getElementById('eq-skeleton').style.display = 'none';
             const list  = document.getElementById('eq-list');
             const empty = document.getElementById('eq-empty');
+            const query = normalizeSearch(equipmentSearch);
+            const filtered = allEquipment.filter(eq => normalizeSearch(eq.name).includes(query));
 
             list.innerHTML = '';
 
             if (!allEquipment.length) {
                 list.style.display  = 'none';
                 empty.style.display = 'block';
+                empty.textContent = 'Nenhum equipamento cadastrado.';
+                return;
+            }
+
+            if (!filtered.length) {
+                list.style.display  = 'none';
+                empty.style.display = 'block';
+                empty.textContent = 'Nenhum equipamento encontrado para esta busca.';
                 return;
             }
 
             empty.style.display = 'none';
             list.style.display  = 'flex';
 
-            allEquipment.forEach(eq => {
+            filtered.forEach(eq => {
                 const inMaint = eq.status === 'manutencao';
                 const row = document.createElement('div');
                 row.style.cssText = `
@@ -385,11 +428,40 @@
             });
         }
 
+        function searchEquipment() {
+            equipmentSearch = document.getElementById('eq-search')?.value ?? '';
+            renderEquipment();
+        }
+
+        function sortEquipment(items) {
+            return [...items].sort((a, b) => {
+                const aInMaintenance = a.status === 'manutencao' ? 0 : 1;
+                const bInMaintenance = b.status === 'manutencao' ? 0 : 1;
+
+                if (aInMaintenance !== bInMaintenance) {
+                    return aInMaintenance - bInMaintenance;
+                }
+
+                return String(a.name ?? '').localeCompare(String(b.name ?? ''), 'pt-BR', {
+                    sensitivity: 'base',
+                    numeric: true,
+                });
+            });
+        }
+
+        function normalizeSearch(value) {
+            return String(value ?? '')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase()
+                .trim();
+        }
+
         // ── Popular select do modal ───────────────────────────────────────────
         function populateEquipmentSelect() {
             const sel = document.getElementById('report-equipment-select');
             sel.innerHTML = '<option value="">Selecione o equipamento...</option>';
-            allEquipment.forEach(eq => {
+            sortEquipment(allEquipment).forEach(eq => {
                 const opt = document.createElement('option');
                 opt.value       = eq.id;
                 opt.textContent = eq.name + (eq.status === 'manutencao' ? ' ⚠ (em manutenção)' : '');
@@ -456,15 +528,17 @@
             try {
                 const res = await fetch(EP_STORE, {
                     method: 'POST',
+                    credentials: 'same-origin',
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept':       'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': CSRF,
                     },
                     body: JSON.stringify({ equipment_id: equipmentId, description }),
                 });
 
-                const data = await res.json();
+                const data = await readJsonResponse(res);
 
                 if (res.ok) {
                     closeReportModal();
@@ -474,7 +548,7 @@
                     showToast(data.message || 'Erro ao registrar.', 'error');
                 }
             } catch (e) {
-                showToast('Erro de conexão. Tente novamente.', 'error');
+                showToast('Não consegui falar com o servidor agora. Confira a sessão e tente novamente.', 'error');
             } finally {
                 btn.disabled    = false;
                 btn.textContent = 'Registrar problema';
@@ -490,15 +564,17 @@
             try {
                 const res = await fetch(EP_RESOLVE.replace(':id', id), {
                     method: 'PUT',
+                    credentials: 'same-origin',
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept':       'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': CSRF,
                     },
                     body: JSON.stringify({}),
                 });
 
-                const data = await res.json();
+                const data = await readJsonResponse(res);
 
                 if (res.ok) {
                     showToast('✓ ' + data.message, 'success');
@@ -509,7 +585,7 @@
                     btn.innerHTML = original;
                 }
             } catch (e) {
-                showToast('Erro de conexão. Tente novamente.', 'error');
+                showToast('Não consegui falar com o servidor agora. Confira a sessão e tente novamente.', 'error');
                 btn.disabled  = false;
                 btn.innerHTML = original;
             }
@@ -530,15 +606,17 @@
             try {
                 const res = await fetch(EP_EQ_STORE, {
                     method: 'POST',
+                    credentials: 'same-origin',
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept':       'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': CSRF,
                     },
                     body: JSON.stringify({ name }),
                 });
 
-                const data = await res.json();
+                const data = await readJsonResponse(res);
 
                 if (res.ok) {
                     document.getElementById('eq-name-input').value = '';
@@ -549,7 +627,7 @@
                     showToast(data.errors?.name?.[0] || data.message || 'Erro ao cadastrar.', 'error');
                 }
             } catch (e) {
-                showToast('Erro de conexão. Tente novamente.', 'error');
+                showToast('Não consegui falar com o servidor agora. Confira a sessão e tente novamente.', 'error');
             } finally {
                 btn.disabled    = false;
                 btn.textContent = 'Cadastrar';

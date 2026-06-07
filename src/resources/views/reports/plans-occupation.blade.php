@@ -1,6 +1,112 @@
 <x-app-layout>
     @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+        <style>
+            .plan-occupation-cards {
+                display: none;
+            }
+
+            @media (max-width: 640px) {
+                .plan-occupation-table {
+                    display: none;
+                }
+
+                .plan-occupation-cards {
+                    display: grid;
+                    gap: 10px;
+                }
+
+                .plan-occupation-card {
+                    background: rgba(255,255,255,0.04);
+                    border: 1px solid rgba(255,255,255,0.08);
+                    border-radius: 16px;
+                    padding: 14px;
+                }
+
+                .plan-occupation-card__top {
+                    display: flex;
+                    align-items: flex-start;
+                    justify-content: space-between;
+                    gap: 12px;
+                    margin-bottom: 12px;
+                }
+
+                .plan-occupation-card__name {
+                    color: #f5f5f5;
+                    font-size: 15px;
+                    font-weight: 800;
+                    line-height: 1.2;
+                    margin: 0 0 4px;
+                    overflow-wrap: anywhere;
+                }
+
+                .plan-occupation-card__meta {
+                    color: var(--text-muted);
+                    font-size: 12px;
+                    margin: 0;
+                }
+
+                .plan-occupation-card__grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                    gap: 8px;
+                    margin-bottom: 12px;
+                }
+
+                .plan-occupation-card__metric {
+                    border-radius: 12px;
+                    background: rgba(255,255,255,0.035);
+                    border: 1px solid rgba(255,255,255,0.07);
+                    padding: 10px;
+                }
+
+                .plan-occupation-card__metric span {
+                    display: block;
+                    color: var(--text-muted);
+                    font-size: 10px;
+                    font-weight: 800;
+                    letter-spacing: .07em;
+                    text-transform: uppercase;
+                    margin-bottom: 4px;
+                }
+
+                .plan-occupation-card__metric strong {
+                    display: block;
+                    color: #f5f5f5;
+                    font-size: 13px;
+                    font-weight: 800;
+                    overflow-wrap: anywhere;
+                }
+
+                .plan-occupation-card__bar {
+                    height: 7px;
+                    background: rgba(255,255,255,0.09);
+                    border-radius: 999px;
+                    overflow: hidden;
+                }
+
+                .plan-occupation-card__bar span {
+                    display: block;
+                    height: 100%;
+                    background: rgba(74,222,128,0.75);
+                    border-radius: inherit;
+                }
+
+                [data-theme="light"] .plan-occupation-card {
+                    background: #fff;
+                    border-color: rgba(0,0,0,0.08);
+                }
+
+                [data-theme="light"] .plan-occupation-card__name,
+                [data-theme="light"] .plan-occupation-card__metric strong {
+                    color: #111;
+                }
+
+                [data-theme="light"] .plan-occupation-card__metric {
+                    background: rgba(0,0,0,0.025);
+                    border-color: rgba(0,0,0,0.07);
+                }
+            }
+        </style>
     @endpush
 
     <div class="py-6">
@@ -50,7 +156,7 @@
 
             {{-- TABELA --}}
             @if($occupation->count() > 0)
-                <div class="mgr-table-wrap">
+                <div class="mgr-table-wrap plan-occupation-table">
                     <table class="mgr-table">
                         <thead>
                             <tr>
@@ -109,6 +215,43 @@
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+
+                <div class="plan-occupation-cards">
+                    @foreach($occupation as $plan)
+                        <article class="plan-occupation-card">
+                            <div class="plan-occupation-card__top">
+                                <div style="min-width:0;">
+                                    <p class="plan-occupation-card__name">{{ $plan['plan_name'] }}</p>
+                                    <p class="plan-occupation-card__meta">{{ $plan['duration_days'] }} dias</p>
+                                </div>
+                                @if($plan['plan_status'] === 'inactive')
+                                    <span class="mgr-badge-bad">Inativo</span>
+                                @else
+                                    <span class="mgr-badge-ok">Ativo</span>
+                                @endif
+                            </div>
+
+                            <div class="plan-occupation-card__grid">
+                                <div class="plan-occupation-card__metric">
+                                    <span>Preço</span>
+                                    <strong>R$ {{ number_format($plan['price'], 2, ',', '.') }}</strong>
+                                </div>
+                                <div class="plan-occupation-card__metric">
+                                    <span>Alunos</span>
+                                    <strong>{{ $plan['active_students'] }} ativo(s)</strong>
+                                </div>
+                            </div>
+
+                            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px;">
+                                <span style="font-size:11px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;">Ocupação</span>
+                                <strong style="font-size:12px;color:#4ade80;">{{ $plan['percentage'] }}%</strong>
+                            </div>
+                            <div class="plan-occupation-card__bar">
+                                <span style="width:{{ $plan['percentage'] }}%;"></span>
+                            </div>
+                        </article>
+                    @endforeach
                 </div>
             @else
                 <div class="empty-state" style="padding:4rem 1rem;">

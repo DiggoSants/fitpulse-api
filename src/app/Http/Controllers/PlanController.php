@@ -15,7 +15,7 @@ class PlanController extends Controller
                 $query->where('status', 'active')
                     ->where('end_date', '>=', now()->toDateString());
             }
-        ])->get();
+        ])->orderedByPrice()->get();
 
         return response()->json(['data' => $plans]);
     }
@@ -109,20 +109,9 @@ class PlanController extends Controller
     {
         $plan = Plan::findOrFail($id);
 
-        $activeStudents = $plan->enrollments()
-            ->where('status', 'active')
-            ->where('end_date', '>=', now()->toDateString())
-            ->count();
-
-        if ($activeStudents > 0) {
-            return back()->withErrors([
-                'plan' => "Este plano possui {$activeStudents} aluno(s) ativo(s) e não pode ser inativado.",
-            ]);
-        }
-
         $plan->update(['status' => 'inactive']);
 
-        return redirect()->route('dashboard')->with('success', 'Plano inativado com sucesso! O histórico foi preservado.');
+        return redirect()->route('dashboard')->with('success', 'Plano inativado com sucesso! O histórico e as matrículas existentes foram preservados.');
     }
 
     // Reativa um plano inativo

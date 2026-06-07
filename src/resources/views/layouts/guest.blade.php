@@ -10,7 +10,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    @vite(['resources/css/style.css'])
+    @if (file_exists(public_path('hot')))
+        @vite(['resources/css/style.css'])
+    @else
+        <x-vite-build-assets :entries="['resources/css/style.css']" />
+    @endif
 
     <style>
         .auth-page {

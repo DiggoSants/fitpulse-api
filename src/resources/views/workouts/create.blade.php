@@ -1,9 +1,4 @@
 <x-app-layout>
-
-    @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    @endpush
-
     <div aria-hidden="true" class="form-watermark">
         <span>FIT</span>
         <span>PULSE</span>
@@ -46,9 +41,11 @@
                     </div>
 
                     <div class="workout-form-tools">
-                        <a href="{{ route('exercises.create', ['student_id' => $student->id]) }}">
-                            + Adicionar novo exercício
-                        </a>
+                        @if(Auth::user()->isInstructor() || Auth::user()->isManager())
+                            <a href="{{ route('exercises.create', ['student_id' => $student->id]) }}">
+                                + Adicionar novo exercício
+                            </a>
+                        @endif
                         <a href="{{ route('exercises.index', ['student_id' => $student->id]) }}">
                             Biblioteca de exercícios <i class="fa-solid fa-arrow-right"></i></a>
                         </div>
@@ -78,14 +75,16 @@
                                         <span class="exercise-name" style="margin-bottom:0;">{{ $exercise->name }}</span>
                                     </label>
 
-                                    <button type="button"
-                                            class="workout-exercise-delete"
-                                            data-delete-form="delete-exercise-{{ $exercise->id }}"
-                                            data-exercise-name="{{ $exercise->name }}"
-                                            title="Apagar exercício"
-                                            aria-label="Apagar exercício {{ $exercise->name }}">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
+                                    @if(Auth::user()->isInstructor() || Auth::user()->isManager())
+                                        <button type="button"
+                                                class="workout-exercise-delete"
+                                                data-delete-form="delete-exercise-{{ $exercise->id }}"
+                                                data-exercise-name="{{ $exercise->name }}"
+                                                title="Apagar exercício"
+                                                aria-label="Apagar exercício {{ $exercise->name }}">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    @endif
                                 </div>
                                 <div class="workout-inputs">
                                     <input type="number" name="sets[{{ $exercise->id }}]" placeholder="Séries" class="workout-input-sm" min="1">
@@ -107,16 +106,19 @@
 
                 </form>
 
-                @foreach($exercises as $exercise)
-                    <form id="delete-exercise-{{ $exercise->id }}" action="{{ route('exercises.destroy', $exercise->id) }}" method="POST" style="display:none;">
-                        @csrf
-                        @method('DELETE')
-                    </form>
-                @endforeach
+                @if(Auth::user()->isInstructor() || Auth::user()->isManager())
+                    @foreach($exercises as $exercise)
+                        <form id="delete-exercise-{{ $exercise->id }}" action="{{ route('exercises.destroy', $exercise->id) }}" method="POST" style="display:none;">
+                            @csrf
+                            @method('DELETE')
+                        </form>
+                    @endforeach
+                @endif
             </div>
         </div>
     </div>
 
+    @if(Auth::user()->isInstructor() || Auth::user()->isManager())
     <div id="exercise-delete-modal" class="fit-confirm-overlay" style="display:none;" aria-hidden="true">
         <div class="fit-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="exercise-delete-title">
             <div class="fit-confirm-modal__icon">
@@ -172,5 +174,6 @@
             });
         })();
     </script>
+    @endif
 
 </x-app-layout>

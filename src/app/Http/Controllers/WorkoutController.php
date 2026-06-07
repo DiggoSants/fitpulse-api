@@ -20,7 +20,12 @@ class WorkoutController extends Controller
             $student = Student::findOrFail($studentId);
             if ($user->isInstructor()) {
                 $instructor = $user->instructor;
-                abort_if($student->instructor_id !== $instructor->id, 403, 'Este aluno não é seu.');
+
+                if ($student->instructor_id === null) {
+                    $student->forceFill(['instructor_id' => $instructor->id])->save();
+                }
+
+                abort_if($student->instructor_id !== $instructor->id, 403, 'Voce nao pode alterar o treino deste aluno.');
             }
 
             return $student;
@@ -32,11 +37,15 @@ class WorkoutController extends Controller
         return $student;
     }
 
-    // ── INDEX (página de treinos do aluno) ────────────────────────────────────
     public function index(Request $request)
     {
         /** @var \App\Models\User $user */
         $user    = Auth::user();
+
+        if ($user->isInstructor() || $user->isManager()) {
+            return redirect()->route('dashboard');
+        }
+
         $student = Student::where('user_id', $user->id)->firstOrFail();
 
         $allWorkouts = Workout::with('workoutExercises')
@@ -58,11 +67,20 @@ class WorkoutController extends Controller
 
     public function create(Request $request)
     {
-        $exercises = Exercise::all();
+        $exercises = Exercise::query()
+            ->orderByRaw("CASE WHEN muscle_group IS NULL OR muscle_group = '' THEN 1 ELSE 0 END")
+            ->orderBy('muscle_group')
+            ->orderBy('name')
+            ->get();
         $studentId = $request->query('student_id');
         $student   = $this->resolveStudent($studentId ? (int) $studentId : null);
 
         return view('workouts.create', compact('exercises', 'student'));
+    }
+
+    public function show($id)
+    {
+        return redirect()->route('workouts.index', ['workout_id' => $id]);
     }
 
     public function store(Request $request)
@@ -127,7 +145,11 @@ class WorkoutController extends Controller
     public function edit(Request $request, $id)
     {
         $workout   = Workout::with('workoutExercises')->findOrFail($id);
-        $exercises = Exercise::all();
+        $exercises = Exercise::query()
+            ->orderByRaw("CASE WHEN muscle_group IS NULL OR muscle_group = '' THEN 1 ELSE 0 END")
+            ->orderBy('muscle_group')
+            ->orderBy('name')
+            ->get();
         $studentId = $request->query('student_id');
         $student   = $this->resolveStudent($studentId ? (int) $studentId : null);
 

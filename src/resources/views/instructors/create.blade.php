@@ -52,11 +52,11 @@
                                     <label for="user_{{ $user->id }}" class="user-option__label" style="display:flex; align-items:center; gap:14px; padding:14px 16px; cursor:pointer;">
                                         <div class="radio-indicator" style="width:18px; height:18px; flex-shrink:0; transition:all .2s; display:flex; align-items:center; justify-content:center;"></div>
                                         <div class="student-avatar" style="width:36px; height:36px; font-size:12px; flex-shrink:0;">
-                                            {{ strtoupper(substr($user->name, 0, 2)) }}
+                                            {{ mb_strtoupper(mb_substr($user->name, 0, 2)) }}
                                         </div>
-                                        <div style="flex:1; min-width:0;">
+                                        <div class="user-option__content" style="flex:1; min-width:0;">
                                             <p style="font-size:14px; font-weight:700; margin:0 0 2px;" class="user-option__name">{{ $user->name }}</p>
-                                            <p style="font-size:12px; color:var(--text-muted); margin:0;">{{ $user->email }}</p>
+                                            <p style="font-size:12px; color:var(--text-muted); margin:0;" class="user-option__email">{{ $user->email }}</p>
                                         </div>
                                     </label>
                                 </div>

@@ -4,19 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Billing;
 use App\Models\Student;
+use App\Services\BillingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class BillingController extends Controller
 {
-    public function process(Request $request)
+    public function process(Request $request, BillingService $billingService)
     {
         $request->validate([
-            'payment_method' => ['required', 'in:credit_card,pix,boleto'],
+            'payment_method' => ['required', 'in:credit_card,debit_card,pix'],
         ], [
             'payment_method.required' => 'Informe o metodo de pagamento',
-            'payment_method.in'       => 'Metodo invalido. Use: credit_card, pix ou boleto',
+            'payment_method.in'       => 'Metodo invalido. Use: credit_card, debit_card ou pix',
         ]);
 
         /** @var \App\Models\User $user */
@@ -31,64 +32,56 @@ class BillingController extends Controller
             ], 422);
         }
 
-        $existingBilling = Billing::where('enrollment_id', $enrollment->id)
-            ->whereIn('status', ['pending', 'confirmed'])
-            ->first();
+        [$billing, $action] = DB::transaction(function () use ($student, $enrollment, $request, $billingService) {
+            Student::whereKey($student->id)->lockForUpdate()->firstOrFail();
 
-        if ($existingBilling) {
+            $existingBilling = Billing::where('enrollment_id', $enrollment->id)
+                ->whereIn('status', ['pending', 'confirmed'])
+                ->lockForUpdate()
+                ->first();
+
+            if ($existingBilling?->isConfirmed()) {
+                return [$existingBilling, 'existing'];
+            }
+
+            if ($existingBilling?->isPending()) {
+                return [
+                    $billingService->applyPaymentToBilling(
+                        $existingBilling,
+                        $student,
+                        $request->payment_method
+                    ),
+                    'updated',
+                ];
+            }
+
+            return [
+                $billingService->createForEnrollment(
+                    $student,
+                    $enrollment,
+                    $request->payment_method
+                ),
+                'created',
+            ];
+        });
+
+        if ($action === 'existing') {
             return $this->billingResponse($request, [
-                'message' => 'Ja existe um pagamento ' . ($existingBilling->isPending() ? 'pendente' : 'confirmado') . ' para esta matricula.',
-                'data'    => $existingBilling,
+                'message' => 'Ja existe um pagamento ' . ($billing->isPending() ? 'pendente' : 'confirmado') . ' para esta matricula.',
+                'data'    => $billing,
             ], 422);
         }
 
-        $status = match ($request->payment_method) {
-            'boleto'      => 'pending',
-            'pix'         => 'confirmed',
-            'credit_card' => rand(1, 10) <= 9 ? 'confirmed' : 'rejected',
-        };
-
-        $billing = DB::transaction(function () use ($student, $enrollment, $status) {
-            $billing = Billing::create([
-                'student_id'    => $student->id,
-                'plan_id'       => $enrollment->plan_id,
-                'enrollment_id' => $enrollment->id,
-                'amount'        => $enrollment->plan->price,
-                'status'        => $status,
-                'paid_at'       => $status === 'confirmed' ? now() : null,
-            ]);
-
-            if ($status === 'rejected') {
-                $student->update(['is_defaulter' => true]);
-            }
-
-            if ($status === 'confirmed') {
-                $student->update(['is_defaulter' => false]);
-
-                if ($student->isDelinquent()) {
-                    $student->activate();
-                }
-            }
-
-            return $billing;
-        });
-
-        $messages = [
-            'pending'   => 'Boleto gerado! Aguardando compensacao.',
-            'confirmed' => 'Pagamento confirmado com sucesso!',
-            'rejected'  => 'Pagamento recusado. Verifique seus dados.',
-        ];
-
         return $this->billingResponse($request, [
-            'message' => $messages[$status],
+            'message' => $billingService->messageForStatus($billing->status),
             'data'    => [
                 'billing_id'     => $billing->id,
                 'amount'         => $billing->amount,
                 'status'         => $billing->status,
                 'paid_at'        => $billing->paid_at?->format('d/m/Y H:i'),
-                'payment_method' => $request->payment_method,
+                'payment_method' => $billing->payment_method,
             ],
-        ], 201);
+        ], $action === 'created' ? 201 : 200);
     }
 
     public function index()
@@ -123,6 +116,7 @@ class BillingController extends Controller
                     'plan_name'    => $billing->plan->name,
                     'amount'       => $billing->amount,
                     'status'       => $billing->status,
+                    'payment_method' => $billing->payment_method,
                     'paid_at'      => $billing->paid_at?->format('d/m/Y H:i'),
                     'created_at'   => $billing->created_at->format('d/m/Y H:i'),
                 ];

@@ -14,7 +14,7 @@
                     <p class="workout-form-kicker">Gerenciamento</p>
                     <h1 class="workout-form-title">Editar Instrutor</h1>
                 </div>
-                <a href="{{ route('instructors.index') }}" class="workout-form-back">← Voltar</a>
+                <a href="{{ route('dashboard') }}" class="workout-form-back">← Voltar</a>
             </div>
 
             @if($errors->any())
@@ -34,7 +34,7 @@
                         <label>Usuário</label>
                         <div style="display:flex; align-items:center; gap:12px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-md); padding:11px 14px;">
                             <div class="student-avatar" style="width:32px; height:32px; font-size:12px; flex-shrink:0;">
-                                {{ strtoupper(substr($instructor->user->name, 0, 2)) }}
+                                {{ mb_strtoupper(mb_substr($instructor->user->name, 0, 2)) }}
                             </div>
                             <div>
                                 <p style="font-size:14px; font-weight:700; margin:0 0 2px;">{{ $instructor->user->name }}</p>
@@ -59,7 +59,7 @@
 
                     <div class="profile-form-row" style="margin-top: 8px;">
                         <button type="submit" class="btn-save">Atualizar</button>
-                        <a href="{{ route('instructors.index') }}" class="btn-cancel">Cancelar</a>
+                        <a href="{{ route('dashboard') }}" class="btn-cancel">Cancelar</a>
                     </div>
 
                 </form>

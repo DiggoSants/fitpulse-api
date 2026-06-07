@@ -1,6 +1,5 @@
 <x-app-layout>
     @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
         <style>
             /* ── Plano ativo card ── */
             .billing-plan-card {
@@ -127,11 +126,11 @@
                 border: 1px solid transparent;
             }
             .billing-method-badge--pix    { color:#4ade80; background:rgba(74,222,128,0.10);  border-color:rgba(74,222,128,0.20); }
+            .billing-method-badge--debit  { color:#67e8f9; background:rgba(6,182,212,0.10);   border-color:rgba(6,182,212,0.20); }
             .billing-method-badge--card   { color:#93c5fd; background:rgba(59,130,246,0.10);  border-color:rgba(59,130,246,0.20); }
-            .billing-method-badge--boleto { color:#fbbf24; background:rgba(251,191,36,0.10);  border-color:rgba(251,191,36,0.20); }
             [data-theme="light"] .billing-method-badge--pix    { color:#15803d; background:rgba(22,163,74,0.08);  border-color:rgba(22,163,74,0.20); }
+            [data-theme="light"] .billing-method-badge--debit  { color:#0e7490; background:rgba(6,182,212,0.08);  border-color:rgba(6,182,212,0.20); }
             [data-theme="light"] .billing-method-badge--card   { color:#1d4ed8; background:rgba(59,130,246,0.08); border-color:rgba(59,130,246,0.20); }
-            [data-theme="light"] .billing-method-badge--boleto { color:#b45309; background:rgba(217,119,6,0.08);  border-color:rgba(217,119,6,0.20); }
 
             /* ── Badges de status ── */
             .billing-badge {
@@ -233,28 +232,29 @@
                             </li>
 
                             <li class="plan-option">
+                                <input type="radio" name="payment_method" id="debit_card" value="debit_card"
+                                    {{ old('payment_method') == 'debit_card' ? 'checked' : '' }}>
+                                <label for="debit_card">
+                                    <div class="plan-option__info">
+                                        <p class="plan-option__name">Débito</p>
+                                        <p class="plan-option__meta">Confirmação imediata</p>
+                                    </div>
+                                    <span class="billing-method-badge billing-method-badge--debit">Débito</span>
+                                </label>
+                            </li>
+
+                            <li class="plan-option">
                                 <input type="radio" name="payment_method" id="credit_card" value="credit_card"
                                     {{ old('payment_method') == 'credit_card' ? 'checked' : '' }}>
                                 <label for="credit_card">
                                     <div class="plan-option__info">
-                                        <p class="plan-option__name">Cartão de Crédito</p>
+                                        <p class="plan-option__name">Crédito</p>
                                         <p class="plan-option__meta">Aprovação automática</p>
                                     </div>
                                     <span class="billing-method-badge billing-method-badge--card">Crédito</span>
                                 </label>
                             </li>
 
-                            <li class="plan-option">
-                                <input type="radio" name="payment_method" id="boleto" value="boleto"
-                                    {{ old('payment_method') == 'boleto' ? 'checked' : '' }}>
-                                <label for="boleto">
-                                    <div class="plan-option__info">
-                                        <p class="plan-option__name">Boleto Bancário</p>
-                                        <p class="plan-option__meta">Prazo de até 3 dias úteis</p>
-                                    </div>
-                                    <span class="billing-method-badge billing-method-badge--boleto">Boleto</span>
-                                </label>
-                            </li>
                         </ul>
 
                         @error('payment_method')
@@ -262,7 +262,7 @@
                         @enderror
 
                         <div class="billing-info-box">
-                            PIX é confirmado na hora. Cartão tem 90% de aprovação automática. Boleto pode levar até 3 dias úteis para compensar.
+                            PIX e débito são confirmados na hora. Crédito tem 90% de aprovação automática.
                         </div>
 
                         <div class="enrollment-actions">
@@ -313,7 +313,8 @@
                                 };
                                 $methodLabel = match($payment->payment_method) {
                                     'pix'                => 'PIX',
-                                    'credit_card','card' => 'Cartão',
+                                    'debit_card'         => 'Débito',
+                                    'credit_card','card' => 'Crédito',
                                     'boleto'             => 'Boleto',
                                     default              => $payment->payment_method,
                                 };

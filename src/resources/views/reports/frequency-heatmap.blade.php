@@ -1,8 +1,4 @@
 <x-app-layout>
-    @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    @endpush
-
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
@@ -118,13 +114,15 @@
     <script>
     (function () {
         const DAYS  = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-        const endpoint = "{{ route('reports.frequency.heatmap') }}";
+        const endpoint = "{{ route('reports.frequency.heatmap', [], false) }}";
 
         async function loadHeatmap() {
             try {
                 const res  = await fetch(endpoint, {
+                    credentials: 'same-origin',
                     headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
                 });
+                if (!res.ok) throw new Error('Erro ao carregar o mapa de frequencia.');
                 const json = await res.json();
                 const data = json.data ?? [];
 
@@ -190,7 +188,6 @@
             } catch (e) {
                 document.getElementById('hm-skeleton').style.display = 'none';
                 document.getElementById('hm-empty').style.display    = 'block';
-                console.error('Heatmap error:', e);
             }
         }
 

@@ -9,6 +9,35 @@ use App\Models\User;
 
 class EvaluationController extends Controller
 {
+    private function authorizeUserEvaluationAccess(User $targetUser): void
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->isManager()) {
+            return;
+        }
+
+        if ($user->isInstructor()) {
+            $student = $targetUser->student;
+            $instructor = $user->instructor;
+
+            abort_unless(
+                $student && $instructor && $student->instructor_id === $instructor->id,
+                403,
+                'Você só pode acessar avaliações dos seus alunos.'
+            );
+
+            return;
+        }
+
+        abort_unless(
+            $user->isStudent() && $user->id === $targetUser->id,
+            403,
+            'Você não tem permissão para acessar avaliações de outro usuário.'
+        );
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -32,6 +61,9 @@ class EvaluationController extends Controller
         } else {
             $targetUserId = $user->id;
         }
+
+        $targetUser = User::with('student')->findOrFail($targetUserId);
+        $this->authorizeUserEvaluationAccess($targetUser);
 
         $evaluation = PhysicalEvaluation::create([
             'user_id'  => $targetUserId,
@@ -68,7 +100,8 @@ class EvaluationController extends Controller
             ], 403);
         }
 
-        $targetUser = User::findOrFail($userId);
+        $targetUser = User::with('student')->findOrFail($userId);
+        $this->authorizeUserEvaluationAccess($targetUser);
 
         $evaluations = PhysicalEvaluation::where('user_id', $userId)
             ->orderBy('created_at', 'asc')
@@ -105,7 +138,8 @@ class EvaluationController extends Controller
             ], 403);
         }
 
-        $targetUser  = User::findOrFail($userId);
+        $targetUser  = User::with('student')->findOrFail($userId);
+        $this->authorizeUserEvaluationAccess($targetUser);
         $evaluations = PhysicalEvaluation::where('user_id', $userId)
             ->orderBy('created_at', 'asc')
             ->get();

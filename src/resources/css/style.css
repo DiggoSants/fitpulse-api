@@ -783,6 +783,11 @@ img, video, iframe {
 /* SOBRE NÓS */
 .about {
   padding: 90px 0;
+  background: #0d0d0d;
+  color: #f5f5f5;
+}
+
+[data-theme="light"] .about {
   background: #fff;
   color: #111;
 }
@@ -913,12 +918,12 @@ img, video, iframe {
 }
 .about-sub { 
   margin-bottom: 14px; 
-  color: rgba(0,0,0,.65); 
+  color: rgba(255,255,255,.68); 
 }
 .about-list {
   list-style: none;
   margin: 18px 0 22px;
-  color: rgba(0,0,0,.78);
+  color: rgba(255,255,255,.78);
   display: grid;
   gap: 10px;
 }
@@ -936,7 +941,7 @@ img, video, iframe {
 }
 .about-phone small {
   display: block;
-  color: rgba(0,0,0,.45);
+  color: rgba(255,255,255,.48);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: .5px;
@@ -945,11 +950,27 @@ img, video, iframe {
 .about-phone strong {
   font-size: 18px;
   font-weight: 900;
-  color: #111;
+  color: #f5f5f5;
   letter-spacing: -.5px;
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+[data-theme="light"] .about-sub {
+  color: rgba(0,0,0,.65);
+}
+
+[data-theme="light"] .about-list {
+  color: rgba(0,0,0,.78);
+}
+
+[data-theme="light"] .about-phone small {
+  color: rgba(0,0,0,.45);
+}
+
+[data-theme="light"] .about-phone strong {
+  color: #111;
 }
 .about-phone strong::before {
   content: '';
@@ -2754,4 +2775,62 @@ img, video, iframe {
     font-size: 11px;
     font-weight: 700;
     letter-spacing: .5px;
+}
+
+@media (max-width: 640px) {
+  .nav,
+  .nav-left,
+  .nav-auth,
+  .about-actions,
+  .faq-cta,
+  .es-pills,
+  .es-contato-actions,
+  .instr-modal__footer,
+  .explore-header {
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .nav-auth .cta--outline,
+  .nav-auth .cta--solid,
+  .btn,
+  .btn-explorar,
+  .es-next-btn,
+  .es-plano__btn,
+  .es-contato-btn,
+  .instr-modal__cta-btn,
+  .faq-whats-btn {
+    max-width: 100%;
+    min-height: 38px;
+    white-space: normal;
+    line-height: 1.2;
+    text-align: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .explore-tabs,
+  .explorar-preview__tabs,
+  .carr-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-auth {
+    gap: 6px;
+  }
+
+  .nav-auth .cta--outline {
+    display: inline-flex;
+  }
+
+  .nav-auth .cta--outline,
+  .nav-auth .cta--solid {
+    padding: 7px 8px;
+    font-size: 10px;
+    letter-spacing: .04em;
+  }
 }

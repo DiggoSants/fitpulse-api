@@ -4,22 +4,40 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Exercise;
+use Illuminate\Support\Facades\Auth;
 
 class ExerciseController extends Controller
 {
+    private function authorizeLibraryManagement(): void
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        abort_unless($user && ($user->isManager() || $user->isInstructor()), 403, 'Apenas instrutores e gerentes podem gerenciar a biblioteca de exercícios.');
+    }
+
     public function index()
     {
-        $exercises = Exercise::all();
+        $exercises = Exercise::query()
+            ->orderByRaw("CASE WHEN muscle_group IS NULL OR muscle_group = '' THEN 1 ELSE 0 END")
+            ->orderBy('muscle_group')
+            ->orderBy('name')
+            ->get();
+
         return view('exercises.index', compact('exercises'));
     }
 
     public function create()
     {
+        $this->authorizeLibraryManagement();
+
         return view('exercises.create');
     }
 
     public function store(Request $request)
     {
+        $this->authorizeLibraryManagement();
+
         $request->validate([
             'name' => 'required|min:3'
         ]);
@@ -36,12 +54,16 @@ class ExerciseController extends Controller
 
     public function edit($id)
     {
+        $this->authorizeLibraryManagement();
+
         $exercise = Exercise::findOrFail($id);
         return view('exercises.edit', compact('exercise'));
     }
 
     public function update(Request $request, $id)
     {
+        $this->authorizeLibraryManagement();
+
         $exercise = Exercise::findOrFail($id);
 
         $exercise->update([
@@ -56,6 +78,8 @@ class ExerciseController extends Controller
 
     public function destroy($id)
     {
+        $this->authorizeLibraryManagement();
+
         $exercise = Exercise::findOrFail($id);
         $exercise->delete();
 
@@ -191,6 +215,8 @@ class ExerciseController extends Controller
 
     public function searchImages(Request $request)
     {
+        $this->authorizeLibraryManagement();
+
         $query = trim($request->q ?? '');
 
         if (strlen($query) < 3) {

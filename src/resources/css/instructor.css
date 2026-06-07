@@ -680,6 +680,55 @@
     border-color: rgba(214,21,50,.60);
 }
 
+@media (max-width: 640px) {
+    .workout-block {
+        overflow: hidden;
+    }
+
+    .workout-block__name {
+        display: grid;
+        grid-template-columns: 1fr;
+        align-items: start;
+        gap: 8px;
+        line-height: 1.25;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .workout-block__summary {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 8px !important;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .workout-block__summary span {
+        width: fit-content;
+        max-width: 100%;
+    }
+
+    .workout-block__summary .btn-workout-action,
+    .workout-block__actions .btn-workout-action {
+        width: 100%;
+        min-height: 38px;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .workout-block__actions {
+        display: grid !important;
+        grid-template-columns: 1fr;
+        gap: 8px !important;
+        width: 100%;
+    }
+
+    .workout-block__actions form {
+        width: 100%;
+        margin: 0 !important;
+    }
+}
+
 /* SKELETON*/
 
 @keyframes sk-shimmer {

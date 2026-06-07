@@ -34,7 +34,7 @@
                     {{-- ══ RECEPCIONISTA — apenas links de recepção ══ --}}
                     @if(Auth::user()->isReceptionist())
 
-                        <x-nav-link :href="route('reception.pending')" :active="request()->routeIs('reception.*')">
+                        <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard') || request()->routeIs('reception.*')">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                  style="flex-shrink:0; margin-right:8px;">
@@ -134,7 +134,7 @@
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="nav-user-btn">
-                            <span class="nav-user-avatar">{{ strtoupper(substr(Auth::user()->name, 0, 2)) }}</span>
+                            <span class="nav-user-avatar">{{ mb_strtoupper(mb_substr(Auth::user()->name, 0, 2)) }}</span>
                             <span class="nav-user-name">{{ Auth::user()->name }}</span>
                             <svg class="nav-user-chevron fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -158,7 +158,7 @@
 
             {{-- Botão hamburguer mobile --}}
             <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" style="background:none; border:none; cursor:pointer; padding:8px; color:#fff;">
+                <button @click="open = ! open" class="nav-mobile-toggle" aria-label="Abrir menu" type="button">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -176,7 +176,9 @@
                 <span class="nav-ctx-crumb">FitPulse</span>
                 <span class="nav-ctx-sep">/</span>
                 <span class="nav-ctx-crumb nav-ctx-crumb--active">
-                    @if(request()->routeIs('dashboard'))
+                    @if(request()->routeIs('dashboard') && Auth::user()->isReceptionist())
+                        Matrículas
+                    @elseif(request()->routeIs('dashboard'))
                         Painel
                     @elseif(request()->routeIs('reception.*'))
                         Recepção
@@ -208,7 +210,7 @@
             @endunless
 
             @if(Auth::user()->isReceptionist())
-                <x-responsive-nav-link :href="route('reception.pending')" :active="request()->routeIs('reception.*')">
+                <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard') || request()->routeIs('reception.*')">
                     {{ __('Matrículas') }}
                 </x-responsive-nav-link>
 
@@ -242,10 +244,10 @@
                 @endif
             @endif
         </div>
-        <div class="pt-4 pb-1" style="border-top:1px solid rgba(255,255,255,0.08);">
+        <div class="pt-4 pb-1 nav-mobile-account">
             <div class="px-4">
-                <div style="font-weight:700; font-size:14px; color:#fff;">{{ Auth::user()->name }}</div>
-                <div style="font-size:12px; color:rgba(255,255,255,0.4); margin-top:2px;">{{ Auth::user()->email }}</div>
+                <div class="nav-mobile-account__name">{{ Auth::user()->name }}</div>
+                <div class="nav-mobile-account__email">{{ Auth::user()->email }}</div>
             </div>
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">

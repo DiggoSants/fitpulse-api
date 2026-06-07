@@ -1,8 +1,4 @@
 <x-app-layout>
-    @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    @endpush
-
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
@@ -432,6 +428,10 @@
     @if(Auth::user()->isManager())
     <script>
         const CSRF = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+        const ACCESS_STUDENTS_ENDPOINT = "{{ route('access.students', [], false) }}";
+        const ACCESS_BLOCK_ENDPOINT = "{{ route('access.block', [], false) }}";
+        const ACCESS_UNBLOCK_ENDPOINT = "{{ route('access.unblock', [], false) }}";
+        const ACCESS_STATUS_ENDPOINT = "{{ route('access.status', [], false) }}";
         let allStudents = [];
         let currentFilter = 'all';
 
@@ -462,17 +462,37 @@
             }, 3500);
         }
 
+        async function readJsonResponse(res) {
+            try {
+                return await res.json();
+            } catch (e) {
+                if (res.status === 419) {
+                    return { message: 'Sua sessão expirou. Atualize a página e tente novamente.' };
+                }
+                if (res.status === 401 || res.status === 403) {
+                    return { message: 'Você não tem permissão para acessar estes dados nesta sessão.' };
+                }
+                if (res.status >= 500) {
+                    return { message: 'Erro interno no servidor. Confira os logs do Railway.' };
+                }
+                return { message: 'O servidor respondeu de um jeito inesperado.' };
+            }
+        }
+
         async function loadStudents() {
             try {
-                const res  = await fetch('{{ route("access.students") }}', {
+                const res  = await fetch(ACCESS_STUDENTS_ENDPOINT, {
+                    credentials: 'same-origin',
                     headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
                 });
-                const json = await res.json();
+                const json = await readJsonResponse(res);
+                if (!res.ok) throw new Error(json.message || 'Erro ao carregar alunos.');
                 allStudents = json.data ?? [];
                 renderTable(allStudents);
                 updateCounts();
             } catch (e) {
-                showToast('Erro ao carregar alunos.', 'error');
+                renderTable([]);
+                showToast(e.message || 'Erro ao carregar alunos.', 'error');
             }
         }
 
@@ -563,15 +583,16 @@
             const row = document.querySelector(`tr[data-id="${studentId}"]`);
             if (row) row.style.opacity = '.5';
             try {
-                const res  = await fetch('{{ route("access.block") }}', {
+                const res  = await fetch(ACCESS_BLOCK_ENDPOINT, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': CSRF },
                     body: JSON.stringify({ student_id: studentId, reason })
                 });
-                const json = await res.json();
+                const json = await readJsonResponse(res);
                 if (!res.ok) showToast(json.message ?? 'Erro ao bloquear.', 'error');
                 else { showToast(json.message ?? 'Acesso bloqueado.'); updateStudentLocally(json.data); }
-            } catch { showToast('Erro de conexão.', 'error'); }
+            } catch { showToast('Não consegui falar com o servidor. Atualize a página e tente novamente.', 'error'); }
             finally { if (row) row.style.opacity = '1'; }
         }
 
@@ -579,15 +600,16 @@
             const row = document.querySelector(`tr[data-id="${studentId}"]`);
             if (row) row.style.opacity = '.5';
             try {
-                const res  = await fetch('{{ route("access.unblock") }}', {
+                const res  = await fetch(ACCESS_UNBLOCK_ENDPOINT, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': CSRF },
                     body: JSON.stringify({ student_id: studentId })
                 });
-                const json = await res.json();
+                const json = await readJsonResponse(res);
                 if (!res.ok) showToast(json.message ?? 'Erro ao ativar.', 'error');
                 else { showToast(json.message ?? 'Acesso ativado.'); updateStudentLocally(json.data); }
-            } catch { showToast('Erro de conexão.', 'error'); }
+            } catch { showToast('Não consegui falar com o servidor. Atualize a página e tente novamente.', 'error'); }
             finally { if (row) row.style.opacity = '1'; }
         }
 
@@ -620,15 +642,16 @@
             const row = document.querySelector(`tr[data-id="${studentId}"]`);
             if (row) row.style.opacity = '.5';
             try {
-                const res  = await fetch('{{ route("access.status") }}', {
+                const res  = await fetch(ACCESS_STATUS_ENDPOINT, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': CSRF },
                     body: JSON.stringify({ student_id: studentId, status: newStatus })
                 });
-                const json = await res.json();
+                const json = await readJsonResponse(res);
                 if (!res.ok) showToast(json.message ?? 'Erro ao alterar status.', 'error');
                 else { showToast(json.message ?? 'Status atualizado.'); updateStudentLocally(json.data); }
-            } catch { showToast('Erro de conexão.', 'error'); }
+            } catch { showToast('Não consegui falar com o servidor. Atualize a página e tente novamente.', 'error'); }
             finally { if (row) row.style.opacity = '1'; }
         }
 

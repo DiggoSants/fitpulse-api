@@ -3512,3 +3512,60 @@ button.student-action-card--blue:hover {
 [data-theme="light"] .student-card .ex-table::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(90deg, rgba(196,18,48,.75), rgba(248,113,113,.70));
 }
+
+@media (max-width: 640px) {
+    .eval-students-wrap {
+        padding: 18px !important;
+    }
+
+    .eval-accordion__btn {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr);
+        align-items: stretch !important;
+        gap: 12px !important;
+        padding: 14px !important;
+    }
+
+    .eval-student-main {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .eval-student-text,
+    .eval-student-name,
+    .eval-student-email,
+    .eval-name,
+    .eval-email {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .eval-student-name,
+    .eval-student-email,
+    .eval-name,
+    .eval-email {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .eval-student-metrics {
+        width: 100%;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 6px !important;
+    }
+
+    .eval-student-metrics .ev-chip,
+    .eval-student-metrics .eval-badge-none {
+        flex: 0 1 auto;
+        max-width: 100%;
+        white-space: nowrap;
+    }
+
+    .eval-student-metrics .eval-chevron {
+        margin-left: auto;
+    }
+}

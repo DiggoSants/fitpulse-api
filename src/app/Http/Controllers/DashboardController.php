@@ -61,6 +61,13 @@ class DashboardController extends Controller
                 ];
             });
 
+            // Ordena: devendo → ativo → sem matrícula → bloqueado, depois A→Z dentro de cada grupo
+            $statusOrder = ['inadimplente' => 0, 'ativo' => 1, 'sem_matricula' => 2, 'bloqueado' => 3];
+            $studentsData = $studentsData->sortBy([
+                fn ($a, $b) => ($statusOrder[$a['status']] ?? 99) <=> ($statusOrder[$b['status']] ?? 99),
+                fn ($a, $b) => mb_strtolower($a['name']) <=> mb_strtolower($b['name']),
+            ])->values();
+
             $receptionists = Receptionist::with('user')->get()->map(function ($r) {
                 return [
                     'id'    => $r->id,
@@ -158,12 +165,12 @@ class DashboardController extends Controller
 
         if (!$workout) {
             return view('dashboard', [
-                'enrolled'          => true,
-                'exercises'         => collect(),
+                'enrolled'         => true,
+                'exercises'        => collect(),
                 'activeEnrollment' => $activeEnrollment,
-                'checkedInToday'    => $checkedInToday,
-                'lastFrequency'     => $lastFrequency,
-                'frequencyThisWeek' => $frequencyThisWeek,
+                'checkedInToday'   => $checkedInToday,
+                'lastFrequency'    => $lastFrequency,
+                'frequencyThisWeek'=> $frequencyThisWeek,
             ]);
         }
 

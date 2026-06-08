@@ -28,4 +28,9 @@ class Workout extends Model
             ->withPivot('sets', 'repetitions')
             ->withTimestamps();
     }
+
+    public function workoutExercises()
+    {
+        return $this->hasMany(WorkoutExercise::class);
+    }
 }

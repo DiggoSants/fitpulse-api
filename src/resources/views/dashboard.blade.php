@@ -431,17 +431,24 @@
                     </div>
                     <div class="hm-wrap">
                         <div class="hm-header">
-                            <p class="section-label" style="margin:0;">MAPA DE CALOR — PRESENÇA POR DIA E HORA</p>
-                            <div class="hm-legend">
-                                <span class="hm-legend__label">Menos</span>
-                                <div class="hm-legend__bar">
-                                    <div class="hm-legend__cell" style="--intensity:0"></div>
-                                    <div class="hm-legend__cell" style="--intensity:0.25"></div>
-                                    <div class="hm-legend__cell" style="--intensity:0.5"></div>
-                                    <div class="hm-legend__cell" style="--intensity:0.75"></div>
-                                    <div class="hm-legend__cell" style="--intensity:1"></div>
+                             <p class="section-label" style="margin:0;">MAPA DE CALOR — PRESENÇA POR DIA E HORA</p>
+                             <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                                <div style="display:flex; gap:6px;">
+                                    <button type="button" class="mgr-filter" id="hm-btn-7"  onclick="reloadHeatmap(7,  this)">7 dias</button>
+                                     <button type="button" class="mgr-filter" id="hm-btn-30" onclick="reloadHeatmap(30, this)">30 dias</button>
+                                     <button type="button" class="mgr-filter is-active" id="hm-btn-90" onclick="reloadHeatmap(90, this)">90 dias</button>
+                                    </div>
+                                    <div class="hm-legend">
+                                        <span class="hm-legend__label">Menos</span>
+                                        <div class="hm-legend__bar">
+                                        <div class="hm-legend__cell" style="--intensity:0"></div>
+                                        <div class="hm-legend__cell" style="--intensity:0.25"></div>
+                                        <div class="hm-legend__cell" style="--intensity:0.5"></div>
+                                        <div class="hm-legend__cell" style="--intensity:0.75"></div>
+                                        <div class="hm-legend__cell" style="--intensity:1"></div>
+                                    </div>
+                                    <span class="hm-legend__label">Mais</span>
                                 </div>
-                                <span class="hm-legend__label">Mais</span>
                             </div>
                         </div>
                         <div id="hm-skeleton" class="hm-skeleton-wrap">
@@ -1217,85 +1224,103 @@
         }, 3500);
     }
 
-    // ── HEATMAP ──────────────────────────────────────────────────────────
-    (function () {
-        const DAYS  = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-        const endpoint = "{{ route('reports.frequency.heatmap', [], false) }}";
+   // ── HEATMAP ──────────────────────────────────────────────────────────
+(function () {
+    const DAYS = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+    const endpoint = "{{ route('reports.frequency.heatmap', [], false) }}";
+    let currentDays = 90;
 
-        async function loadHeatmap() {
-            try {
-                const res  = await fetch(endpoint, { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
-                const json = await res.json();
-                const data = json.data ?? [];
+    async function loadHeatmap() {
+        document.getElementById('hm-skeleton').style.display = 'block';
+        document.getElementById('hm-grid').style.display     = 'none';
+        document.getElementById('hm-empty').style.display    = 'none';
+        document.getElementById('hm-rows').innerHTML         = '';
+        try {
+            const res  = await fetch(endpoint + '?days=' + currentDays, { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+            const json = await res.json();
+            const data = json.data ?? [];
 
-                document.getElementById('hm-skeleton').style.display = 'none';
+            document.getElementById('hm-skeleton').style.display = 'none';
 
-                if (!data.length || data.every(d => d.count === 0)) {
-                    document.getElementById('hm-empty').style.display = 'block';
-                    return;
-                }
+            const subEl = document.getElementById('hm-total-sub');
+            if (subEl) subEl.textContent = 'últimos ' + currentDays + ' dias';
 
-                const maxVal = Math.max(...data.map(d => d.count), 1);
-                const total  = data.reduce((s, d) => s + d.count, 0);
-
-                const dayTotals = {};
-                data.forEach(d => { dayTotals[d.day_of_week] = (dayTotals[d.day_of_week] || 0) + d.count; });
-                const peakDay = Object.entries(dayTotals).sort((a,b) => b[1]-a[1])[0];
-
-                const hourTotals = {};
-                data.forEach(d => { hourTotals[d.hour] = (hourTotals[d.hour] || 0) + d.count; });
-                const peakHour = Object.entries(hourTotals).sort((a,b) => b[1]-a[1])[0];
-
-                document.getElementById('hm-total').textContent     = total.toLocaleString('pt-BR');
-                document.getElementById('hm-peak-day').textContent  = peakDay  ? DAYS[peakDay[0]] : '—';
-                document.getElementById('hm-peak-hour').textContent = peakHour ? sprintf(peakHour[0]) + ':00' : '—';
-
-                const rowsEl = document.getElementById('hm-rows');
-                DAYS.forEach((dayName, d) => {
-                    const row = document.createElement('div');
-                    row.className = 'hm-row';
-                    const lbl = document.createElement('div');
-                    lbl.className = 'hm-day-label';
-                    lbl.textContent = dayName.substring(0, 3);
-                    row.appendChild(lbl);
-
-                    for (let h = 0; h < 24; h++) {
-                        const cell = data.find(x => x.day_of_week === d && x.hour === h);
-                        const count = cell ? cell.count : 0;
-                        const el = document.createElement('div');
-                        el.className = 'hm-cell';
-                        el.style.setProperty('--intensity', count / maxVal);
-                        el.setAttribute('data-count', count);
-                        el.setAttribute('data-day', dayName);
-                        el.setAttribute('data-hour', sprintf(h) + ':00');
-                        el.addEventListener('mouseenter', showTooltip);
-                        el.addEventListener('mouseleave', hideTooltip);
-                        el.addEventListener('mousemove',  moveTooltip);
-                        row.appendChild(el);
-                    }
-                    rowsEl.appendChild(row);
-                });
-
-                document.getElementById('hm-grid').style.display = 'block';
-            } catch (e) {
-                document.getElementById('hm-skeleton').style.display = 'none';
-                document.getElementById('hm-empty').style.display    = 'block';
+            if (!data.length || data.every(d => d.count === 0)) {
+                document.getElementById('hm-empty').style.display = 'block';
+                document.getElementById('hm-total').textContent    = '0';
+                document.getElementById('hm-peak-day').textContent  = '—';
+                document.getElementById('hm-peak-hour').textContent = '—';
+                return;
             }
-        }
 
-        function sprintf(n) { return String(n).padStart(2, '0'); }
-        const tooltip = document.getElementById('hm-tooltip');
-        function showTooltip(e) {
-            const el = e.currentTarget;
-            tooltip.innerHTML = `<strong>${el.getAttribute('data-day')}</strong> às ${el.getAttribute('data-hour')}<br><span>${el.getAttribute('data-count')} registro(s)</span>`;
-            tooltip.style.display = 'block';
-            moveTooltip(e);
-        }
-        function hideTooltip()  { tooltip.style.display = 'none'; }
-        function moveTooltip(e) { tooltip.style.left = (e.clientX + 14) + 'px'; tooltip.style.top = (e.clientY - 38) + 'px'; }
+            const maxVal = Math.max(...data.map(d => d.count), 1);
+            const total  = data.reduce((s, d) => s + d.count, 0);
 
+            const dayTotals = {};
+            data.forEach(d => { dayTotals[d.day_of_week] = (dayTotals[d.day_of_week] || 0) + d.count; });
+            const peakDay = Object.entries(dayTotals).sort((a,b) => b[1]-a[1])[0];
+
+            const hourTotals = {};
+            data.forEach(d => { hourTotals[d.hour] = (hourTotals[d.hour] || 0) + d.count; });
+            const peakHour = Object.entries(hourTotals).sort((a,b) => b[1]-a[1])[0];
+
+            document.getElementById('hm-total').textContent     = total.toLocaleString('pt-BR');
+            document.getElementById('hm-peak-day').textContent  = peakDay  ? DAYS[peakDay[0]] : '—';
+            document.getElementById('hm-peak-hour').textContent = peakHour ? sprintf(peakHour[0]) + ':00' : '—';
+
+            const rowsEl = document.getElementById('hm-rows');
+            DAYS.forEach((dayName, d) => {
+                const row = document.createElement('div');
+                row.className = 'hm-row';
+                const lbl = document.createElement('div');
+                lbl.className = 'hm-day-label';
+                lbl.textContent = dayName.substring(0, 3);
+                row.appendChild(lbl);
+
+                for (let h = 0; h < 24; h++) {
+                    const cell  = data.find(x => x.day_of_week === d && x.hour === h);
+                    const count = cell ? cell.count : 0;
+                    const el    = document.createElement('div');
+                    el.className = 'hm-cell';
+                    el.style.setProperty('--intensity', count / maxVal);
+                    el.setAttribute('data-count', count);
+                    el.setAttribute('data-day',   dayName);
+                    el.setAttribute('data-hour',  sprintf(h) + ':00');
+                    el.addEventListener('mouseenter', showTooltip);
+                    el.addEventListener('mouseleave', hideTooltip);
+                    el.addEventListener('mousemove',  moveTooltip);
+                    row.appendChild(el);
+                }
+                rowsEl.appendChild(row);
+            });
+
+            document.getElementById('hm-grid').style.display = 'block';
+        } catch (e) {
+            document.getElementById('hm-skeleton').style.display = 'none';
+            document.getElementById('hm-empty').style.display    = 'block';
+        }
+    }
+
+    window.reloadHeatmap = function (days, btn) {
+        document.querySelectorAll('#hm-btn-7, #hm-btn-30, #hm-btn-90').forEach(b => b.classList.remove('is-active'));
+        if (btn) btn.classList.add('is-active');
+        currentDays = days;
         loadHeatmap();
-    })();
+    };
+
+    function sprintf(n) { return String(n).padStart(2, '0'); }
+    const tooltip = document.getElementById('hm-tooltip');
+    function showTooltip(e) {
+        const el = e.currentTarget;
+        tooltip.innerHTML = `<strong>${el.getAttribute('data-day')}</strong> às ${el.getAttribute('data-hour')}<br><span>${el.getAttribute('data-count')} registro(s)</span>`;
+        tooltip.style.display = 'block';
+        moveTooltip(e);
+    }
+    function hideTooltip()  { tooltip.style.display = 'none'; }
+    function moveTooltip(e) { tooltip.style.left = (e.clientX + 14) + 'px'; tooltip.style.top = (e.clientY - 38) + 'px'; }
+
+    loadHeatmap();
+})();
 
     // ── LOJINHA ──────────────────────────────────────────────────────────
     (function () {

@@ -19,6 +19,8 @@ use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\GamificationController;
 use App\Http\Controllers\ReceptionController;
+use App\Http\Controllers\StudentScheduleController;
+use App\Http\Controllers\WorkoutSessionController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -147,14 +149,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // videoDuration=short = vídeos de até 4 minutos
         // order=relevance = mais relevante primeiro
         $url = "https://www.googleapis.com/youtube/v3/search"
-             . "?part=snippet"
-             . "&q={$query}"
-             . "&type=video"
-             . "&maxResults=1"
-             . "&relevanceLanguage=pt"
-             . "&videoDuration=short"
-             . "&order=relevance"
-             . "&key={$key}";
+            . "?part=snippet"
+            . "&q={$query}"
+            . "&type=video"
+            . "&maxResults=1"
+            . "&relevanceLanguage=pt"
+            . "&videoDuration=short"
+            . "&order=relevance"
+            . "&key={$key}";
 
         $rawData = @file_get_contents($url);
         $data    = $rawData ? json_decode($rawData, true) : [];
@@ -239,5 +241,36 @@ Route::middleware(['auth', 'verified', 'role:manager,receptionist'])->group(func
     Route::get('/reception/instructors/available', [ReceptionController::class, 'availableInstructors'])->name('reception.instructors');
     Route::get('/reception/plans',             [ReceptionController::class, 'activePlans'])->name('reception.plans');
     Route::post('/enrollments',                [ReceptionController::class, 'enroll'])->name('reception.enroll');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/student-schedule', [StudentScheduleController::class, 'store'])->name('student-schedule.store');
+    Route::get('/student-schedule/{userId?}', [StudentScheduleController::class, 'show'])->name('student-schedule.show');
+    Route::get('/student-schedule/validate/{userId}', [StudentScheduleController::class, 'validateSchedule']);
+});
+
+Route::middleware(['auth'])->group(function () {
+    // Grupos musculares disponíveis (vem da coluna muscle_group)
+    Route::get('/muscle-groups', [WorkoutController::class, 'getMuscleGroups']);
+
+    // Filtrar exercícios por grupos musculares
+    Route::post('/exercises/filter', [WorkoutController::class, 'filterExercisesByMuscleGroup']);
+
+    // Buscar exercícios por grupos musculares
+    Route::post('/exercises/by-muscle-groups', [WorkoutController::class, 'getExercisesByMuscleGroups']);
+
+    // CRUD de treinos
+    Route::post('/workouts', [WorkoutController::class, 'store']);
+    Route::get('/workouts/student/{studentId}', [WorkoutController::class, 'getStudentWorkouts']);
+});
+
+// Rotas para execução de treino (aluno)
+Route::middleware(['auth'])->prefix('treino')->group(function () {
+    Route::get('/hoje', [WorkoutSessionController::class, 'today'])->name('workout-sessions.today');
+    Route::post('/sessao/{sessionId}/iniciar', [WorkoutSessionController::class, 'start'])->name('workout-sessions.start');
+    Route::post('/sessao/{sessionId}/finalizar', [WorkoutSessionController::class, 'complete'])->name('workout-sessions.complete');
+    Route::post('/exercicio/{sessionExerciseId}/completar', [WorkoutSessionController::class, 'completeExercise'])->name('workout-sessions.complete-exercise');
+    Route::get('/exercicio/{sessionExerciseId}/detalhes', [WorkoutSessionController::class, 'getExerciseDetails'])->name('workout-sessions.exercise-details');
+    Route::get('/historico', [WorkoutSessionController::class, 'history'])->name('workout-sessions.history');
 });
 require __DIR__ . '/auth.php';

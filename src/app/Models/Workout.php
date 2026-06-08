@@ -3,23 +3,29 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Student;
-use App\Models\WorkoutExercise;
 
 class Workout extends Model
 {
-    protected $fillable = [
-        'student_id',
-        'name'
+    protected $fillable = ['name', 'student_id', 'instructor_id', 'muscle_groups'];
+    
+    protected $casts = [
+        'muscle_groups' => 'array',
     ];
-
+    
     public function student()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(User::class, 'student_id');
     }
-
-    public function workoutExercises()
+    
+    public function instructor()
     {
-        return $this->hasMany(WorkoutExercise::class);
+        return $this->belongsTo(User::class, 'instructor_id');
+    }
+    
+    public function exercises()
+    {
+        return $this->belongsToMany(Exercise::class, 'workout_exercises')
+            ->withPivot('sets', 'repetitions')
+            ->withTimestamps();
     }
 }

@@ -6,6 +6,8 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\StudentSchedule;
+use App\Models\WorkoutSession;
 
 class User extends Authenticatable
 {
@@ -69,6 +71,18 @@ class User extends Authenticatable
         return $this->belongsToMany(PlanGroup::class, 'plan_group_members');
     }
 
+    // ── Agenda semanal (Demanda 1) ───────────────────────────────────────────
+    public function schedule()
+    {
+        return $this->hasMany(StudentSchedule::class);
+    }
+
+    // ── Sessões de treino (Demanda 3) ─────────────────────────────────────────
+    public function workoutSessions()
+    {
+        return $this->hasMany(WorkoutSession::class, 'student_id');
+    }
+
     // ── Helpers de papel ──────────────────────────────────────────────────────
 
     public function role(): string
@@ -121,5 +135,74 @@ class User extends Authenticatable
         $threshold = 100;
         $remainder = $this->points % $threshold;
         return $remainder === 0 ? 0 : $threshold - $remainder;
+    }
+
+
+    /**
+     * Verifica se o aluno treina hoje, baseado na agenda semanal.
+     */
+    public function trainsToday(): bool
+    {
+        $today = strtolower(now()->format('l')); 
+
+        $weekDays = [
+            'monday'    => 'monday',
+            'tuesday'   => 'tuesday',
+            'wednesday' => 'wednesday',
+            'thursday'  => 'thursday',
+            'friday'    => 'friday',
+            'saturday'  => 'saturday',
+            'sunday'    => 'sunday',
+        ];
+
+        $todayWeekDay = $weekDays[$today] ?? null;
+
+        return StudentSchedule::where('user_id', $this->id)
+            ->where('week_day', $todayWeekDay)
+            ->where('active', true)
+            ->exists();
+    }
+
+    /**
+     * Calcula a frequência do aluno com base nos dias agendados e presenças.
+     * (Requer model Attendance; se não existir, retorna 0.)
+     */
+    public function calculateAttendance(): float
+    {
+        $totalScheduleDays = StudentSchedule::where('user_id', $this->id)->count();
+
+        // Evita erro caso o relacionamento attendances ainda não exista
+        if (!method_exists($this, 'attendances')) {
+            return 0.0;
+        }
+
+        $attendedDays = $this->attendances()->where('attended', true)->count();
+
+        if ($totalScheduleDays == 0) {
+            return 0.0;
+        }
+
+        return round(($attendedDays / $totalScheduleDays) * 100, 2);
+    }
+
+    /**
+     * Retorna a sessão de treino de hoje (se existir).
+     */
+    public function getTodayWorkoutSession()
+    {
+        return $this->workoutSessions()
+            ->where('session_date', today())
+            ->first();
+    }
+
+    /**
+     * Verifica se o aluno já finalizou um treino hoje.
+     */
+    public function hasTrainedToday(): bool
+    {
+        return $this->workoutSessions()
+            ->where('session_date', today())
+            ->where('status', 'completed')
+            ->exists();
     }
 }

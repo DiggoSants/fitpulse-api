@@ -37,35 +37,36 @@ class Enrollment extends Model
         return $this->hasMany(PlanRenewal::class, 'old_enrollment_id');
     }
 
+    /**
+     * Verifica se a matrícula está ativa (status active E data fim >= hoje)
+     */
     public function isActive(): bool
     {
-        return $this->status === 'active'
-            && ($this->end_date->isFuture() || $this->end_date->isToday());
+        return $this->status === 'active' && $this->end_date->gte(now()->startOfDay());
     }
 
-   public function cancel(Request $request)
-{
-    /** @var \App\Models\User $user */
-    $user    = Auth::user();
-    $student = Student::where('user_id', $user->id)->firstOrFail();
+    /**
+     * Verifica se o acesso deve ser permitido (considera cancelamento e data fim)
+     */
+    public function hasAccess(): bool
+    {
+        // Se a data fim já passou, não tem acesso
+        if ($this->end_date->isPast()) {
+            return false;
+        }
 
-    $enrollment = Enrollment::where('student_id', $student->id)
-        ->where('status', 'active')
-        ->first();
-
-    if (!$enrollment) {
-        return back()->with('error', 'Nenhuma matrícula ativa encontrada.');
+        // Status active ou cancelled (desde que ainda no prazo) => acesso liberado
+        return in_array($this->status, ['active', 'cancelled']);
     }
 
-    $enrollment->update([
-        'status'       => 'cancelled',
-        'cancelled_at' => now(),
-    ]);
-
-    // Remove o instrutor vinculado
-    $student->update(['instructor_id' => null]);
-
-    return redirect()->route('dashboard')->with('success', 'Plano cancelado com sucesso.');
-}
-    
+    /**
+     * Retorna os dias restantes de acesso (0 se expirado)
+     */
+    public function daysLeft(): int
+    {
+        if ($this->end_date->isPast()) {
+            return 0;
+        }
+        return now()->startOfDay()->diffInDays($this->end_date->startOfDay());
+    }
 }

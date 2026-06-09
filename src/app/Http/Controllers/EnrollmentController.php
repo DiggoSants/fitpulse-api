@@ -9,6 +9,8 @@ use App\Models\Plan;
 use App\Models\Student;
 use App\Models\Instructor;
 use App\Models\Enrollment;
+use App\Models\StudentSchedule;
+use App\Models\InstructorAvailability;
 use App\Services\BillingService;
 use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
@@ -30,45 +32,94 @@ class EnrollmentController extends Controller
         return view('enrollments.index', compact('plans'));
     }
 
+    /**
+     * Matrícula com distribuição automática de instrutor disponível.
+     */
     public function store(Request $request, BillingService $billingService)
     {
         $request->validate([
-            'plan_id'        => ['required', 'exists:plans,id'],
-            'invite_code'    => ['required', 'string'],
-            'payment_method' => ['required', 'in:credit_card,debit_card,pix'],
+            'plan_id'         => ['required', 'exists:plans,id'],
+            'payment_method'  => ['required', 'in:credit_card,debit_card,pix'],
+            'preferred_shift' => ['nullable', 'string', 'in:morning,afternoon,evening,full_day'],
         ], [
-            'payment_method.required' => 'Informe o metodo de pagamento',
-            'payment_method.in' => 'Metodo de pagamento invalido.',
-            'plan_id.required'     => 'Selecione um plano',
-            'plan_id.exists'       => 'Plano inválido',
-            'invite_code.required' => 'Insira o código do seu instrutor',
+            'payment_method.required' => 'Informe o método de pagamento',
+            'payment_method.in'       => 'Método de pagamento inválido.',
+            'plan_id.required'        => 'Selecione um plano',
+            'plan_id.exists'          => 'Plano inválido',
         ]);
-
-        $instructor = Instructor::where('invite_code', strtoupper($request->invite_code))->first();
-
-        if (!$instructor) {
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'invite_code' => 'Código de instrutor inválido.',
-                ]);
-        }
 
         /** @var \App\Models\User $user */
         $user    = Auth::user();
         $student = Student::where('user_id', $user->id)->firstOrFail();
 
-        // Cancela matrículas ativas anteriores
+        // --------------------------------------------------------------
+        // 1. Validar agenda do aluno (dias de treino)
+        // --------------------------------------------------------------
+        $studentScheduleDays = StudentSchedule::where('user_id', $user->id)
+            ->where('active', true)
+            ->pluck('week_day')
+            ->toArray();
+
+        if (empty($studentScheduleDays)) {
+            return back()
+                ->withInput()
+                ->withErrors(['schedule' => 'Você precisa definir sua agenda de treino (dias da semana) antes de se matricular.']);
+        }
+
+        // --------------------------------------------------------------
+        // 2. Turno preferido (padrão: full_day)
+        // --------------------------------------------------------------
+        $shift = $request->input('preferred_shift', 'full_day');
+
+        // --------------------------------------------------------------
+        // 3. Buscar instrutores que cobrem TODOS os dias da agenda no turno
+        // --------------------------------------------------------------
+        $availableInstructors = Instructor::whereHas('availability', function ($q) use ($studentScheduleDays, $shift) {
+            $q->whereIn('week_day', $studentScheduleDays)
+              ->where('shift', $shift)
+              ->where('active', true);
+        })
+        ->with('user')
+        ->get()
+        ->filter(function ($instructor) use ($studentScheduleDays, $shift) {
+            $availableDays = InstructorAvailability::where('instructor_id', $instructor->id)
+                ->whereIn('week_day', $studentScheduleDays)
+                ->where('shift', $shift)
+                ->where('active', true)
+                ->pluck('week_day')
+                ->unique()
+                ->toArray();
+            return count(array_intersect($studentScheduleDays, $availableDays)) === count($studentScheduleDays);
+        });
+
+        if ($availableInstructors->isEmpty()) {
+            $message = 'Nenhum instrutor disponível para os dias e horários da sua agenda. Entre em contato com a recepção.';
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $message], 422);
+            }
+            return back()->withInput()->withErrors(['instructor' => $message]);
+        }
+
+        // --------------------------------------------------------------
+        // 4. Selecionar instrutor com menos alunos (balanceamento de carga)
+        // --------------------------------------------------------------
+        $selectedInstructor = $availableInstructors->sortBy(function ($instructor) {
+            return $instructor->students()->count();
+        })->first();
+
+        // --------------------------------------------------------------
+        // 5. Processar plano e criar matrícula
+        // --------------------------------------------------------------
         $plan      = Plan::where('status', 'active')->findOrFail($request->plan_id);
         $startDate = Carbon::today();
         $endDate   = $startDate->copy()->addDays($plan->duration_days);
 
-        $billing = DB::transaction(function () use ($student, $instructor, $plan, $startDate, $endDate, $request, $billingService) {
+        $billing = DB::transaction(function () use ($student, $selectedInstructor, $plan, $startDate, $endDate, $request, $billingService) {
             $lockedStudent = Student::whereKey($student->id)->lockForUpdate()->firstOrFail();
 
             if ($lockedStudent->isEnrolled()) {
                 throw ValidationException::withMessages([
-                    'plan_id' => 'Voce ja possui uma matricula ativa.',
+                    'plan_id' => 'Você já possui uma matrícula ativa.',
                 ]);
             }
 
@@ -81,15 +132,26 @@ class EnrollmentController extends Controller
             ]);
 
             $lockedStudent->update([
-                'instructor_id' => $instructor->id,
+                'instructor_id' => $selectedInstructor->id,
             ]);
 
             return $billingService->createForEnrollment($lockedStudent, $enrollment, $request->payment_method);
         });
 
+        $instructorName = $selectedInstructor->user->name;
+        $successMessage = "Matrícula realizada! Instrutor: {$instructorName}. " . $billingService->messageForStatus($billing->status);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message'     => $successMessage,
+                'instructor'  => $selectedInstructor->only(['id', 'user.name']),
+                'enrollment'  => $enrollment ?? null,
+            ]);
+        }
+
         return redirect()
             ->route('dashboard')
-            ->with('success', 'Matricula realizada! ' . $billingService->messageForStatus($billing->status));
+            ->with('success', $successMessage);
     }
 
     /**
@@ -152,9 +214,6 @@ class EnrollmentController extends Controller
             'cancelled_at' => now(),
         ]);
 
-        // NÃO remove o instrutor nem bloqueia o aluno aqui!
-        // O acesso será controlado pelo método hasAccess() da matrícula.
-
         $daysLeft = $enrollment->daysLeft();
         $endDate  = $enrollment->end_date->format('d/m/Y');
 
@@ -170,6 +229,7 @@ class EnrollmentController extends Controller
             'end_date'  => $endDate,
         ]);
     }
+
     /**
      * Realiza matrícula de teste grátis (apenas uma vez por aluno)
      */
@@ -207,11 +267,7 @@ class EnrollmentController extends Controller
             'start_date' => $startDate,
             'end_date'   => $endDate,
             'status'     => 'active',
-            // cancelled_at permanece null
         ]);
-
-        // Opcional: vincular instrutor (pode ser um instrutor padrão de teste)
-        // $student->update(['instructor_id' => $instructorId]);
 
         $message = "Teste grátis ativado! Você tem acesso até {$endDate->format('d/m/Y')}.";
 

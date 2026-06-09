@@ -23,6 +23,9 @@ use App\Http\Controllers\StudentScheduleController;
 use App\Http\Controllers\WorkoutSessionController;
 use App\Http\Controllers\InstructorAttendanceController;
 use App\Http\Controllers\FidelityController;
+use App\Http\Controllers\InstructorAvailabilityController;
+use App\Http\Controllers\InstructorChangeController;
+use App\Http\Controllers\EquipmentController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -291,4 +294,23 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/instructor/students', [InstructorController::class, 'myStudents'])->name('instructor.students');
 });
 Route::middleware(['auth'])->post('/enrollment/trial', [EnrollmentController::class, 'trial'])->name('enrollment.trial');
+// Instrutor gerencia sua própria agenda
+Route::middleware(['auth'])->group(function () {
+    Route::get('/instructor/availability', [InstructorAvailabilityController::class, 'index'])->name('instructor.availability');
+    Route::post('/instructor/availability', [InstructorAvailabilityController::class, 'store'])->name('instructor.availability.store');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/api/instructors/available', [InstructorAvailabilityController::class, 'availableInstructors']);
+});
+Route::middleware(['auth'])->group(function () {
+    Route::get('/instructors/available', [InstructorChangeController::class, 'availableInstructors'])
+        ->name('instructors.available');
+    Route::post('/instructor/change', [InstructorChangeController::class, 'change'])
+        ->name('instructor.change');
+});
+Route::middleware(['auth'])->group(function () {
+    Route::resource('equipment', EquipmentController::class);
+    Route::get('equipment/active/list', [EquipmentController::class, 'active'])->name('equipment.active');
+});
 require __DIR__ . '/auth.php';

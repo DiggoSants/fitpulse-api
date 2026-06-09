@@ -92,6 +92,9 @@ class EnrollmentController extends Controller
             ->with('success', 'Matricula realizada! ' . $billingService->messageForStatus($billing->status));
     }
 
+    /**
+     * Cancela a matrícula respeitando o período já pago.
+     */
     public function cancel(Request $request, $id)
     {
         /** @var \App\Models\User $user */
@@ -100,13 +103,9 @@ class EnrollmentController extends Controller
 
         // Aluno só pode cancelar a própria matrícula
         if ($user->isStudent()) {
-
             $student = Student::where('user_id', $user->id)->first();
 
-            if (
-                !$student ||
-                $enrollment->student_id !== $student->id
-            ) {
+            if (!$student || $enrollment->student_id !== $student->id) {
                 if (!$request->expectsJson()) {
                     return back()->with('error', 'Você não tem permissão para cancelar esta matrícula.');
                 }
@@ -136,33 +135,95 @@ class EnrollmentController extends Controller
             ], 422);
         }
 
-        // Cancela matrícula
+        // Verifica se a matrícula já expirou
+        if ($enrollment->end_date->isPast()) {
+            if (!$request->expectsJson()) {
+                return back()->with('error', 'Matrícula já expirada. Não é possível cancelar.');
+            }
+
+            return response()->json([
+                'message' => 'Matrícula já expirada.',
+            ], 400);
+        }
+
+        // Cancela matrícula (mantém end_date inalterado)
         $enrollment->update([
             'status'       => 'cancelled',
             'cancelled_at' => now(),
         ]);
 
-        // Atualiza status do aluno
-        $student = $enrollment->student;
+        // NÃO remove o instrutor nem bloqueia o aluno aqui!
+        // O acesso será controlado pelo método hasAccess() da matrícula.
 
-        if (!$student->isEnrolled()) {
-            $student->update([
-                'instructor_id' => null,
-                'status'        => 'blocked',
-                'is_defaulter'  => false,
-            ]);
-        }
+        $daysLeft = $enrollment->daysLeft();
+        $endDate  = $enrollment->end_date->format('d/m/Y');
+
+        $message = "Cancelamento solicitado. Você mantém acesso até {$endDate} (faltam {$daysLeft} dias).";
 
         if (!$request->expectsJson()) {
-            return redirect('/')->with('success', 'Plano cancelado com sucesso.');
+            return redirect('/')->with('success', $message);
         }
 
         return response()->json([
-            'message' => 'Matrícula cancelada com sucesso.',
-            'data'    => [
-                'enrollment_id' => $enrollment->id,
-                'cancelled_at'  => $enrollment->cancelled_at->format('d/m/Y H:i'),
-            ],
+            'message'   => $message,
+            'days_left' => $daysLeft,
+            'end_date'  => $endDate,
         ]);
+    }
+    /**
+     * Realiza matrícula de teste grátis (apenas uma vez por aluno)
+     */
+    public function trial(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $student = Student::where('user_id', $user->id)->firstOrFail();
+
+        // Verifica se já usou teste
+        if ($student->hasUsedTrial()) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Você já utilizou o teste grátis. Contrate um plano para continuar.'], 403);
+            }
+            return back()->with('error', 'Você já utilizou o teste grátis. Contrate um plano para continuar.');
+        }
+
+        // Busca o plano ativo que seja do tipo teste
+        $trialPlan = Plan::where('is_trial', true)->where('status', 'active')->first();
+
+        if (!$trialPlan) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Nenhum plano de teste disponível no momento.'], 404);
+            }
+            return back()->with('error', 'Nenhum plano de teste disponível.');
+        }
+
+        // Cria a matrícula com data fim baseada nos trial_days
+        $startDate = now();
+        $endDate   = $startDate->copy()->addDays($trialPlan->trial_days);
+
+        $enrollment = Enrollment::create([
+            'student_id' => $student->id,
+            'plan_id'    => $trialPlan->id,
+            'start_date' => $startDate,
+            'end_date'   => $endDate,
+            'status'     => 'active',
+            // cancelled_at permanece null
+        ]);
+
+        // Opcional: vincular instrutor (pode ser um instrutor padrão de teste)
+        // $student->update(['instructor_id' => $instructorId]);
+
+        $message = "Teste grátis ativado! Você tem acesso até {$endDate->format('d/m/Y')}.";
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message'     => $message,
+                'enrollment'  => $enrollment,
+                'end_date'    => $endDate->toDateString(),
+                'days_left'   => $enrollment->daysLeft(),
+            ]);
+        }
+
+        return redirect()->route('dashboard')->with('success', $message);
     }
 }

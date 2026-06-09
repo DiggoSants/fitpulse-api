@@ -15,6 +15,8 @@ class Student extends Model
         'is_defaulter',
         'status',
         'renewed_at',
+        'instructor_id',
+        'goal',
     ];
 
     protected $casts = [
@@ -68,7 +70,16 @@ class Student extends Model
 
     public function isEnrolled(): bool
     {
-        return $this->activeEnrollment() !== null;
+        return $this->enrollments()
+            ->where(function ($q) {
+                $q->where('status', 'active')
+                    ->orWhere(function ($q2) {
+                        $q2->where('status', 'cancelled')
+                            ->where('end_date', '>', now());
+                    });
+            })
+            ->where('end_date', '>=', now()->startOfDay())
+            ->exists();
     }
 
     public function hasAccess(): bool
@@ -78,14 +89,13 @@ class Student extends Model
 
     public function paymentStatus(): ?string
     {
-    $status = $this->billings()->latest()->first()?->status;
-    
-    return match($status) {
-        'confirmed' => 'paid',
-        'pending'   => 'pending',
-        default     => $status,
-    };
+        $status = $this->billings()->latest()->first()?->status;
 
+        return match ($status) {
+            'confirmed' => 'paid',
+            'pending'   => 'pending',
+            default     => $status,
+        };
     }
 
     public function lastFrequency(): ?string
@@ -130,5 +140,30 @@ class Student extends Model
             'status'       => 'active',
             'is_defaulter' => false,
         ]);
+    }
+    public static function getGoalOptions(): array
+    {
+        return [
+            'hypertrophy'   => 'Hipertrofia (ganho de massa muscular)',
+            'weight_loss'   => 'Emagrecimento (perda de peso)',
+            'conditioning'  => 'Condicionamento físico',
+            'health'        => 'Saúde e bem-estar',
+            'rehabilitation' => 'Reabilitação (pós-lesão)',
+            'other'         => 'Outro',
+        ];
+    }
+
+    public function getGoalLabelAttribute(): string
+    {
+        return self::getGoalOptions()[$this->goal] ?? $this->goal;
+    }
+    // Verifica se o aluno já utilizou um teste grátis anteriormente
+    public function hasUsedTrial(): bool
+    {
+        return $this->enrollments()
+            ->whereHas('plan', function ($q) {
+                $q->where('is_trial', true);
+            })
+            ->exists();
     }
 }

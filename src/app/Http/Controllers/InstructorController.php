@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Instructor;
 use App\Models\User;
+use App\Models\Student;
 
 class InstructorController extends Controller
 {
@@ -16,14 +17,14 @@ class InstructorController extends Controller
     }
 
     public function create()
-{
-    $users = User::whereDoesntHave('instructor')
-        ->whereDoesntHave('manager')  // ← adiciona isso
-        ->whereDoesntHave('receptionist')
-        ->get();
+    {
+        $users = User::whereDoesntHave('instructor')
+            ->whereDoesntHave('manager')
+            ->whereDoesntHave('receptionist')
+            ->get();
 
-    return view('instructors.create', compact('users'));
-}
+        return view('instructors.create', compact('users'));
+    }
 
     public function store(Request $request)
     {
@@ -93,5 +94,59 @@ class InstructorController extends Controller
         ]);
 
         return back()->with('success', 'Código regenerado com sucesso!');
+    }
+
+    /**
+     * Lista os alunos vinculados a este instrutor, incluindo o objetivo.
+     */
+    public function myStudents()
+    {
+        $instructor = Auth::user()->instructor;
+
+        if (!$instructor) {
+            if (request()->wantsJson()) {
+                return response()->json(['message' => 'Você não é um instrutor.'], 403);
+            }
+            return redirect()->route('dashboard')->withErrors('Você não é um instrutor.');
+        }
+
+        $students = Student::with('user')
+            ->where('instructor_id', $instructor->id)
+            ->get()
+            ->map(function ($student) {
+                return [
+                    'id'            => $student->id,
+                    'user_id'       => $student->user_id,
+                    'name'          => $student->user->name,
+                    'email'         => $student->user->email,
+                    'birth_date'    => $student->birth_date,
+                    'is_defaulter'  => $student->is_defaulter,
+                    'goal'          => $student->goal,
+                    'goal_label'    => $this->getGoalLabel($student->goal),
+                ];
+            });
+
+        if (request()->wantsJson()) {
+            return response()->json($students);
+        }
+
+        return view('instructors.students', compact('students'));
+    }
+
+    /**
+     * Retorna o rótulo em português para o objetivo do aluno.
+     */
+    private function getGoalLabel(?string $goal): string
+    {
+        $labels = [
+            'hypertrophy'    => 'Hipertrofia (ganho de massa muscular)',
+            'weight_loss'    => 'Emagrecimento (perda de peso)',
+            'conditioning'   => 'Condicionamento físico',
+            'health'         => 'Saúde e bem-estar',
+            'rehabilitation' => 'Reabilitação (pós-lesão)',
+            'other'          => 'Outro',
+        ];
+
+        return $labels[$goal] ?? 'Não definido';
     }
 }

@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\StudentSchedule;
 use App\Models\WorkoutSession;
+use App\Models\Attendance;
 
 class User extends Authenticatable
 {
@@ -71,13 +72,13 @@ class User extends Authenticatable
         return $this->belongsToMany(PlanGroup::class, 'plan_group_members');
     }
 
-    // ── Agenda semanal (Demanda 1) ───────────────────────────────────────────
+    // ── Agenda semanal ───────────────────────────────────────────────────────
     public function schedule()
     {
         return $this->hasMany(StudentSchedule::class);
     }
 
-    // ── Sessões de treino (Demanda 3) ─────────────────────────────────────────
+    // ── Sessões de treino ────────────────────────────────────────────────────
     public function workoutSessions()
     {
         return $this->hasMany(WorkoutSession::class, 'student_id');
@@ -137,13 +138,12 @@ class User extends Authenticatable
         return $remainder === 0 ? 0 : $threshold - $remainder;
     }
 
-
     /**
      * Verifica se o aluno treina hoje, baseado na agenda semanal.
      */
     public function trainsToday(): bool
     {
-        $today = strtolower(now()->format('l')); 
+        $today = strtolower(now()->format('l'));
 
         $weekDays = [
             'monday'    => 'monday',
@@ -165,13 +165,11 @@ class User extends Authenticatable
 
     /**
      * Calcula a frequência do aluno com base nos dias agendados e presenças.
-     * (Requer model Attendance; se não existir, retorna 0.)
      */
     public function calculateAttendance(): float
     {
         $totalScheduleDays = StudentSchedule::where('user_id', $this->id)->count();
 
-        // Evita erro caso o relacionamento attendances ainda não exista
         if (!method_exists($this, 'attendances')) {
             return 0.0;
         }
@@ -204,5 +202,143 @@ class User extends Authenticatable
             ->where('session_date', today())
             ->where('status', 'completed')
             ->exists();
+    }
+
+    // Relacionamento com frequências (como aluno)
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class, 'student_id');
+    }
+
+    // Relacionamento com frequências marcadas por ele (instrutor/gerente)
+    public function markedAttendances()
+    {
+        return $this->hasMany(Attendance::class, 'marked_by');
+    }
+
+    // Alunos vinculados a este instrutor
+    public function students()
+    {
+        return $this->hasMany(Student::class, 'instructor_id');
+    }
+
+    /**
+     * Calcula a fidelidade do aluno com base na agenda e presenças reais.
+     *
+     * @param string|null $startDate (Y-m-d)
+     * @param string|null $endDate   (Y-m-d)
+     * @return array
+     */
+    public function calculateFidelity(?string $startDate = null, ?string $endDate = null): array
+    {
+        $scheduleDays = StudentSchedule::where('user_id', $this->id)
+            ->where('active', true)
+            ->pluck('week_day')
+            ->toArray();
+
+        if (empty($scheduleDays)) {
+            return [
+                'fidelity_rate' => null,
+                'total_expected' => 0,
+                'total_present' => 0,
+                'message' => 'Aluno sem agenda definida. Não é possível calcular fidelidade.'
+            ];
+        }
+
+        if (!$startDate) {
+            $startDate = now()->startOfMonth()->toDateString();
+        }
+        if (!$endDate) {
+            $endDate = now()->endOfMonth()->toDateString();
+        }
+
+        $start = \Carbon\Carbon::parse($startDate);
+        $end   = \Carbon\Carbon::parse($endDate);
+
+        $weekDaysMap = [
+            'monday' => 1,
+            'tuesday' => 2,
+            'wednesday' => 3,
+            'thursday' => 4,
+            'friday' => 5,
+            'saturday' => 6,
+            'sunday' => 7
+        ];
+        $scheduleNumeric = array_map(fn($d) => $weekDaysMap[$d] ?? null, $scheduleDays);
+        $scheduleNumeric = array_filter($scheduleNumeric);
+
+        $totalExpected = 0;
+        $current = $start->copy();
+        while ($current <= $end) {
+            $weekDayNum = (int) $current->format('N');
+            if (in_array($weekDayNum, $scheduleNumeric)) {
+                $totalExpected++;
+            }
+            $current->addDay();
+        }
+
+        if ($totalExpected === 0) {
+            return [
+                'fidelity_rate' => 0,
+                'total_expected' => 0,
+                'total_present' => 0,
+                'message' => 'Nenhum dia de treino previsto no período selecionado.'
+            ];
+        }
+
+        $attendances = Attendance::where('student_id', $this->id)
+            ->whereBetween('attendance_date', [$startDate, $endDate])
+            ->where('status', 'present')
+            ->get();
+
+        $totalPresent = 0;
+        foreach ($attendances as $att) {
+            $attDate = \Carbon\Carbon::parse($att->attendance_date);
+            $weekDayNum = (int) $attDate->format('N');
+            if (in_array($weekDayNum, $scheduleNumeric)) {
+                $totalPresent++;
+            }
+        }
+
+        $fidelityRate = round(($totalPresent / $totalExpected) * 100, 2);
+
+        return [
+            'fidelity_rate' => $fidelityRate,
+            'total_expected' => $totalExpected,
+            'total_present' => $totalPresent,
+            'message' => null
+        ];
+    }
+    // Relacionamento com matrículas
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class, 'student_id');
+    }
+
+    /**
+     * Retorna a matrícula ativa do aluno (que ainda permite acesso)
+     */
+    public function activeEnrollment()
+    {
+        return $this->enrollments()
+            ->where(function ($q) {
+                $q->where('status', 'active')
+                    ->orWhere(function ($q2) {
+                        $q2->where('status', 'cancelled')
+                            ->where('end_date', '>', now());
+                    });
+            })
+            ->where('end_date', '>=', now()->startOfDay())
+            ->orderBy('end_date', 'desc')
+            ->first();
+    }
+
+    /**
+     * Verifica se o aluno tem acesso ativo (matrícula válida e dentro do prazo)
+     */
+    public function hasActiveAccess(): bool
+    {
+        $enrollment = $this->activeEnrollment();
+        return $enrollment ? $enrollment->hasAccess() : false;
     }
 }

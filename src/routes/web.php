@@ -21,6 +21,8 @@ use App\Http\Controllers\GamificationController;
 use App\Http\Controllers\ReceptionController;
 use App\Http\Controllers\StudentScheduleController;
 use App\Http\Controllers\WorkoutSessionController;
+use App\Http\Controllers\InstructorAttendanceController;
+use App\Http\Controllers\FidelityController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -273,4 +275,20 @@ Route::middleware(['auth'])->prefix('treino')->group(function () {
     Route::get('/exercicio/{sessionExerciseId}/detalhes', [WorkoutSessionController::class, 'getExerciseDetails'])->name('workout-sessions.exercise-details');
     Route::get('/historico', [WorkoutSessionController::class, 'history'])->name('workout-sessions.history');
 });
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    // Frequência - Instrutor
+    Route::get('/instructor/attendances', [InstructorAttendanceController::class, 'index']);
+    Route::get('/instructor/attendances/absent', [InstructorAttendanceController::class, 'absentStudents']);
+    Route::get('/instructor/attendances/student/{studentId}', [InstructorAttendanceController::class, 'show']);
+    Route::post('/instructor/attendances/student/{studentId}/mark', [InstructorAttendanceController::class, 'markAttendance']);
+});
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/fidelity', [FidelityController::class, 'show']); // para o próprio aluno
+    Route::get('/fidelity/student/{studentId}', [FidelityController::class, 'showForInstructor']);
+});
+Route::middleware(['auth'])->group(function () {
+    Route::get('/instructor/students', [InstructorController::class, 'myStudents'])->name('instructor.students');
+});
+Route::middleware(['auth'])->post('/enrollment/trial', [EnrollmentController::class, 'trial'])->name('enrollment.trial');
 require __DIR__ . '/auth.php';

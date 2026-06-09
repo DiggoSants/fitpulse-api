@@ -13,6 +13,8 @@ class Plan extends Model
         'duration_days',
         'benefits',
         'status',
+        'is_trial',
+        'trial_days',
     ];
 
     protected $casts = [
@@ -32,5 +34,15 @@ class Plan extends Model
     public function scopeOrderedByPrice($query)
     {
         return $query->orderBy('price')->orderBy('name');
+    }
+    public function scopeTrials($query)
+    {
+        return $query->where('is_trial', true);
+    }
+
+    // Verifica se é um plano de teste
+    public function isTrial(): bool
+    {
+        return $this->is_trial === true;
     }
 }

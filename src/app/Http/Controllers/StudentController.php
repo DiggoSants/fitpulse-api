@@ -29,16 +29,27 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
-        Student::create([
-        'user_id' => $request->user_id,
-        'instructor_id' => $request->instructor_id,
-        'biometric_id' => $request->biometric_id,
-        'rfid_tag' => $request->rfid_tag,
-        'birth_date' => $request->birth_date,
-        'is_defaulter' => $request->is_defaulter
-    ]);
+        $request->validate([
+            'user_id'       => 'required|exists:users,id',
+            'instructor_id' => 'nullable|exists:instructors,id',
+            'biometric_id'  => 'nullable|string|max:255',
+            'rfid_tag'      => 'nullable|string|max:255',
+            'birth_date'    => 'nullable|date',
+            'is_defaulter'  => 'nullable|boolean',
+            'goal'          => 'nullable|in:hypertrophy,weight_loss,conditioning,health,rehabilitation,other',
+        ]);
 
-    return redirect('/students');
+        Student::create([
+            'user_id'       => $request->user_id,
+            'instructor_id' => $request->instructor_id,
+            'biometric_id'  => $request->biometric_id,
+            'rfid_tag'      => $request->rfid_tag,
+            'birth_date'    => $request->birth_date,
+            'is_defaulter'  => $request->is_defaulter ?? false,
+            'goal'          => $request->goal,
+        ]);
+
+        return redirect('/students');
     }
 
     /**
@@ -62,18 +73,28 @@ class StudentController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $request->validate([
+            'user_id'       => 'sometimes|exists:users,id',
+            'instructor_id' => 'nullable|exists:instructors,id',
+            'biometric_id'  => 'nullable|string|max:255',
+            'rfid_tag'      => 'nullable|string|max:255',
+            'birth_date'    => 'nullable|date',
+            'is_defaulter'  => 'nullable|boolean',
+            'goal'          => 'nullable|in:hypertrophy,weight_loss,conditioning,health,rehabilitation,other',
+        ]);
+
         $student = Student::findOrFail($id);
+        $student->update([
+            'user_id'       => $request->user_id ?? $student->user_id,
+            'instructor_id' => $request->instructor_id ?? $student->instructor_id,
+            'biometric_id'  => $request->biometric_id ?? $student->biometric_id,
+            'rfid_tag'      => $request->rfid_tag ?? $student->rfid_tag,
+            'birth_date'    => $request->birth_date ?? $student->birth_date,
+            'is_defaulter'  => $request->has('is_defaulter') ? $request->is_defaulter : $student->is_defaulter,
+            'goal'          => $request->goal ?? $student->goal,
+        ]);
 
-    $student->update([
-        'user_id' => $request->user_id,
-        'instructor_id' => $request->instructor_id,
-        'biometric_id' => $request->biometric_id,
-        'rfid_tag' => $request->rfid_tag,
-        'birth_date' => $request->birth_date,
-        'is_defaulter' => $request->is_defaulter
-    ]);
-
-    return redirect('/students');
+        return redirect('/students');
     }
 
     /**

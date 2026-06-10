@@ -50,9 +50,10 @@ class MaintenanceController extends Controller
     {
         $equipment = Equipment::orderBy('name')->get()->map(function ($item) {
             return [
-                'id'     => $item->id,
-                'name'   => $item->name,
-                'status' => $item->status,
+                'id'          => $item->id,
+                'name'        => $item->name,
+                'unique_code' => $item->unique_code,
+                'status'      => $item->status,
             ];
         });
 

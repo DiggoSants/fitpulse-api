@@ -21,14 +21,17 @@ class InstructorAvailabilityController extends Controller
             return redirect()->route('dashboard')->with('error', 'Apenas instrutores podem acessar.');
         }
         
+        $instructor->load(['students.user.schedule']);
+
         $availabilities = InstructorAvailability::where('instructor_id', $instructor->id)
             ->orderByRaw("FIELD(week_day, 'monday','tuesday','wednesday','thursday','friday','saturday','sunday')")
             ->get();
         
         $weekDays = InstructorAvailability::weekDaysLabels();
         $shifts   = InstructorAvailability::shiftLabels();
+        $agenda   = $this->buildAgendaPayload($instructor, $availabilities, $weekDays, $shifts);
         
-        return view('instructors.availability', compact('availabilities', 'weekDays', 'shifts'));
+        return view('instructors.availability', compact('agenda', 'availabilities', 'weekDays', 'shifts'));
     }
     
     /**
@@ -47,18 +50,26 @@ class InstructorAvailabilityController extends Controller
             'availability' => ['required', 'array'],
             'availability.*.week_day' => ['required', 'string', 'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday'],
             'availability.*.shift'    => ['required', 'string', 'in:morning,afternoon,evening,full_day'],
-            'availability.*.active'   => ['boolean'],
+            'availability.*.active'   => ['nullable', 'boolean'],
+            'availability.*.start_time' => ['nullable', 'date_format:H:i'],
+            'availability.*.end_time'   => ['nullable', 'date_format:H:i'],
         ]);
         
         // Remove os antigos e recria (ou atualiza)
         InstructorAvailability::where('instructor_id', $instructor->id)->delete();
         
         foreach ($request->availability as $item) {
+            if (!($item['active'] ?? false)) {
+                continue;
+            }
+
             InstructorAvailability::create([
                 'instructor_id' => $instructor->id,
                 'week_day'      => $item['week_day'],
                 'shift'         => $item['shift'],
-                'active'        => $item['active'] ?? true,
+                'start_time'    => ($item['start_time'] ?? null) ?: null,
+                'end_time'      => ($item['end_time'] ?? null) ?: null,
+                'active'        => true,
             ]);
         }
         
@@ -101,5 +112,143 @@ class InstructorAvailabilityController extends Controller
             'shift'    => $shift,
             'instructors' => $result,
         ]);
+    }
+
+    private function buildAgendaPayload(Instructor $instructor, $availabilities, array $weekDays, array $shifts): array
+    {
+        $availabilityByDay = $availabilities->groupBy('week_day');
+        $studentsByDay = $this->studentsByDay($instructor, array_keys($weekDays));
+
+        $days = collect($weekDays)->map(function (string $label, string $dayKey) use ($availabilityByDay, $studentsByDay, $shifts) {
+            $dayStudents = $studentsByDay[$dayKey] ?? [];
+
+            $slots = ($availabilityByDay->get($dayKey) ?? collect())
+                ->map(function (InstructorAvailability $availability) use ($dayKey, $label, $dayStudents, $shifts) {
+                    $isOccupied = $availability->active && count($dayStudents) > 0;
+                    $status = !$availability->active ? 'unavailable' : ($isOccupied ? 'occupied' : 'free');
+
+                    return [
+                        'id'           => $availability->id,
+                        'day_key'      => $dayKey,
+                        'day_label'    => $label,
+                        'shift'        => $availability->shift,
+                        'shift_label'  => $shifts[$availability->shift] ?? $availability->shift,
+                        'time_label'   => $this->timeLabel($availability, $shifts),
+                        'active'       => $availability->active,
+                        'status'       => $status,
+                        'status_label' => match ($status) {
+                            'occupied'    => 'Ocupado',
+                            'free'        => 'Livre',
+                            default       => 'Indisponível',
+                        },
+                        'students'     => $availability->active ? $dayStudents : [],
+                    ];
+                })
+                ->values()
+                ->all();
+
+            return [
+                'key'          => $dayKey,
+                'label'        => $label,
+                'short_label'  => mb_substr($label, 0, 3),
+                'has_schedule' => count($slots) > 0,
+                'slots'        => $slots,
+                'students'     => $dayStudents,
+            ];
+        })->values()->all();
+
+        $slots = collect($days)->flatMap(fn (array $day) => $day['slots']);
+
+        return [
+            'instructor' => [
+                'name'      => $instructor->user?->name,
+                'specialty' => $instructor->specialty ?: 'Instrutor',
+            ],
+            'summary' => [
+                'registered_days' => collect($days)->where('has_schedule', true)->count(),
+                'registered_slots'=> $slots->count(),
+                'free_slots'      => $slots->where('status', 'free')->count(),
+                'occupied_slots'  => $slots->where('status', 'occupied')->count(),
+                'linked_students' => $instructor->students->count(),
+            ],
+            'next_slots' => $this->nextSlots($slots),
+            'days'       => $days,
+        ];
+    }
+
+    private function studentsByDay(Instructor $instructor, array $weekDayKeys): array
+    {
+        $studentsByDay = array_fill_keys($weekDayKeys, []);
+
+        foreach ($instructor->students as $student) {
+            $scheduledDays = $student->user?->schedule
+                ->where('active', true)
+                ->pluck('week_day')
+                ->all() ?? [];
+
+            foreach ($scheduledDays as $day) {
+                if (!array_key_exists($day, $studentsByDay)) {
+                    continue;
+                }
+
+                $studentsByDay[$day][] = [
+                    'id'     => $student->id,
+                    'name'   => $student->user?->name,
+                    'email'  => $student->user?->email,
+                    'status' => $student->is_defaulter ? 'Pendente' : 'Em dia',
+                ];
+            }
+        }
+
+        return $studentsByDay;
+    }
+
+    private function timeLabel(InstructorAvailability $availability, array $shifts): string
+    {
+        if ($availability->start_time && $availability->end_time) {
+            return $this->formatTime($availability->start_time).' às '.$this->formatTime($availability->end_time);
+        }
+
+        return $shifts[$availability->shift] ?? $availability->shift;
+    }
+
+    private function formatTime($time): string
+    {
+        if ($time instanceof \Carbon\CarbonInterface) {
+            return $time->format('H:i');
+        }
+
+        return mb_substr((string) $time, 0, 5);
+    }
+
+    private function nextSlots($slots)
+    {
+        $dayNumbers = [
+            'sunday'    => 0,
+            'monday'    => 1,
+            'tuesday'   => 2,
+            'wednesday' => 3,
+            'thursday'  => 4,
+            'friday'    => 5,
+            'saturday'  => 6,
+        ];
+        $today = now()->dayOfWeek;
+
+        return $slots
+            ->where('active', true)
+            ->map(function (array $slot) use ($dayNumbers, $today) {
+                $daysUntil = (($dayNumbers[$slot['day_key']] ?? $today) - $today + 7) % 7;
+                $slot['next_label'] = $daysUntil === 0 ? 'Hoje' : ($daysUntil === 1 ? 'Amanhã' : $slot['day_label']);
+                $slot['days_until'] = $daysUntil;
+
+                return $slot;
+            })
+            ->sortBy([
+                ['days_until', 'asc'],
+                ['shift', 'asc'],
+            ])
+            ->take(5)
+            ->values()
+            ->all();
     }
 }

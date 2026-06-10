@@ -15,14 +15,12 @@ class EquipmentController extends Controller
      */
     public function index()
     {
-        // Carrega equipamentos e a última manutenção concluída (via relacionamento)
         $equipments = Equipment::with(['maintenanceRequests' => function ($q) {
             $q->where('status', 'completed')
               ->orderBy('completed_at', 'desc')
               ->limit(1);
         }])->get();
 
-        // Formata a data da última manutenção para exibição
         $equipments->transform(function ($equipment) {
             $lastMaintenance = $equipment->maintenanceRequests->first();
             $equipment->last_maintenance_display = $lastMaintenance
@@ -32,15 +30,12 @@ class EquipmentController extends Controller
         });
 
         if (request()->expectsJson()) {
-            return response()->json($equipments);
+            return response()->json(['data' => $equipments]);
         }
 
         return view('equipment.index', compact('equipments'));
     }
 
-    /**
-     * Exibe formulário de criação (se for web).
-     */
     public function create()
     {
         return view('equipment.create');
@@ -52,13 +47,15 @@ class EquipmentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'          => 'required|string|max:255',
-            'description'   => 'nullable|string',
-            'status'        => ['nullable', Rule::in(['active', 'maintenance', 'inactive'])],
+            'name'        => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'status'      => ['nullable', Rule::in(['ativo', 'manutencao', 'inativo'])],
         ]);
 
-        $equipment = Equipment::create($request->only(['name', 'description', 'status']));
-        // O código é gerado automaticamente no model Equipment via boot()
+        $data = $request->only(['name', 'description']);
+        $data['status'] = $request->input('status', 'ativo');
+
+        $equipment = Equipment::create($data);
 
         $message = "Equipamento {$equipment->unique_code} cadastrado com sucesso.";
 
@@ -69,20 +66,17 @@ class EquipmentController extends Controller
         return redirect()->route('equipment.index')->with('success', $message);
     }
 
-    /**
-     * Exibe os detalhes de um equipamento.
-     */
     public function show($id)
     {
         $equipment = Equipment::with(['maintenanceRequests' => function ($q) {
             $q->orderBy('created_at', 'desc');
         }])->findOrFail($id);
 
-        // Formata última manutenção
         $lastCompleted = $equipment->maintenanceRequests
             ->where('status', 'completed')
             ->sortByDesc('completed_at')
             ->first();
+
         $equipment->last_maintenance_display = $lastCompleted
             ? $lastCompleted->completed_at->format('d/m/Y')
             : 'Nunca registrada';
@@ -94,9 +88,6 @@ class EquipmentController extends Controller
         return view('equipment.show', compact('equipment'));
     }
 
-    /**
-     * Exibe formulário de edição (web).
-     */
     public function edit($id)
     {
         $equipment = Equipment::findOrFail($id);
@@ -105,29 +96,27 @@ class EquipmentController extends Controller
 
     /**
      * Atualiza os dados do equipamento.
+     * Aceita status: ativo | manutencao | inativo
      */
     public function update(Request $request, $id)
     {
         $equipment = Equipment::findOrFail($id);
 
         $request->validate([
-            'name'          => 'sometimes|required|string|max:255',
-            'description'   => 'nullable|string',
-            'status'        => ['nullable', Rule::in(['active', 'maintenance', 'inactive'])],
+            'name'        => 'sometimes|required|string|max:255',
+            'description' => 'nullable|string',
+            'status'      => ['nullable', Rule::in(['ativo', 'manutencao', 'inativo'])],
         ]);
 
         $equipment->update($request->only(['name', 'description', 'status']));
 
         if ($request->expectsJson()) {
-            return response()->json(['message' => 'Equipamento atualizado.', 'equipment' => $equipment]);
+            return response()->json(['message' => 'Equipamento atualizado.', 'equipment' => $equipment->fresh()]);
         }
 
         return redirect()->route('equipment.index')->with('success', 'Equipamento atualizado.');
     }
 
-    /**
-     * Remove o equipamento.
-     */
     public function destroy($id)
     {
         $equipment = Equipment::findOrFail($id);
@@ -142,7 +131,7 @@ class EquipmentController extends Controller
 
     public function active()
     {
-        $equipments = Equipment::where('status', 'active')
+        $equipments = Equipment::where('status', 'ativo')
             ->orderBy('name')
             ->get(['id', 'name', 'unique_code']);
 

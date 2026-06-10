@@ -7,11 +7,32 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Plan;
 use App\Models\Enrollment;
 use App\Models\Student;
+use App\Models\Billing;
 
 class ReportController extends Controller
 {
     public function plansComparative(Request $request)
     {
+        // Formas de pagamento mais usadas por plano (billings confirmados)
+        $paymentsByPlan = Billing::select('plan_id', 'payment_method', DB::raw('COUNT(*) as total'))
+            ->where('status', 'confirmed')
+            ->whereNotNull('payment_method')
+            ->groupBy('plan_id', 'payment_method')
+            ->orderBy('plan_id')
+            ->orderByDesc('total')
+            ->get()
+            ->groupBy('plan_id')
+            ->map(function ($methods) {
+                // Pega os 3 métodos mais usados e formata os labels
+                return $methods->take(3)->map(function ($m) {
+                    return [
+                        'method' => $m->payment_method,
+                        'label'  => self::paymentLabel($m->payment_method),
+                        'total'  => $m->total,
+                    ];
+                })->values();
+            });
+
         $plans = Plan::active()
             ->withCount([
                 'enrollments as active_students_count' => function ($query) {
@@ -22,15 +43,19 @@ class ReportController extends Controller
             ])
             ->orderedByPrice()
             ->get()
-            ->map(function ($plan) {
+            ->map(function ($plan) use ($paymentsByPlan) {
+                $methods  = $paymentsByPlan->get($plan->id, collect());
+                $revenue  = round($plan->price * $plan->active_students_count, 2);
+
                 return [
                     'id'              => $plan->id,
                     'name'            => $plan->name,
                     'description'     => $plan->description,
                     'price'           => $plan->price,
                     'duration_days'   => $plan->duration_days,
-                    'benefits'        => $plan->benefits,
                     'active_students' => $plan->active_students_count,
+                    'revenue'         => $revenue,
+                    'payment_methods' => $methods,  // [{method, label, total}]
                 ];
             });
 
@@ -41,15 +66,35 @@ class ReportController extends Controller
         return view('reports.plans-comparative', compact('plans'));
     }
 
+    /** Converte chave interna em label legível */
+    private static function paymentLabel(string $method): string
+    {
+        return match (strtolower(trim($method))) {
+            'pix'           => 'Pix',
+            'credit_card',
+            'credito',
+            'credit'        => 'Crédito',
+            'debit_card',
+            'debito',
+            'debit'         => 'Débito',
+            'cash',
+            'dinheiro'      => 'Dinheiro',
+            'boleto'        => 'Boleto',
+            'transferencia',
+            'transfer'      => 'Transferência',
+            default         => ucfirst($method),
+        };
+    }
+
     public function plansCancellations(Request $request)
     {
         $request->validate([
             'start_date' => ['nullable', 'date_format:Y-m-d'],
             'end_date'   => ['nullable', 'date_format:Y-m-d', 'after_or_equal:start_date'],
         ], [
-            'start_date.date_format' => 'Data inicial inválida. Use o formato AAAA-MM-DD.',
-            'end_date.date_format'   => 'Data final inválida. Use o formato AAAA-MM-DD.',
-            'end_date.after_or_equal'=> 'A data final deve ser igual ou posterior à data inicial.',
+            'start_date.date_format'  => 'Data inicial inválida. Use o formato AAAA-MM-DD.',
+            'end_date.date_format'    => 'Data final inválida. Use o formato AAAA-MM-DD.',
+            'end_date.after_or_equal' => 'A data final deve ser igual ou posterior à data inicial.',
         ]);
 
         $query = Enrollment::with(['student.user', 'plan'])

@@ -216,6 +216,15 @@
                 <span class="dash-hero__pulse-dot"></span>
                 INSTRUTOR
             </span>
+            <a href="{{ route('instructor.availability') }}" class="btn-ghost"
+               style="text-decoration:none; display:inline-flex; align-items:center; gap:7px; font-size:12px; padding:9px 18px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                     style="stroke:currentColor; stroke-width:2; stroke-linecap:round;">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                    <path d="M16 2v4M8 2v4M3 10h18"/>
+                </svg>
+                Agenda
+            </a>
             <a href="{{ route('evaluations.instructor') }}" class="btn-ghost"
                style="text-decoration:none; display:inline-flex; align-items:center; gap:7px; font-size:12px; padding:9px 18px;">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none"

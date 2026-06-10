@@ -184,11 +184,22 @@ Route::middleware(['auth', 'verified', 'enrolled', 'role:student'])->group(funct
 
 // Cadastro e gerenciamento — só gerentes
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
+    // CRUD básico (já existentes)
     Route::post('/products',              [ShopController::class, 'store'])->name('products.store');
     Route::put('/products/{id}',          [ShopController::class, 'update'])->name('products.update');
     Route::delete('/products/{id}',       [ShopController::class, 'destroy'])->name('products.destroy');
     Route::post('/products/{id}/restore', [ShopController::class, 'restore'])->name('products.restore');
     Route::get('/lojinha/manager',        [ShopController::class, 'managerView'])->name('shop.manager');
+
+    // ========== NOVAS ROTAS PARA CONTROLE DE ESTOQUE ==========
+    // Visualizar estoque de todos os produtos
+    Route::get('/manager/products/stock', [ShopController::class, 'managerStock'])->name('products.stock');
+    // Atualizar estoque de um produto
+    Route::put('/manager/products/{id}/stock', [ShopController::class, 'updateStock'])->name('products.update-stock');
+    // Reposição de estoque (incremento)
+    Route::post('/manager/products/{id}/restock', [ShopController::class, 'restock'])->name('products.restock');
+    // Produtos com estoque baixo (alerta)
+    Route::get('/manager/products/low-stock', [ShopController::class, 'lowStock'])->name('products.low-stock');
 });
 
 // ── Avaliação física ──────────────────────────────────────────────────────────

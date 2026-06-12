@@ -36,6 +36,26 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
+        // Atualizar objetivo do aluno se fornecido
+        if ($request->has('goal') || $request->has('custom_goal')) {
+            $student = \App\Models\Student::where('user_id', $request->user()->id)->first();
+            if ($student) {
+                $updateData = [];
+                
+                if ($request->filled('goal')) {
+                    $updateData['goal'] = $request->input('goal');
+                }
+                
+                if ($request->input('goal') === 'other' && $request->filled('custom_goal')) {
+                    $updateData['custom_goal'] = $request->input('custom_goal');
+                }
+                
+                if (!empty($updateData)) {
+                    $student->update($updateData);
+                }
+            }
+        }
+
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 

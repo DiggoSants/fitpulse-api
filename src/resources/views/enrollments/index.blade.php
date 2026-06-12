@@ -79,6 +79,37 @@
                 <span class="profile-field-error">{{ $message }}</span>
             @enderror
 
+            <div class="profile-field">
+                <p class="enrollment-section-label">Qual é seu objetivo?</p>
+                <select id="goal-select-enrollment" name="goal" required>
+                    <option value="" disabled selected>Selecione seu objetivo</option>
+                    @php
+                        $goalOptions = \App\Models\Student::getGoalOptions();
+                    @endphp
+                    @foreach($goalOptions as $key => $label)
+                        <option value="{{ $key }}" {{ old('goal') === $key ? 'selected' : '' }}>
+                            {{ $label }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('goal')
+                    <span class="profile-field-error">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="profile-field" id="custom-goal-field" style="display: none;">
+                <label for="custom_goal">Descreva seu objetivo</label>
+                <textarea 
+                    id="custom_goal" 
+                    name="custom_goal" 
+                    class="profile-textarea"
+                    placeholder="Ex: Melhorar meu condicionamento físico para correr uma meia maratona"
+                    rows="4">{{ old('custom_goal') }}</textarea>
+                @error('custom_goal')
+                    <span class="profile-field-error">{{ $message }}</span>
+                @enderror
+            </div>
+
             <p class="enrollment-section-label">Forma de pagamento</p>
             <div class="payment-method-grid">
                 <label class="payment-method-option">
@@ -246,6 +277,29 @@ document.addEventListener('keydown', function(e) {
             m.classList.remove('is-open');
         });
         document.body.style.overflow = '';
+    }
+});
+
+// Controlar visibilidade do campo de objetivo customizado
+document.addEventListener('DOMContentLoaded', function() {
+    const goalSelect = document.getElementById('goal-select-enrollment');
+    const customGoalField = document.getElementById('custom-goal-field');
+    const customGoalTextarea = document.getElementById('custom_goal');
+    
+    function updateCustomGoalVisibility() {
+        if (goalSelect.value === 'other') {
+            customGoalField.style.display = 'block';
+            customGoalTextarea.setAttribute('required', 'required');
+        } else {
+            customGoalField.style.display = 'none';
+            customGoalTextarea.removeAttribute('required');
+        }
+    }
+    
+    if (goalSelect) {
+        goalSelect.addEventListener('change', updateCustomGoalVisibility);
+        // Verificar ao carregar página
+        updateCustomGoalVisibility();
     }
 });
 </script>

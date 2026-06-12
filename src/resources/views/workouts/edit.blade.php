@@ -42,6 +42,30 @@
                         @enderror
                     </div>
 
+                    <div class="profile-field">
+                        <label>Dia da agenda</label>
+                        @if(count($scheduleDays) < $minScheduleDays)
+                            <div class="weekly-validation weekly-validation--error" style="margin-bottom:10px;">
+                                Defina a agenda semanal do aluno antes de atualizar o treino.
+                            </div>
+                        @endif
+                        <div class="workout-day-options">
+                            @forelse($scheduleDays as $dayKey)
+                                @php $selectedDay = old('week_day', $workout->week_day); @endphp
+                                <label class="weekly-day-option {{ $selectedDay === $dayKey ? 'is-selected' : '' }}">
+                                    <input type="radio" name="week_day" value="{{ $dayKey }}" @checked($selectedDay === $dayKey)>
+                                    <span class="weekly-day-option__short">{{ ['monday'=>'SEG','tuesday'=>'TER','wednesday'=>'QUA','thursday'=>'QUI','friday'=>'SEX','saturday'=>'SAB','sunday'=>'DOM'][$dayKey] ?? '' }}</span>
+                                    <span class="weekly-day-option__label">{{ $weekDays[$dayKey] ?? $dayKey }}</span>
+                                </label>
+                            @empty
+                                <div class="weekly-day-empty weekly-day-empty--wide">Nenhum dia cadastrado na agenda.</div>
+                            @endforelse
+                        </div>
+                        @error('week_day')
+                            <span style="color:#ff4d6a; font-size:12px;">{{ $message }}</span>
+                        @enderror
+                    </div>
+
                     <div style="margin-top:1.5rem; margin-bottom:12px;">
                         <p class="section-label">EXERCÍCIOS</p>
                     </div>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\StudentSchedule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StudentScheduleRequest extends FormRequest
@@ -14,16 +15,16 @@ class StudentScheduleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'days' => ['required', 'array', 'min:2'],
-            'days.*' => ['string', 'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday'],
+            'student_id' => ['nullable', 'integer', 'exists:students,id'],
+            'user_id'    => ['nullable', 'integer', 'exists:users,id'],
+            'days'       => ['nullable', 'array'],
+            'days.*'     => ['string', 'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'days.required' => 'Selecione os dias que você vai treinar.',
-            'days.min' => 'Você deve treinar pelo menos 2 dias por semana.',
             'days.*.in' => 'Dia da semana inválido.',
         ];
     }

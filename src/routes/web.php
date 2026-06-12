@@ -275,8 +275,6 @@ Route::middleware(['auth'])->group(function () {
     // Buscar exercícios por grupos musculares
     Route::post('/exercises/by-muscle-groups', [WorkoutController::class, 'getExercisesByMuscleGroups']);
 
-    // CRUD de treinos
-    Route::post('/workouts', [WorkoutController::class, 'store']);
     Route::get('/workouts/student/{studentId}', [WorkoutController::class, 'getStudentWorkouts']);
 });
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\StudentSchedule;
+use App\Models\Student;
 use App\Models\User;
 use App\Http\Requests\StudentScheduleRequest;
 use Illuminate\Http\Request;
@@ -10,80 +11,131 @@ use Illuminate\Support\Facades\Auth;
 
 class StudentScheduleController extends Controller
 {
-    // Save student schedule
+    private function resolveTargetUser(Request $request, ?int $userId = null): User
+    {
+        /** @var \App\Models\User $authUser */
+        $authUser = Auth::user();
+
+        $studentId    = $request->input('student_id');
+        $targetUserId = $userId ?? $request->input('user_id');
+
+        if (!$studentId && !$targetUserId) {
+            return $authUser;
+        }
+
+        if (!$authUser->isInstructor() && !$authUser->isManager()) {
+            abort_if((int) $targetUserId !== $authUser->id, 403);
+            return $authUser;
+        }
+
+        $student = $studentId
+            ? Student::with('user')->findOrFail((int) $studentId)
+            : Student::with('user')->where('user_id', (int) $targetUserId)->firstOrFail();
+
+        if ($authUser->isInstructor()) {
+            $instructor = $authUser->instructor;
+
+            if ($student->instructor_id === null) {
+                $student->forceFill(['instructor_id' => $instructor->id])->save();
+            }
+
+            abort_if($student->instructor_id !== $instructor->id, 403, 'Voce nao pode alterar a agenda deste aluno.');
+        }
+
+        return $student->user;
+    }
+
     public function store(StudentScheduleRequest $request)
     {
-        $user = Auth::user();
-        
+        $user = $this->resolveTargetUser($request);
+
         if (!$user) {
             return response()->json([
-                'message' => 'Usuário não está autenticado.'
+                'message' => 'Usuário não está autenticado.',
             ], 401);
         }
-        
-        // Remove old days
+
+        // Quando nenhum checkbox é enviado, days não vem no POST — tratamos como array vazio
+        $days = $request->input('days', []);
+
+        if (count($days) < StudentSchedule::MIN_DAYS) {
+            $error = 'Selecione pelo menos ' . StudentSchedule::MIN_DAYS . ' dias de treino na semana.';
+
+            if ($request->wantsJson()) {
+                return response()->json(['message' => $error], 422);
+            }
+
+            return back()->withErrors(['days' => $error])->withInput();
+        }
+
+        // Remove todos os dias anteriores e recria
         StudentSchedule::where('user_id', $user->id)->delete();
-        
-        // Add new days
-        foreach ($request->days as $day) {
+
+        foreach ($days as $day) {
             StudentSchedule::create([
-                'user_id' => $user->id,
+                'user_id'  => $user->id,
                 'week_day' => $day,
-                'active' => true
+                'active'   => true,
             ]);
         }
-        
-        return response()->json([
-            'message' => 'Agenda salva com sucesso!',
-            'days' => $request->days,
-            'total_days' => count($request->days)
-        ]);
+
+        $payload = [
+            'message'    => 'Agenda salva com sucesso!',
+            'days'       => $days,
+            'total_days' => count($days),
+        ];
+
+        if ($request->wantsJson()) {
+            return response()->json($payload);
+        }
+
+        return back()
+            ->with('success', $payload['message'])
+            ->with('schedule_user_id', $user->id);
     }
-    
-    // Get student schedule
+
     public function show($userId = null)
     {
         if ($userId === null) {
             $userId = Auth::id();
         }
-        
-        $userId = (int) $userId;
-        
+
+        $user   = $this->resolveTargetUser(request(), (int) $userId);
+        $userId = $user->id;
+
         $schedule = StudentSchedule::where('user_id', $userId)
             ->where('active', true)
             ->pluck('week_day')
             ->toArray();
-        
+
         $weekDaysMap = StudentSchedule::weekDays();
-        
+
         return response()->json([
-            'days' => $schedule,
-            'total_days' => count($schedule),
-            'formatted_days' => array_map(function($day) use ($weekDaysMap) {
-                return $weekDaysMap[$day] ?? $day;
-            }, $schedule)
+            'days'           => $schedule,
+            'total_days'     => count($schedule),
+            'formatted_days' => array_map(fn ($day) => $weekDaysMap[$day] ?? $day, $schedule),
         ]);
     }
-    
-    // Validate student has at least 2 days
+
     public function validateSchedule($userId)
     {
-        $userId = (int) $userId;
-        
+        $user   = $this->resolveTargetUser(request(), (int) $userId);
+        $userId = $user->id;
+
         $totalDays = StudentSchedule::where('user_id', $userId)
             ->where('active', true)
             ->count();
-            
-        if ($totalDays < 2) {
+
+        if ($totalDays < StudentSchedule::MIN_DAYS) {
             return response()->json([
-                'valid' => false,
-                'message' => 'Aluno precisa ter pelo menos 2 dias de treino na semana.'
+                'valid'   => false,
+                'message' => 'Aluno precisa ter pelo menos ' . StudentSchedule::MIN_DAYS . ' dias de treino na semana.',
             ], 422);
         }
-        
+
         return response()->json([
-            'valid' => true,
-            'total_days' => $totalDays
+            'valid'      => true,
+            'total_days' => $totalDays,
         ]);
     }
 }

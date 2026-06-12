@@ -17,7 +17,7 @@ class ProfileUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255', new ValidNomeAluno], // Adicione o new ValidNomeAluno aqui
+            'name' => ['required', 'string', 'max:255', new ValidNomeAluno],
             'email' => [
                 'required',
                 'string',
@@ -26,6 +26,8 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'goal' => ['nullable', 'string', 'in:hypertrophy,weight_loss,conditioning,health,rehabilitation,other'],
+            'custom_goal' => ['nullable', 'string', 'required_if:goal,other', 'max:500'],
         ];
     }
 }

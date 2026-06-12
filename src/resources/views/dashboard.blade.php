@@ -527,12 +527,55 @@
                                     <span class="badge-devedor badge-devedor--nao">Em dia</span>
                                 @endif
                             </div>
+                            @php
+                                $weekDays = \App\Models\StudentSchedule::weekDays();
+                                $minScheduleDays = \App\Models\StudentSchedule::MIN_DAYS;
+                                $dayOrder = array_keys($weekDays);
+                                $studentScheduleDays = $student->user->schedule
+                                    ->where('active', true)
+                                    ->sortBy(fn ($item) => array_search($item->week_day, $dayOrder, true))
+                                    ->pluck('week_day')
+                                    ->values()
+                                    ->all();
+                                $studentWorkoutsByDay = $student->workouts->groupBy('week_day');
+                            @endphp
+                            <div class="student-card__schedule">
+                                <div class="student-card__schedule-head">
+                                    <span>Agenda semanal</span>
+                                    <em>{{ count($studentScheduleDays) }} dia{{ count($studentScheduleDays) !== 1 ? 's' : '' }}</em>
+                                </div>
+
+                                @include('workouts.partials.schedule-form', [
+                                    'weekDays' => $weekDays,
+                                    'scheduleDays' => $studentScheduleDays,
+                                    'minScheduleDays' => $minScheduleDays,
+                                    'scheduleStudent' => $student,
+                                    'scheduleIsCompact' => true,
+                                ])
+
+                                <div class="weekly-agenda-list">
+                                    @forelse($studentScheduleDays as $dayKey)
+                                        @php $dayWorkouts = $studentWorkoutsByDay->get($dayKey, collect()); @endphp
+                                        <div class="weekly-agenda-list__row">
+                                            <strong>{{ $weekDays[$dayKey] ?? $dayKey }}</strong>
+                                            @if($dayWorkouts->count())
+                                                <span>{{ $dayWorkouts->pluck('name')->join(', ') }}</span>
+                                            @else
+                                                <span class="is-empty">Sem treino para este dia</span>
+                                            @endif
+                                        </div>
+                                    @empty
+                                        <div class="weekly-day-empty weekly-day-empty--wide">Nenhum dia cadastrado.</div>
+                                    @endforelse
+                                </div>
+                            </div>
                             <div class="student-card__workouts">
                                 @forelse($student->workouts as $workout)
                                     <div class="workout-block">
                                         <div class="workout-block__name">
                                             {{ $workout->name }}
                                             <div class="workout-block__summary" style="display:flex; align-items:center; gap:8px;">
+                                                <span>{{ $weekDays[$workout->week_day] ?? 'Sem dia' }}</span>
                                                 <span>{{ $workout->workoutExercises->count() }} exerc.</span>
                                                 <button type="button" class="btn-workout-action" style="font-size:11px; padding:4px 12px;" onclick="toggleWorkout('workout-inst-{{ $workout->id }}')" id="btn-workout-inst-{{ $workout->id }}">Ver exercícios ▾</button>
                                             </div>

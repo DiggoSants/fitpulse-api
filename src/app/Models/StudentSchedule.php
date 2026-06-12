@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class StudentSchedule extends Model
 {
+    public const MIN_DAYS = 2;
+
     protected $table = 'student_schedules';
     
     protected $fillable = ['user_id', 'week_day', 'active'];

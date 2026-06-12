@@ -6,25 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('workouts', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('student_id')->constrained();
-            $table->foreignId('instructor_id')->nullable()->constrained()->nullOnDelete();
-            $table->string('name');
-            $table->timestamps();
+        Schema::table('workouts', function (Blueprint $table) {
+            $table->string('week_day')->nullable()->after('name');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('workouts');
+        Schema::table('workouts', function (Blueprint $table) {
+            $table->dropColumn('week_day');
+        });
     }
 };

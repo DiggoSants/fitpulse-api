@@ -19,13 +19,23 @@ return new class extends Migration
                     'other'
                 ])->nullable()->after('instructor_id');
             }
+            
+            if (!Schema::hasColumn('students', 'custom_goal')) {
+                $table->text('custom_goal')->nullable()->after('goal');
+            }
         });
     }
 
     public function down(): void
     {
         Schema::table('students', function (Blueprint $table) {
-            $table->dropColumn('goal');
+            if (Schema::hasColumn('students', 'goal')) {
+                $table->dropColumn('goal');
+            }
+            
+            if (Schema::hasColumn('students', 'custom_goal')) {
+                $table->dropColumn('custom_goal');
+            }
         });
     }
 };

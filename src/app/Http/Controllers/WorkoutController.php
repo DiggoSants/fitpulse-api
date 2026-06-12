@@ -7,10 +7,18 @@ use App\Models\Workout;
 use App\Models\Exercise;
 use App\Models\WorkoutExercise;
 use App\Models\Student;
+use App\Models\StudentSchedule;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class WorkoutController extends Controller
 {
+    private function weekDayOrderSql(): string
+    {
+        return "CASE week_day WHEN 'monday' THEN 1 WHEN 'tuesday' THEN 2 WHEN 'wednesday' THEN 3 WHEN 'thursday' THEN 4 WHEN 'friday' THEN 5 WHEN 'saturday' THEN 6 WHEN 'sunday' THEN 7 ELSE 8 END";
+    }
+
     private function resolveStudent(?int $studentId = null): Student
     {
         /** @var \App\Models\User $user */
@@ -37,10 +45,36 @@ class WorkoutController extends Controller
         return $student;
     }
 
+    private function scheduleDaysFor(Student $student): array
+    {
+        return $student->user->schedule()
+            ->where('active', true)
+            ->orderByRaw($this->weekDayOrderSql())
+            ->pluck('week_day')
+            ->toArray();
+    }
+
+    private function validateWorkoutDay(Request $request, Student $student): void
+    {
+        $scheduleDays = $this->scheduleDaysFor($student);
+
+        if (count($scheduleDays) < StudentSchedule::MIN_DAYS) {
+            throw ValidationException::withMessages([
+                'week_day' => 'Defina a agenda semanal do aluno com o minimo exigido antes de vincular um treino.',
+            ]);
+        }
+
+        if (!in_array($request->input('week_day'), $scheduleDays, true)) {
+            throw ValidationException::withMessages([
+                'week_day' => 'Selecione um dia cadastrado na agenda semanal do aluno.',
+            ]);
+        }
+    }
+
     public function index(Request $request)
     {
         /** @var \App\Models\User $user */
-        $user    = Auth::user();
+        $user = Auth::user();
 
         if ($user->isInstructor() || $user->isManager()) {
             return redirect()->route('dashboard');
@@ -62,60 +96,45 @@ class WorkoutController extends Controller
             ? WorkoutExercise::with('exercise')->where('workout_id', $workout->id)->get()
             : collect();
 
-        return view('workouts.index', compact('workout', 'exercises', 'allWorkouts'));
+        $weekDays        = StudentSchedule::weekDays();
+        $scheduleDays    = $this->scheduleDaysFor($student);
+        $minScheduleDays = StudentSchedule::MIN_DAYS;
+        $workoutsByDay   = $allWorkouts->groupBy('week_day');
+        $workoutsWithoutDay = $allWorkouts->filter(fn ($item) => empty($item->week_day));
+
+        return view('workouts.index', compact(
+            'workout',
+            'exercises',
+            'allWorkouts',
+            'weekDays',
+            'scheduleDays',
+            'minScheduleDays',
+            'workoutsByDay',
+            'workoutsWithoutDay'
+        ));
     }
 
     public function create(Request $request)
     {
-        // Buscar grupos musculares distintos
-        $muscleGroups = Exercise::select('muscle_group')
-            ->distinct()
-            ->whereNotNull('muscle_group')
-            ->where('muscle_group', '!=', '')
-            ->orderBy('muscle_group')
-            ->get()
-            ->pluck('muscle_group');
-        
-        $groupNames = [
-            'chest' => 'Peito',
-            'back' => 'Costas',
-            'legs' => 'Pernas',
-            'shoulders' => 'Ombros',
-            'biceps' => 'Bíceps',
-            'triceps' => 'Tríceps',
-            'abs' => 'Abdômen',
-            'glutes' => 'Glúteos',
-            'calves' => 'Panturrilha',
-            'traps' => 'Trapézio',
-            'forearms' => 'Antebraço',
-            'cardio' => 'Cardio',
-        ];
-        
-        $formattedGroups = [];
-        foreach ($muscleGroups as $group) {
-            $formattedGroups[$group] = $groupNames[$group] ?? ucfirst($group);
-        }
-        
         $exercises = Exercise::query()
             ->orderByRaw("CASE WHEN muscle_group IS NULL OR muscle_group = '' THEN 1 ELSE 0 END")
             ->orderBy('muscle_group')
             ->orderBy('name')
             ->get();
-        
-        // Agrupar exercícios por grupo muscular
-        $exercisesByGroup = [];
-        foreach ($exercises as $exercise) {
-            $group = $exercise->muscle_group ?: 'outros';
-            if (!isset($exercisesByGroup[$group])) {
-                $exercisesByGroup[$group] = [];
-            }
-            $exercisesByGroup[$group][] = $exercise;
-        }
-        
-        $studentId = $request->query('student_id');
-        $student   = $this->resolveStudent($studentId ? (int) $studentId : null);
 
-        return view('workouts.create', compact('exercises', 'student', 'formattedGroups', 'exercisesByGroup'));
+        $studentId       = $request->query('student_id');
+        $student         = $this->resolveStudent($studentId ? (int) $studentId : null);
+        $weekDays        = StudentSchedule::weekDays();
+        $scheduleDays    = $this->scheduleDaysFor($student);
+        $minScheduleDays = StudentSchedule::MIN_DAYS;
+
+        return view('workouts.create', compact(
+            'exercises',
+            'student',
+            'weekDays',
+            'scheduleDays',
+            'minScheduleDays'
+        ));
     }
 
     public function show($id)
@@ -125,42 +144,30 @@ class WorkoutController extends Controller
 
     public function store(Request $request)
     {
-        // Validação com grupos musculares
         $request->validate([
-            'name'           => ['required', 'min:3', 'regex:/^[A-Za-z0-9\s]+$/'],
-            'muscle_groups'  => ['required', 'array', 'min:1'],
-            'muscle_groups.*'=> ['string'],
-            'exercise_id'    => ['required', 'array'],
-            'sets.*'         => ['nullable', 'integer', 'min:1'],
-            'reps.*'         => ['nullable', 'integer', 'min:1'],
-            'rest_time.*'    => ['nullable', 'integer', 'min:1'],
+            'name'        => ['required', 'min:3', 'regex:/^[A-Za-z0-9\s]+$/'],
+            'week_day'    => ['required', 'string', Rule::in(array_keys(StudentSchedule::weekDays()))],
+            'exercise_id' => ['required', 'array'],
+            'sets.*'      => ['nullable', 'integer', 'min:1'],
+            'reps.*'      => ['nullable', 'integer', 'min:1'],
+            'rest_time.*' => ['nullable', 'integer', 'min:1'],
         ], [
-            'name.required'           => 'O nome do treino é obrigatório',
-            'name.min'                => 'O nome deve ter pelo menos 3 caracteres',
-            'name.regex'              => 'Use apenas letras e números',
-            'muscle_groups.required'  => 'Selecione pelo menos um grupo muscular',
-            'muscle_groups.min'       => 'Você deve selecionar pelo menos um grupo muscular',
-            'exercise_id.required'    => 'Selecione pelo menos um exercício',
+            'name.required'        => 'O nome do treino é obrigatório',
+            'name.min'             => 'O nome deve ter pelo menos 3 caracteres',
+            'name.regex'           => 'Use apenas letras e números',
+            'week_day.required'    => 'Selecione o dia da agenda semanal.',
+            'week_day.in'          => 'Dia da agenda invalido.',
+            'exercise_id.required' => 'Selecione pelo menos um exercício',
         ]);
 
         $studentId = $request->input('student_id');
         $student   = $this->resolveStudent($studentId ? (int) $studentId : null);
+        $this->validateWorkoutDay($request, $student);
 
-        // Verificar se os exercícios pertencem aos grupos selecionados
-        $exerciseIds = $request->exercise_id;
-        $exercisesInGroups = Exercise::whereIn('id', $exerciseIds)
-            ->whereIn('muscle_group', $request->muscle_groups)
-            ->count();
-        
-        if ($exercisesInGroups != count($exerciseIds)) {
-            return back()->with('error', 'Um ou mais exercícios não pertencem aos grupos musculares selecionados.')->withInput();
-        }
-
-        // Criar treino com os grupos musculares
         $workout = Workout::create([
-            'student_id'    => $student->id,
-            'name'          => $request->name,
-            'muscle_groups' => json_encode($request->muscle_groups),
+            'student_id' => $student->id,
+            'name'       => $request->name,
+            'week_day'   => $request->week_day,
         ]);
 
         $validExercise = false;
@@ -201,102 +208,60 @@ class WorkoutController extends Controller
 
     public function edit(Request $request, $id)
     {
-        $workout   = Workout::with('workoutExercises')->findOrFail($id);
-        
-        // Buscar grupos musculares distintos
-        $muscleGroups = Exercise::select('muscle_group')
-            ->distinct()
-            ->whereNotNull('muscle_group')
-            ->where('muscle_group', '!=', '')
-            ->orderBy('muscle_group')
-            ->get()
-            ->pluck('muscle_group');
-        
-        $groupNames = [
-            'chest' => 'Peito',
-            'back' => 'Costas',
-            'legs' => 'Pernas',
-            'shoulders' => 'Ombros',
-            'biceps' => 'Bíceps',
-            'triceps' => 'Tríceps',
-            'abs' => 'Abdômen',
-            'glutes' => 'Glúteos',
-            'calves' => 'Panturrilha',
-            'traps' => 'Trapézio',
-            'forearms' => 'Antebraço',
-            'cardio' => 'Cardio',
-        ];
-        
-        $formattedGroups = [];
-        foreach ($muscleGroups as $group) {
-            $formattedGroups[$group] = $groupNames[$group] ?? ucfirst($group);
-        }
-        
+        $workout = Workout::with('workoutExercises')->findOrFail($id);
+
         $exercises = Exercise::query()
             ->orderByRaw("CASE WHEN muscle_group IS NULL OR muscle_group = '' THEN 1 ELSE 0 END")
             ->orderBy('muscle_group')
             ->orderBy('name')
             ->get();
-        
-        // Agrupar exercícios por grupo muscular
-        $exercisesByGroup = [];
-        foreach ($exercises as $exercise) {
-            $group = $exercise->muscle_group ?: 'outros';
-            if (!isset($exercisesByGroup[$group])) {
-                $exercisesByGroup[$group] = [];
-            }
-            $exercisesByGroup[$group][] = $exercise;
-        }
-        
-        $studentId = $request->query('student_id');
-        $student   = $this->resolveStudent($studentId ? (int) $studentId : null);
+
+        $studentId       = $request->query('student_id');
+        $student         = $this->resolveStudent($studentId ? (int) $studentId : null);
+        $weekDays        = StudentSchedule::weekDays();
+        $scheduleDays    = $this->scheduleDaysFor($student);
+        $minScheduleDays = StudentSchedule::MIN_DAYS;
 
         abort_if($workout->student_id !== $student->id, 403, 'Este treino não pertence a este aluno.');
 
-        // Recuperar grupos musculares salvos
-        $savedMuscleGroups = json_decode($workout->muscle_groups, true) ?? [];
-
-        return view('workouts.edit', compact('workout', 'exercises', 'student', 'formattedGroups', 'exercisesByGroup', 'savedMuscleGroups'));
+        return view('workouts.edit', compact(
+            'workout',
+            'exercises',
+            'student',
+            'weekDays',
+            'scheduleDays',
+            'minScheduleDays'
+        ));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name'           => ['required', 'min:3', 'regex:/^[A-Za-z0-9\s]+$/'],
-            'muscle_groups'  => ['required', 'array', 'min:1'],
-            'muscle_groups.*'=> ['string'],
-            'exercise_id'    => ['required', 'array'],
-            'sets.*'         => ['nullable', 'integer', 'min:1'],
-            'reps.*'         => ['nullable', 'integer', 'min:1'],
-            'rest_time.*'    => ['nullable', 'integer', 'min:1'],
+            'name'        => ['required', 'min:3', 'regex:/^[A-Za-z0-9\s]+$/'],
+            'week_day'    => ['required', 'string', Rule::in(array_keys(StudentSchedule::weekDays()))],
+            'exercise_id' => ['required', 'array'],
+            'sets.*'      => ['nullable', 'integer', 'min:1'],
+            'reps.*'      => ['nullable', 'integer', 'min:1'],
+            'rest_time.*' => ['nullable', 'integer', 'min:1'],
         ], [
-            'name.required'           => 'O nome do treino é obrigatório',
-            'name.min'                => 'O nome deve ter pelo menos 3 caracteres',
-            'name.regex'              => 'Use apenas letras e números',
-            'muscle_groups.required'  => 'Selecione pelo menos um grupo muscular',
-            'muscle_groups.min'       => 'Você deve selecionar pelo menos um grupo muscular',
-            'exercise_id.required'    => 'Selecione pelo menos um exercício',
+            'name.required'        => 'O nome do treino é obrigatório',
+            'name.min'             => 'O nome deve ter pelo menos 3 caracteres',
+            'name.regex'           => 'Use apenas letras e números',
+            'week_day.required'    => 'Selecione o dia da agenda semanal.',
+            'week_day.in'          => 'Dia da agenda invalido.',
+            'exercise_id.required' => 'Selecione pelo menos um exercício',
         ]);
 
         $studentId = $request->input('student_id');
         $student   = $this->resolveStudent($studentId ? (int) $studentId : null);
+        $this->validateWorkoutDay($request, $student);
 
         $workout = Workout::findOrFail($id);
         abort_if($workout->student_id !== $student->id, 403, 'Este treino não pertence a este aluno.');
 
-        // Verificar se os exercícios pertencem aos grupos selecionados
-        $exerciseIds = $request->exercise_id;
-        $exercisesInGroups = Exercise::whereIn('id', $exerciseIds)
-            ->whereIn('muscle_group', $request->muscle_groups)
-            ->count();
-        
-        if ($exercisesInGroups != count($exerciseIds)) {
-            return back()->with('error', 'Um ou mais exercícios não pertencem aos grupos musculares selecionados.')->withInput();
-        }
-
         $workout->update([
-            'name'          => $request->name,
-            'muscle_groups' => json_encode($request->muscle_groups),
+            'name'     => $request->name,
+            'week_day' => $request->week_day,
         ]);
 
         WorkoutExercise::where('workout_id', $workout->id)->delete();
@@ -357,13 +322,6 @@ class WorkoutController extends Controller
         return redirect()->route('workouts.index')->with('success', 'Treino deletado!');
     }
 
-    // ==============================================
-    // FILTRO POR GRUPO MUSCULAR
-    // ==============================================
-
-    /**
-     * Get all available muscle groups from exercises
-     */
     public function getMuscleGroups(Request $request)
     {
         $groups = Exercise::select('muscle_group')
@@ -372,89 +330,95 @@ class WorkoutController extends Controller
             ->where('muscle_group', '!=', '')
             ->orderBy('muscle_group')
             ->pluck('muscle_group');
-        
+
         $groupNames = [
-            'chest' => 'Peito',
-            'back' => 'Costas',
-            'legs' => 'Pernas',
-            'shoulders' => 'Ombros',
-            'biceps' => 'Bíceps',
-            'triceps' => 'Tríceps',
-            'abs' => 'Abdômen',
-            'glutes' => 'Glúteos',
-            'calves' => 'Panturrilha',
-            'traps' => 'Trapézio',
+            'chest'    => 'Peito',
+            'back'     => 'Costas',
+            'legs'     => 'Pernas',
+            'shoulders'=> 'Ombros',
+            'biceps'   => 'Bíceps',
+            'triceps'  => 'Tríceps',
+            'abs'      => 'Abdômen',
+            'glutes'   => 'Glúteos',
+            'calves'   => 'Panturrilha',
+            'traps'    => 'Trapézio',
             'forearms' => 'Antebraço',
-            'cardio' => 'Cardio',
+            'cardio'   => 'Cardio',
         ];
-        
+
         $formatted = [];
         foreach ($groups as $group) {
             $formatted[] = [
                 'value' => $group,
-                'label' => $groupNames[$group] ?? ucfirst($group)
+                'label' => $groupNames[$group] ?? ucfirst($group),
             ];
         }
-        
+
         if ($request->wantsJson()) {
             return response()->json($formatted);
         }
-        
+
         return $formatted;
     }
 
-    /**
-     * Filter exercises by muscle group (for API/JSON requests)
-     */
     public function filterExercisesByMuscleGroup(Request $request)
     {
         $request->validate([
-            'muscle_groups' => ['required', 'array', 'min:1'],
-            'muscle_groups.*' => ['string']
+            'muscle_groups'   => ['required', 'array', 'min:1'],
+            'muscle_groups.*' => ['string'],
         ]);
-        
+
         $exercises = Exercise::whereIn('muscle_group', $request->muscle_groups)
             ->orderBy('muscle_group')
             ->orderBy('name')
             ->get();
-        
+
         $groupNames = [
-            'chest' => 'Peito',
-            'back' => 'Costas',
-            'legs' => 'Pernas',
-            'shoulders' => 'Ombros',
-            'biceps' => 'Bíceps',
-            'triceps' => 'Tríceps',
-            'abs' => 'Abdômen',
-            'glutes' => 'Glúteos',
-            'calves' => 'Panturrilha',
-            'traps' => 'Trapézio',
+            'chest'    => 'Peito',
+            'back'     => 'Costas',
+            'legs'     => 'Pernas',
+            'shoulders'=> 'Ombros',
+            'biceps'   => 'Bíceps',
+            'triceps'  => 'Tríceps',
+            'abs'      => 'Abdômen',
+            'glutes'   => 'Glúteos',
+            'calves'   => 'Panturrilha',
+            'traps'    => 'Trapézio',
             'forearms' => 'Antebraço',
-            'cardio' => 'Cardio',
+            'cardio'   => 'Cardio',
         ];
-        
-        // Group exercises by muscle group
+
         $grouped = [];
         foreach ($exercises as $exercise) {
-            $groupKey = $exercise->muscle_group;
+            $groupKey  = $exercise->muscle_group;
             $groupName = $groupNames[$groupKey] ?? ucfirst($groupKey);
-            
+
             if (!isset($grouped[$groupName])) {
                 $grouped[$groupName] = [];
             }
-            
+
             $grouped[$groupName][] = [
-                'id' => $exercise->id,
-                'name' => $exercise->name,
-                'muscle_group' => $exercise->muscle_group,
-                'muscle_group_pt' => $groupName
+                'id'             => $exercise->id,
+                'name'           => $exercise->name,
+                'muscle_group'   => $exercise->muscle_group,
+                'muscle_group_pt'=> $groupName,
             ];
         }
-        
+
         return response()->json([
-            'total' => $exercises->count(),
-            'selected_muscle_groups' => $request->muscle_groups,
-            'exercises' => $grouped
+            'total'                 => $exercises->count(),
+            'selected_muscle_groups'=> $request->muscle_groups,
+            'exercises'             => $grouped,
         ]);
+    }
+
+    public function getStudentWorkouts($studentId)
+    {
+        $student  = Student::findOrFail($studentId);
+        $workouts = Workout::where('student_id', $student->id)
+            ->with('workoutExercises.exercise')
+            ->get();
+
+        return response()->json($workouts);
     }
 }

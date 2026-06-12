@@ -49,6 +49,57 @@
                 </div>
             </div>
 
+            <div class="weekly-schedule-panel">
+                <div class="weekly-schedule-head">
+                    <div>
+                        <p class="section-label">AGENDA SEMANAL</p>
+                        <h3>Configurar dias de treino</h3>
+                    </div>
+                    <span class="weekly-schedule-min">Minimo backend: {{ $minScheduleDays }} dias</span>
+                </div>
+
+                @include('workouts.partials.schedule-form', [
+                    'weekDays' => $weekDays,
+                    'scheduleDays' => $scheduleDays,
+                    'minScheduleDays' => $minScheduleDays,
+                ])
+
+                <div class="weekly-agenda-grid">
+                    @forelse($scheduleDays as $dayKey)
+                        @php $dayWorkouts = $workoutsByDay->get($dayKey, collect()); @endphp
+                        <div class="weekly-agenda-day">
+                            <div class="weekly-agenda-day__head">
+                                <strong>{{ $weekDays[$dayKey] ?? $dayKey }}</strong>
+                                <span>{{ $dayWorkouts->count() }} treino{{ $dayWorkouts->count() !== 1 ? 's' : '' }}</span>
+                            </div>
+
+                            @forelse($dayWorkouts as $dayWorkout)
+                                <a href="{{ route('workouts.index', ['workout_id' => $dayWorkout->id]) }}"
+                                   class="weekly-workout-link {{ (isset($workout) && $workout->id === $dayWorkout->id) ? 'is-active' : '' }}">
+                                    <span>{{ $dayWorkout->name }}</span>
+                                    <em>{{ $dayWorkout->workoutExercises->count() }} exerc.</em>
+                                </a>
+                            @empty
+                                <div class="weekly-day-empty">Sem treino vinculado a este dia.</div>
+                            @endforelse
+                        </div>
+                    @empty
+                        <div class="weekly-day-empty weekly-day-empty--wide">
+                            Selecione os dias da agenda para vincular treinos.
+                        </div>
+                    @endforelse
+                </div>
+
+                @if($workoutsWithoutDay->count())
+                    <div class="weekly-unscheduled">
+                        <span>Sem dia definido</span>
+                        @foreach($workoutsWithoutDay as $looseWorkout)
+                            <a href="{{ route('workouts.index', ['workout_id' => $looseWorkout->id]) }}">{{ $looseWorkout->name }}</a>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
             @if($allWorkouts->isEmpty())
                 {{-- EMPTY STATE --}}
                 <div class="empty-state" style="padding:5rem 1rem;">

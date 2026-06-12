@@ -25,7 +25,10 @@ class WorkoutSessionController extends Controller
         $student = Student::where('user_id', $user->id)->firstOrFail();
         
         // Buscar agenda do aluno
-        $studentSchedule = $student->user->schedule()->pluck('week_day')->toArray();
+        $studentSchedule = $student->user->schedule()
+            ->where('active', true)
+            ->pluck('week_day')
+            ->toArray();
         $today = strtolower(now()->englishDayOfWeek);
         
         $weekDaysMap = [
@@ -47,14 +50,25 @@ class WorkoutSessionController extends Controller
             ]);
         }
         
-        // Buscar treino ativo do aluno
+        // Buscar treino ativo do aluno para o dia definido na agenda
         $workout = Workout::where('student_id', $student->id)
+            ->where('week_day', $todayWeekDay)
             ->latest()
             ->first();
+
+        $hasWorkoutsWithDay = Workout::where('student_id', $student->id)
+            ->whereNotNull('week_day')
+            ->exists();
+
+        if (!$workout && !$hasWorkoutsWithDay) {
+            $workout = Workout::where('student_id', $student->id)
+                ->latest()
+                ->first();
+        }
         
         if (!$workout) {
             return view('workout-sessions.no-workout-today', [
-                'message' => 'Você ainda não tem um treino cadastrado. Fale com seu instrutor.'
+                'message' => 'Não há treino cadastrado para este dia da sua agenda.'
             ]);
         }
         

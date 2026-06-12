@@ -1397,6 +1397,351 @@
     color: #b91c1c;
 }
 
+/* Agenda semanal de treino */
+.weekly-schedule-panel {
+    margin-bottom: 24px;
+    padding: 22px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.weekly-schedule-head,
+.student-card__schedule-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.weekly-schedule-head h3 {
+    margin: 0;
+    color: var(--text-white);
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.weekly-schedule-min,
+.student-card__schedule-head em {
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 800;
+    color: #f87171;
+    background: rgba(214,21,50,0.10);
+    border: 1px solid rgba(214,21,50,0.22);
+    border-radius: 999px;
+    padding: 5px 10px;
+}
+
+.weekly-schedule-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.weekly-days,
+.workout-day-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(132px,1fr));
+    gap: 8px;
+}
+
+.weekly-day-option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    min-height: 48px;
+    padding: 9px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.035);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: border-color .18s, background .18s, color .18s, transform .15s;
+}
+
+.weekly-day-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.weekly-day-option:hover,
+.weekly-day-option.is-selected,
+.weekly-day-option:has(input:checked) {
+    border-color: rgba(214,21,50,0.34);
+    background: rgba(214,21,50,0.10);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.weekly-day-option__short {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 28px;
+    border-radius: 10px;
+    background: rgba(214,21,50,0.14);
+    color: #f87171;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    flex-shrink: 0;
+}
+
+.weekly-day-option__label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.weekly-saved-days,
+.weekly-unscheduled {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.weekly-saved-days strong,
+.weekly-unscheduled a {
+    color: #f87171;
+    background: rgba(214,21,50,0.10);
+    border: 1px solid rgba(214,21,50,0.18);
+    border-radius: 999px;
+    padding: 4px 9px;
+    font-size: 11px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.weekly-saved-days em {
+    font-style: normal;
+    color: rgba(255,255,255,0.34);
+}
+
+.weekly-validation {
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.weekly-validation--error {
+    color: #f87171;
+    background: rgba(214,21,50,0.10);
+    border: 1px solid rgba(214,21,50,0.22);
+}
+
+.weekly-schedule-submit {
+    align-self: flex-start;
+}
+
+.weekly-agenda-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(210px,1fr));
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.weekly-agenda-day {
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.03);
+}
+
+.weekly-agenda-day__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.weekly-agenda-day__head strong,
+.student-card__schedule-head span {
+    color: var(--text-white);
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.weekly-agenda-day__head span {
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.weekly-workout-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 12px;
+    color: rgba(255,255,255,0.72);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.weekly-workout-link + .weekly-workout-link {
+    margin-top: 6px;
+}
+
+.weekly-workout-link em {
+    color: #f87171;
+    font-style: normal;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.weekly-workout-link.is-active,
+.weekly-workout-link:hover {
+    border-color: rgba(214,21,50,0.32);
+    background: rgba(214,21,50,0.10);
+}
+
+.weekly-day-empty {
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px dashed rgba(255,255,255,0.10);
+    color: rgba(255,255,255,0.32);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.weekly-day-empty--wide {
+    grid-column: 1 / -1;
+}
+
+.weekly-unscheduled {
+    margin-top: 14px;
+}
+
+.student-card__schedule {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.weekly-schedule-form--compact .weekly-days {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+}
+
+.weekly-schedule-form--compact .weekly-day-option {
+    min-height: 40px;
+    padding: 7px 9px;
+}
+
+.weekly-schedule-form--compact .weekly-day-option__label {
+    display: none;
+}
+
+.weekly-schedule-form--compact .weekly-schedule-submit {
+    width: 100%;
+    justify-content: center;
+    padding: 8px 14px;
+    font-size: 11px;
+}
+
+.weekly-agenda-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 12px;
+}
+
+.weekly-agenda-list__row {
+    display: grid;
+    grid-template-columns: 92px minmax(0,1fr);
+    gap: 8px;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+.weekly-agenda-list__row strong {
+    color: #f87171;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.weekly-agenda-list__row span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: rgba(255,255,255,0.58);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.weekly-agenda-list__row .is-empty {
+    color: rgba(255,255,255,0.30);
+}
+
+[data-theme="light"] .weekly-schedule-panel,
+[data-theme="light"] .weekly-agenda-day {
+    background: #fff;
+    border-color: rgba(0,0,0,0.08);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+}
+
+[data-theme="light"] .weekly-schedule-head h3,
+[data-theme="light"] .weekly-agenda-day__head strong,
+[data-theme="light"] .student-card__schedule-head span {
+    color: #111;
+}
+
+[data-theme="light"] .weekly-day-option,
+[data-theme="light"] .weekly-workout-link,
+[data-theme="light"] .weekly-agenda-list__row {
+    background: rgba(0,0,0,0.03);
+    border-color: rgba(0,0,0,0.08);
+}
+
+[data-theme="light"] .weekly-day-option:hover,
+[data-theme="light"] .weekly-day-option.is-selected,
+[data-theme="light"] .weekly-day-option:has(input:checked),
+[data-theme="light"] .weekly-workout-link.is-active,
+[data-theme="light"] .weekly-workout-link:hover {
+    background: rgba(214,21,50,0.06);
+    border-color: rgba(214,21,50,0.22);
+    color: #111;
+}
+
+[data-theme="light"] .weekly-saved-days em,
+[data-theme="light"] .weekly-day-empty,
+[data-theme="light"] .weekly-agenda-list__row .is-empty {
+    color: rgba(0,0,0,0.34);
+}
+
+[data-theme="light"] .weekly-day-empty {
+    border-color: rgba(0,0,0,0.10);
+}
+
+[data-theme="light"] .student-card__schedule {
+    border-bottom-color: rgba(0,0,0,0.06);
+}
+
+[data-theme="light"] .weekly-agenda-list__row span {
+    color: rgba(0,0,0,0.58);
+}
+
 /* ── QUICK ACTIONS — 3 colunas ──────────────────────────────── */
 .student-quick-actions--three {
     grid-template-columns: repeat(3, 1fr);

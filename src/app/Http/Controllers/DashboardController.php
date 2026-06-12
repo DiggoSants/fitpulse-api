@@ -80,6 +80,7 @@ class DashboardController extends Controller
             $instructors = Instructor::with([
                 'user',
                 'students.user',
+                'students.user.schedule',
                 'students.workouts.workoutExercises.exercise',
             ])->get();
 
@@ -102,6 +103,7 @@ class DashboardController extends Controller
             $instructor = Instructor::with([
                 'user',
                 'students.user',
+                'students.user.schedule',
                 'students.workouts.workoutExercises.exercise',
             ])->where('user_id', $user->id)->firstOrFail();
 

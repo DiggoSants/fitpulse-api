@@ -77,6 +77,54 @@
             </form>
         </div>
 
+        {{-- Objetivo do aluno --}}
+        @php $student = $user->student; @endphp
+        @if($student)
+        <div class="profile-card">
+            <div class="profile-card__title">Objetivo na Academia</div>
+            <div class="profile-card__desc">Nos ajude a entender melhor seus objetivos de fitness.</div>
+
+            <form method="post" action="{{ route('profile.update') }}">
+                @csrf
+                @method('patch')
+
+                <div class="profile-field">
+                    <label for="goal">Qual é seu objetivo?</label>
+                    <select id="goal-select-profile" name="goal">
+                        <option value="">Nenhum objetivo definido</option>
+                        @php
+                            $goalOptions = \App\Models\Student::getGoalOptions();
+                            $currentGoal = old('goal', $student->goal);
+                        @endphp
+                        @foreach($goalOptions as $key => $label)
+                            <option value="{{ $key }}" {{ $currentGoal === $key ? 'selected' : '' }}>
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('goal')
+                        <p class="profile-field-error">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="profile-field" id="custom-goal-field-profile" style="display: none;">
+                    <label for="custom_goal_profile">Descreva seu objetivo</label>
+                    <textarea 
+                        id="custom_goal_profile" 
+                        name="custom_goal" 
+                        class="profile-textarea"
+                        placeholder="Ex: Melhorar meu condicionamento físico para correr uma meia maratona"
+                        rows="4">{{ old('custom_goal') }}</textarea>
+                    @error('custom_goal')
+                        <p class="profile-field-error">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <button type="submit" class="btn-save">Atualizar objetivo</button>
+            </form>
+        </div>
+        @endif
+
         {{-- Alterar senha --}}
         <div class="profile-card">
             <div class="profile-card__title">Alterar senha</div>
@@ -197,3 +245,27 @@
 
     </div>
 </x-app-layout>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const goalSelect = document.getElementById('goal-select-profile');
+    const customGoalField = document.getElementById('custom-goal-field-profile');
+    const customGoalTextarea = document.getElementById('custom_goal_profile');
+    
+    function updateCustomGoalVisibility() {
+        if (goalSelect && goalSelect.value === 'other') {
+            customGoalField.style.display = 'block';
+            customGoalTextarea.setAttribute('required', 'required');
+        } else if (customGoalField) {
+            customGoalField.style.display = 'none';
+            customGoalTextarea.removeAttribute('required');
+        }
+    }
+    
+    if (goalSelect) {
+        goalSelect.addEventListener('change', updateCustomGoalVisibility);
+        // Verificar ao carregar página
+        updateCustomGoalVisibility();
+    }
+});
+</script>

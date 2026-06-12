@@ -41,16 +41,32 @@ class EnrollmentController extends Controller
             'plan_id'         => ['required', 'exists:plans,id'],
             'payment_method'  => ['required', 'in:credit_card,debit_card,pix'],
             'preferred_shift' => ['nullable', 'string', 'in:morning,afternoon,evening,full_day'],
+            'goal'            => ['required', 'string', 'in:hypertrophy,weight_loss,conditioning,health,rehabilitation,other'],
+            'custom_goal'     => ['nullable', 'string', 'required_if:goal,other', 'max:500'],
         ], [
             'payment_method.required' => 'Informe o método de pagamento',
             'payment_method.in'       => 'Método de pagamento inválido.',
             'plan_id.required'        => 'Selecione um plano',
             'plan_id.exists'          => 'Plano inválido',
+            'goal.required'           => 'Selecione seu objetivo',
+            'goal.in'                 => 'Objetivo inválido',
+            'custom_goal.required_if' => 'Descreva seu objetivo personalizado',
+            'custom_goal.max'         => 'O objetivo não pode ter mais de 500 caracteres',
         ]);
 
         /** @var \App\Models\User $user */
         $user    = Auth::user();
         $student = Student::where('user_id', $user->id)->firstOrFail();
+        
+        // Salvar objetivo do aluno
+        $updateData = ['goal' => $request->input('goal')];
+        
+        // Se objetivo for "outro", também salvar a descrição customizada
+        if ($request->input('goal') === 'other' && $request->filled('custom_goal')) {
+            $updateData['custom_goal'] = $request->input('custom_goal');
+        }
+        
+        $student->update($updateData);
 
         // --------------------------------------------------------------
         // 1. Validar agenda do aluno (dias de treino)

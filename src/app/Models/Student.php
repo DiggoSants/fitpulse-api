@@ -17,6 +17,7 @@ class Student extends Model
         'renewed_at',
         'instructor_id',
         'goal',
+        'custom_goal',
     ];
 
     protected $casts = [

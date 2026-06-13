@@ -3,12 +3,11 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
             @if(session('success'))
-                <div style="margin-bottom:16px; padding:12px 16px; background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.2); border-radius:10px; color:#4ade80; font-size:13px; font-weight:600;">
-                    {{ session('success') }}
-                </div>
+                <div class="wkt-flash wkt-flash--success">{{ session('success') }}</div>
             @endif
-            {{-- HERO --}}
-            <div class="dash-hero" style="margin-bottom:1.25rem;">
+
+            {{-- ══ HERO ══ --}}
+            <div class="dash-hero" style="margin-bottom:1.5rem;">
                 <div class="dash-hero__ring"></div>
                 <div class="dash-hero__inner">
                     <div>
@@ -22,24 +21,21 @@
                         @php $st = Auth::user()->student?->status ?? 'active'; @endphp
                         @if($st === 'active')
                             <span class="dash-hero__pulse">
-                                <span class="dash-hero__pulse-dot"></span>
-                                FITPULSE ATIVO
+                                <span class="dash-hero__pulse-dot"></span>FITPULSE ATIVO
                             </span>
                         @elseif($st === 'blocked')
                             <span class="dash-hero__pulse" style="background:rgba(214,21,50,.14);border-color:rgba(214,21,50,.28);color:#f87171;">
-                                <span class="dash-hero__pulse-dot" style="background:#d61532;animation:none;"></span>
-                                ACESSO BLOQUEADO
+                                <span class="dash-hero__pulse-dot" style="background:#d61532;animation:none;"></span>ACESSO BLOQUEADO
                             </span>
                         @else
                             <span class="dash-hero__pulse" style="background:rgba(251,191,36,.10);border-color:rgba(251,191,36,.25);color:#fbbf24;">
-                                <span class="dash-hero__pulse-dot" style="background:#fbbf24;animation:none;"></span>
-                                PAGAMENTO PENDENTE
+                                <span class="dash-hero__pulse-dot" style="background:#fbbf24;animation:none;"></span>PAGAMENTO PENDENTE
                             </span>
                         @endif
                         <a href="{{ route('workouts.create') }}" class="btn-save"
-                           style="text-decoration:none; display:inline-flex; align-items:center; gap:7px;">
+                           style="text-decoration:none;display:inline-flex;align-items:center;gap:7px;">
                             <svg width="11" height="11" viewBox="0 0 12 12" fill="none"
-                                 style="stroke:#fff; stroke-width:2.5; stroke-linecap:round;">
+                                 style="stroke:#fff;stroke-width:2.5;stroke-linecap:round;">
                                 <line x1="6" y1="1" x2="6" y2="11"/>
                                 <line x1="1" y1="6" x2="11" y2="6"/>
                             </svg>
@@ -52,216 +48,222 @@
             @php
                 $todayStatus = $todaySession?->status ?? 'empty';
                 $todayStatusLabels = [
-                    'pending' => 'Não iniciado',
+                    'pending'     => 'Não iniciado',
                     'in_progress' => 'Em andamento',
-                    'completed' => 'Finalizado',
-                    'empty' => 'Sem treino',
+                    'completed'   => 'Finalizado',
+                    'empty'       => 'Sem treino',
                 ];
                 $todayProgress = $todaySession ? $todaySession->progress_percentage : 0;
                 $completedHistoryCount = $workoutHistory->where('status', 'completed')->count();
                 $incompleteHistoryCount = $workoutHistory->where('status', '!=', 'completed')->count();
             @endphp
 
-            <div class="workout-top-grid">
-            <div
-                id="today-workout-panel"
-                class="session-card session-card--embedded workout-check-panel"
-                data-session-status="{{ $todayStatus }}"
-                data-completed-count="{{ $todaySession?->completed_exercises ?? 0 }}"
-                data-total-count="{{ $todaySession?->total_exercises ?? 0 }}"
-            >
-                <div class="session-list-head session-list-head--embedded">
-                    <div>
-                        <p class="session-section-label">CHECK DO DIA</p>
-                        <h2>{{ $todayWorkout ? $todayWorkout->name : 'Nenhum treino para hoje' }}</h2>
-                    </div>
-                    <span id="today-session-status" class="session-status session-status--{{ $todayStatus }}">
-                        {{ $todayStatusLabels[$todayStatus] ?? $todayStatus }}
-                    </span>
-                </div>
+            {{-- ══════════════════════════════════
+                 SEÇÃO 1 — CHECK DO DIA + HISTÓRICO
+            ══════════════════════════════════ --}}
+            <div class="wkt-section-label">
+                <span class="wkt-section-label__icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+                Treino de Hoje
+            </div>
 
-                @if($todaySession && $todayWorkout)
-                    <div class="session-progress-head">
+            <div class="wkt-top-grid">
+                {{-- CHECK DO DIA --}}
+                <div
+                    id="today-workout-panel"
+                    class="wkt-card wkt-check-panel"
+                    data-session-status="{{ $todayStatus }}"
+                    data-completed-count="{{ $todaySession?->completed_exercises ?? 0 }}"
+                    data-total-count="{{ $todaySession?->total_exercises ?? 0 }}"
+                >
+                    <div class="wkt-card-head">
                         <div>
-                            <strong id="today-session-progress-text">{{ $todayProgress }}%</strong>
-                            <span id="today-session-count">
-                                {{ $todaySession->completed_exercises }} de {{ $todaySession->total_exercises }} exercícios concluídos
-                            </span>
+                            <p class="session-section-label">CHECK DO DIA</p>
+                            <h2>{{ $todayWorkout ? $todayWorkout->name : 'Nenhum treino para hoje' }}</h2>
                         </div>
-                        <span>{{ $weekDays[$todayWeekDay] ?? 'Hoje' }}</span>
+                        <span id="today-session-status" class="session-status session-status--{{ $todayStatus }}">
+                            {{ $todayStatusLabels[$todayStatus] ?? $todayStatus }}
+                        </span>
                     </div>
 
-                    <div class="session-progress-bar" aria-label="Progresso do treino">
-                        <span id="today-session-progress-bar" style="width: {{ $todayProgress }}%;"></span>
-                    </div>
+                    @if($todaySession && $todayWorkout)
+                        <div class="wkt-progress-head">
+                            <div>
+                                <strong id="today-session-progress-text">{{ $todayProgress }}%</strong>
+                                <span id="today-session-count">
+                                    {{ $todaySession->completed_exercises }} de {{ $todaySession->total_exercises }} exercícios concluídos
+                                </span>
+                            </div>
+                            <span>{{ $weekDays[$todayWeekDay] ?? 'Hoje' }}</span>
+                        </div>
 
-                    <div id="today-session-message" class="session-alert" style="display:none; margin-top:16px;"></div>
+                        <div class="session-progress-bar" aria-label="Progresso do treino">
+                            <span id="today-session-progress-bar" style="width:{{ $todayProgress }}%;"></span>
+                        </div>
 
-                    <div class="session-actions">
-                        <button
-                            type="button"
-                            id="today-session-start"
-                            class="btn-save"
-                            data-start-url="{{ route('workout-sessions.start', $todaySession->id) }}"
-                            style="{{ $todayStatus === 'pending' ? '' : 'display:none;' }}"
-                        >
-                            Iniciar treino
-                        </button>
-                        <button
-                            type="button"
-                            id="today-session-finish"
-                            class="btn-save"
-                            data-finish-url="{{ route('workout-sessions.complete', $todaySession->id) }}"
-                            style="{{ $todayStatus === 'in_progress' ? '' : 'display:none;' }}"
-                        >
-                            Finalizar treino
-                        </button>
-                    </div>
+                        <div id="today-session-message" class="session-alert" style="display:none;margin-top:16px;"></div>
 
-                    <div class="session-list-head session-list-head--exercises">
-                        <h2>Exercícios</h2>
-                        <span>{{ $todaySessionExercises->count() }} itens</span>
-                    </div>
+                        <div class="session-actions">
+                            <button type="button" id="today-session-start" class="btn-save"
+                                data-start-url="{{ route('workout-sessions.start', $todaySession->id) }}"
+                                style="{{ $todayStatus === 'pending' ? '' : 'display:none;' }}">
+                                Iniciar treino
+                            </button>
+                            <button type="button" id="today-session-finish" class="btn-save"
+                                data-finish-url="{{ route('workout-sessions.complete', $todaySession->id) }}"
+                                style="{{ $todayStatus === 'in_progress' ? '' : 'display:none;' }}">
+                                Finalizar treino
+                            </button>
+                        </div>
 
-                    <div class="session-exercise-list">
-                        @foreach($todaySessionExercises as $sessionExercise)
-                            @php
-                                $sessionWorkoutExercise = $sessionExercise->workoutExercise;
-                                $sessionExerciseData = $sessionWorkoutExercise?->exercise;
-                            @endphp
-                            <div
-                                class="session-exercise-card {{ $sessionExercise->completed ? 'is-completed' : '' }}"
-                                data-session-exercise-card
-                                data-completed="{{ $sessionExercise->completed ? '1' : '0' }}"
-                            >
-                                <div class="session-exercise-main">
-                                    <span class="workout-check-mark {{ $sessionExercise->completed ? 'is-checked' : '' }}" aria-hidden="true">
-                                        {!! $sessionExercise->completed ? '&#10003;' : '' !!}
-                                    </span>
-                                    <span class="session-exercise-order">{{ $loop->iteration }}</span>
-                                    <div>
-                                        <h3>{{ $sessionExerciseData?->name ?? 'Exercício' }}</h3>
-                                        <p>{{ $sessionExerciseData?->muscle_group ?? 'Grupo muscular' }}</p>
-                                        <div class="session-exercise-meta">
-                                            <span>{{ $sessionWorkoutExercise?->sets ?? 0 }} séries</span>
-                                            <span>{{ $sessionWorkoutExercise?->reps ?? 0 }} reps</span>
-                                            <span>{{ $sessionWorkoutExercise?->rest_time ?? 0 }}s descanso</span>
+                        <div class="wkt-card-head wkt-card-head--sub">
+                            <h3>Exercícios</h3>
+                            <span>{{ $todaySessionExercises->count() }} itens</span>
+                        </div>
+
+                        <div class="session-exercise-list">
+                            @foreach($todaySessionExercises as $sessionExercise)
+                                @php
+                                    $sessionWorkoutExercise = $sessionExercise->workoutExercise;
+                                    $sessionExerciseData    = $sessionWorkoutExercise?->exercise;
+                                @endphp
+                                <div
+                                    class="session-exercise-card {{ $sessionExercise->completed ? 'is-completed' : '' }}"
+                                    data-session-exercise-card
+                                    data-completed="{{ $sessionExercise->completed ? '1' : '0' }}"
+                                >
+                                    <div class="session-exercise-main">
+                                        <span class="workout-check-mark {{ $sessionExercise->completed ? 'is-checked' : '' }}" aria-hidden="true">
+                                            {!! $sessionExercise->completed ? '&#10003;' : '' !!}
+                                        </span>
+                                        <span class="session-exercise-order">{{ $loop->iteration }}</span>
+                                        <div>
+                                            <h3>{{ $sessionExerciseData?->name ?? 'Exercício' }}</h3>
+                                            <p>{{ $sessionExerciseData?->muscle_group ?? 'Grupo muscular' }}</p>
+                                            <div class="session-exercise-meta">
+                                                <span>{{ $sessionWorkoutExercise?->sets ?? 0 }} séries</span>
+                                                <span>{{ $sessionWorkoutExercise?->reps ?? 0 }} reps</span>
+                                                <span>{{ $sessionWorkoutExercise?->rest_time ?? 0 }}s descanso</span>
+                                            </div>
                                         </div>
                                     </div>
+                                    <button
+                                        type="button"
+                                        class="session-exercise-check"
+                                        data-complete-url="{{ route('workout-sessions.complete-exercise', $sessionExercise->id) }}"
+                                        {{ $todayStatus !== 'in_progress' || $sessionExercise->completed ? 'disabled' : '' }}
+                                    >
+                                        {{ $sessionExercise->completed ? 'Concluído' : 'Marcar concluído' }}
+                                    </button>
                                 </div>
-                                <button
-                                    type="button"
-                                    class="session-exercise-check"
-                                    data-complete-url="{{ route('workout-sessions.complete-exercise', $sessionExercise->id) }}"
-                                    {{ $todayStatus !== 'in_progress' || $sessionExercise->completed ? 'disabled' : '' }}
-                                >
-                                    {{ $sessionExercise->completed ? 'Concluído' : 'Marcar concluído' }}
-                                </button>
-                            </div>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="session-empty-state session-empty-state--compact">
-                        <h2>Nenhum treino para hoje</h2>
-                        <p>{{ $todaySessionMessage }}</p>
-                    </div>
-                @endif
-            </div>
-            <div class="session-card workout-history-panel" id="workout-history-panel">
-                <div class="workout-history-head">
-                    <div>
-                        <p class="session-section-label">HISTÓRICO</p>
-                        <h2>Histórico de treinos</h2>
-                    </div>
-                    <div class="workout-history-summary">
-                        <span>{{ $completedHistoryCount }} completo{{ $completedHistoryCount !== 1 ? 's' : '' }}</span>
-                        <span>{{ $incompleteHistoryCount }} não completo{{ $incompleteHistoryCount !== 1 ? 's' : '' }}</span>
-                    </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="session-empty-state session-empty-state--compact">
+                            <h2>Nenhum treino para hoje</h2>
+                            <p>{{ $todaySessionMessage }}</p>
+                        </div>
+                    @endif
                 </div>
 
-                @if($workoutHistory->isEmpty())
-                    <div class="session-empty-state session-empty-state--compact">
-                        <h2>Nenhum histórico ainda</h2>
-                        <p>Quando você iniciar treinos, eles aparecerão aqui como completos ou não completos.</p>
+                {{-- HISTÓRICO --}}
+                <div class="wkt-card wkt-history-panel">
+                    <div class="wkt-card-head">
+                        <div>
+                            <p class="session-section-label">HISTÓRICO</p>
+                            <h2>Histórico de treinos</h2>
+                        </div>
+                        <div class="wkt-history-summary">
+                            <span class="wkt-badge wkt-badge--green">{{ $completedHistoryCount }} completo{{ $completedHistoryCount !== 1 ? 's' : '' }}</span>
+                            <span class="wkt-badge wkt-badge--yellow">{{ $incompleteHistoryCount }} não completo{{ $incompleteHistoryCount !== 1 ? 's' : '' }}</span>
+                        </div>
                     </div>
-                @else
-                    <div class="workout-history-list">
-                        @foreach($workoutHistory as $historySession)
-                            @php
-                                $historyIsComplete = $historySession->status === 'completed';
-                                $historyStatusLabel = $historyIsComplete ? 'Completo' : 'Não completo';
-                                $historyProgress = $historySession->progress_percentage;
-                            @endphp
-                            <div class="workout-history-row {{ $historyIsComplete ? 'is-complete' : 'is-incomplete' }}">
-                                <span class="workout-history-check {{ $historyIsComplete ? 'is-checked' : 'is-open' }}" aria-hidden="true">
-                                    {!! $historyIsComplete ? '&#10003;' : '!' !!}
-                                </span>
-                                <div class="workout-history-row__main">
-                                    <strong>{{ $historySession->workout?->name ?? 'Treino removido' }}</strong>
-                                    <span>
-                                        {{ $historySession->session_date?->format('d/m/Y') ?? '--/--/----' }}
-                                        • {{ $historySession->completed_exercises }} de {{ $historySession->total_exercises }} exercícios
+
+                    @if($workoutHistory->isEmpty())
+                        <div class="session-empty-state session-empty-state--compact">
+                            <h2>Nenhum histórico ainda</h2>
+                            <p>Quando você iniciar treinos, eles aparecerão aqui.</p>
+                        </div>
+                    @else
+                        <div class="wkt-history-list">
+                            @foreach($workoutHistory as $historySession)
+                                @php
+                                    $historyIsComplete = $historySession->status === 'completed';
+                                    $historyProgress   = $historySession->progress_percentage;
+                                @endphp
+                                <div class="wkt-history-row {{ $historyIsComplete ? 'is-complete' : 'is-incomplete' }}">
+                                    <span class="wkt-history-check {{ $historyIsComplete ? 'is-checked' : 'is-open' }}" aria-hidden="true">
+                                        {!! $historyIsComplete ? '&#10003;' : '!' !!}
                                     </span>
-                                    <div class="workout-history-progress">
-                                        <span style="width: {{ $historyProgress }}%;"></span>
+                                    <div class="wkt-history-main">
+                                        <strong>{{ $historySession->workout?->name ?? 'Treino removido' }}</strong>
+                                        <span>
+                                            {{ $historySession->session_date?->format('d/m/Y') ?? '--/--/----' }}
+                                            &bull; {{ $historySession->completed_exercises }} de {{ $historySession->total_exercises }} exerc.
+                                        </span>
+                                        <div class="wkt-history-bar">
+                                            <span style="width:{{ $historyProgress }}%;"></span>
+                                        </div>
+                                    </div>
+                                    <div class="wkt-history-side">
+                                        <span class="wkt-badge {{ $historyIsComplete ? 'wkt-badge--green' : 'wkt-badge--yellow' }}">
+                                            {{ $historyIsComplete ? 'Completo' : 'Incompleto' }}
+                                        </span>
+                                        <em>{{ $historyProgress }}%</em>
                                     </div>
                                 </div>
-                                <div class="workout-history-row__side">
-                                    <span class="workout-history-badge {{ $historyIsComplete ? 'is-complete' : 'is-incomplete' }}">
-                                        {{ $historyStatusLabel }}
-                                    </span>
-                                    <em>{{ $historyProgress }}%</em>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
-            </div>
-
-            <div class="weekly-schedule-panel">
-                <div class="weekly-schedule-head">
-                    <div>
-                        <p class="section-label">AGENDA SEMANAL</p>
-                        <h3>Configurar dias de treino</h3>
-                    </div>
-                    <span class="weekly-schedule-min">Mínimo {{ $minScheduleDays }} dias</span>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
+            </div>
 
+            {{-- ══════════════════════════════════
+                 SEÇÃO 2 — AGENDA SEMANAL
+            ══════════════════════════════════ --}}
+            <div class="wkt-section-label" style="margin-top:2rem;">
+                <span class="wkt-section-label__icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </span>
+                Agenda Semanal
+                <span class="wkt-section-label__badge">Mínimo {{ $minScheduleDays }} dias</span>
+            </div>
+
+            <div class="wkt-card wkt-agenda-card">
                 @include('workouts.partials.schedule-form', [
-                    'weekDays' => $weekDays,
-                    'scheduleDays' => $scheduleDays,
+                    'weekDays'        => $weekDays,
+                    'scheduleDays'    => $scheduleDays,
                     'minScheduleDays' => $minScheduleDays,
                 ])
 
-                <div class="weekly-agenda-grid">
-                    @forelse($scheduleDays as $dayKey)
-                        @php $dayWorkouts = $workoutsByDay->get($dayKey, collect()); @endphp
-                        <div class="weekly-agenda-day">
-                            <div class="weekly-agenda-day__head">
-                                <strong>{{ $weekDays[$dayKey] ?? $dayKey }}</strong>
-                                <span>{{ $dayWorkouts->count() }} treino{{ $dayWorkouts->count() !== 1 ? 's' : '' }}</span>
+                @if($scheduleDays)
+                    <div class="wkt-agenda-grid">
+                        @forelse($scheduleDays as $dayKey)
+                            @php $dayWorkouts = $workoutsByDay->get($dayKey, collect()); @endphp
+                            <div class="wkt-agenda-day">
+                                <div class="wkt-agenda-day__head">
+                                    <strong>{{ $weekDays[$dayKey] ?? $dayKey }}</strong>
+                                    <span>{{ $dayWorkouts->count() }} treino{{ $dayWorkouts->count() !== 1 ? 's' : '' }}</span>
+                                </div>
+                                @forelse($dayWorkouts as $dayWorkout)
+                                    <a href="{{ route('workouts.index', ['workout_id' => $dayWorkout->id]) }}"
+                                       class="wkt-agenda-link {{ (isset($workout) && $workout->id === $dayWorkout->id) ? 'is-active' : '' }}">
+                                        <span>{{ $dayWorkout->name }}</span>
+                                        <em>{{ $dayWorkout->workoutExercises->count() }} exerc.</em>
+                                    </a>
+                                @empty
+                                    <div class="wkt-day-empty">Sem treino</div>
+                                @endforelse
                             </div>
-
-                            @forelse($dayWorkouts as $dayWorkout)
-                                <a href="{{ route('workouts.index', ['workout_id' => $dayWorkout->id]) }}"
-                                   class="weekly-workout-link {{ (isset($workout) && $workout->id === $dayWorkout->id) ? 'is-active' : '' }}">
-                                    <span>{{ $dayWorkout->name }}</span>
-                                    <em>{{ $dayWorkout->workoutExercises->count() }} exerc.</em>
-                                </a>
-                            @empty
-                                <div class="weekly-day-empty">Sem treino vinculado a este dia.</div>
-                            @endforelse
-                        </div>
-                    @empty
-                        <div class="weekly-day-empty weekly-day-empty--wide">
-                            Selecione os dias da agenda para vincular treinos.
-                        </div>
-                    @endforelse
-                </div>
+                        @empty
+                            <div class="wkt-day-empty wkt-day-empty--wide">Selecione os dias da agenda.</div>
+                        @endforelse
+                    </div>
+                @endif
 
                 @if($workoutsWithoutDay->count())
-                    <div class="weekly-unscheduled">
+                    <div class="wkt-unscheduled">
                         <span>Sem dia definido</span>
                         @foreach($workoutsWithoutDay as $looseWorkout)
                             <a href="{{ route('workouts.index', ['workout_id' => $looseWorkout->id]) }}">{{ $looseWorkout->name }}</a>
@@ -270,31 +272,24 @@
                 @endif
             </div>
 
-            @if($allWorkouts->isEmpty())
-                {{-- EMPTY STATE --}}
-                <div class="empty-state" style="padding:5rem 1rem;">
-                    <svg width="56" height="56" viewBox="0 0 24 24" fill="none"
-                         style="stroke:var(--text-muted); stroke-width:1.1; margin:0 auto 18px; display:block; opacity:.20;">
-                        <rect x="2" y="9" width="4" height="6" rx="1"/>
-                        <rect x="18" y="9" width="4" height="6" rx="1"/>
-                        <rect x="7" y="11" width="10" height="2" rx="1"/>
-                    </svg>
-                    <p>Nenhum treino disponível.</p>
-                    <p style="font-size:13px; margin-top:6px; opacity:.45;">Crie seu primeiro treino para começar.</p>
-                    <a href="{{ route('workouts.create') }}" class="btn-save"
-                       style="text-decoration:none; display:inline-block; margin-top:20px;">
-                        + Criar Primeiro Treino
-                    </a>
+            {{-- ══════════════════════════════════
+                 SEÇÃO 3 — MEUS TREINOS
+            ══════════════════════════════════ --}}
+            @if($allWorkouts->isNotEmpty())
+                <div class="wkt-section-label" style="margin-top:2rem;">
+                    <span class="wkt-section-label__icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="stroke:currentColor;stroke-width:2.2;stroke-linecap:round;"><rect x="2" y="9" width="4" height="6" rx="1"/><rect x="18" y="9" width="4" height="6" rx="1"/><rect x="7" y="11" width="10" height="2" rx="1"/></svg>
+                    </span>
+                    Meus Treinos
                 </div>
-            @else
 
-                {{-- SELETOR DE TREINOS --}}
+                {{-- SELETOR --}}
                 <div class="wkt-selector">
                     @foreach($allWorkouts as $w)
                         <a href="{{ route('workouts.index', ['workout_id' => $w->id]) }}"
                            class="wkt-selector__pill {{ (isset($workout) && $workout->id === $w->id) ? 'is-active' : '' }}">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                                 style="stroke:currentColor; stroke-width:2; stroke-linecap:round;">
+                                 style="stroke:currentColor;stroke-width:2;stroke-linecap:round;">
                                 <rect x="2" y="9" width="4" height="6" rx="1"/>
                                 <rect x="18" y="9" width="4" height="6" rx="1"/>
                                 <rect x="7" y="11" width="10" height="2" rx="1"/>
@@ -306,7 +301,7 @@
                 </div>
 
                 @if(isset($workout))
-                    {{-- STATS DO TREINO SELECIONADO --}}
+                    {{-- STATS --}}
                     <div class="dash-stats">
                         <div class="dash-stat dash-stat--red">
                             <div class="dash-stat__bg-icon"></div>
@@ -341,10 +336,10 @@
                             <h3 class="exercises-header__name">{{ $workout->name }}</h3>
                             <span class="exercises-header__badge">{{ $exercises->count() }} exerc.</span>
                         </div>
-                        <div style="display:flex; align-items:center; gap:8px;">
+                        <div style="display:flex;align-items:center;gap:8px;">
                             <a href="{{ route('workouts.edit', $workout->id) }}" class="btn-ghost">
                                 <svg viewBox="0 0 14 14" fill="none"
-                                     style="stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; width:12px; height:12px;">
+                                     style="stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;width:12px;height:12px;">
                                     <path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z"/>
                                 </svg>
                                 Editar
@@ -352,10 +347,9 @@
                             <form action="{{ route('workouts.destroy', $workout->id) }}" method="POST" style="margin:0;">
                                 @csrf
                                 @method('DELETE')
-                                <button type="button" class="btn-del"
-                                        onclick="openWorkoutDeleteConfirm(this)">
+                                <button type="button" class="btn-del" onclick="openWorkoutDeleteConfirm(this)">
                                     <svg viewBox="0 0 14 16" fill="none"
-                                         style="stroke:currentColor; stroke-width:1.8; stroke-linecap:round; width:12px; height:12px;">
+                                         style="stroke:currentColor;stroke-width:1.8;stroke-linecap:round;width:12px;height:12px;">
                                         <path d="M1 3.5h12M4.5 3.5V2a.5.5 0 01.5-.5h3a.5.5 0 01.5.5v1.5M5.5 7v5M8.5 7v5M2.5 3.5l.9 10a.5.5 0 00.5.5h6.2a.5.5 0 00.5-.5l.9-10"/>
                                     </svg>
                                     Deletar
@@ -393,10 +387,9 @@
                                         </div>
                                     </div>
                                     <div class="exercise-grid-card__footer">
-                                        <span style="font-size:11px; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:.07em;">
+                                        <span style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.07em;">
                                             {{ $item->exercise->muscle_group ?? '' }}
                                         </span>
-                                        {{-- BOTÃO PLAY com nome do exercício --}}
                                         <button
                                             class="btn-play"
                                             title="Ver tutorial"
@@ -413,48 +406,51 @@
                     @endif
                 @endif
 
+            @else
+                {{-- EMPTY STATE --}}
+                <div class="empty-state" style="padding:5rem 1rem;">
+                    <svg width="56" height="56" viewBox="0 0 24 24" fill="none"
+                         style="stroke:var(--text-muted);stroke-width:1.1;margin:0 auto 18px;display:block;opacity:.20;">
+                        <rect x="2" y="9" width="4" height="6" rx="1"/>
+                        <rect x="18" y="9" width="4" height="6" rx="1"/>
+                        <rect x="7" y="11" width="10" height="2" rx="1"/>
+                    </svg>
+                    <p>Nenhum treino disponível.</p>
+                    <p style="font-size:13px;margin-top:6px;opacity:.45;">Crie seu primeiro treino para começar.</p>
+                    <a href="{{ route('workouts.create') }}" class="btn-save"
+                       style="text-decoration:none;display:inline-block;margin-top:20px;">
+                        + Criar Primeiro Treino
+                    </a>
+                </div>
             @endif
 
         </div>
     </div>
 
-    {{-- ══════════════════════════════════════════════════════
-         MODAL DE TUTORIAL DO EXERCÍCIO
-    ══════════════════════════════════════════════════════ --}}
-    <div id="workout-delete-overlay" style="display:none; position:fixed; inset:0; z-index:9999; align-items:center; justify-content:center; padding:20px; background:rgba(0,0,0,.68); backdrop-filter:blur(4px);">
-        <div style="width:100%; max-width:380px; border-radius:20px; background:#151515; border:1px solid rgba(255,255,255,.10); box-shadow:0 24px 70px rgba(0,0,0,.45); overflow:hidden;">
+    {{-- ══ MODAL DELETE ══ --}}
+    <div id="workout-delete-overlay" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.68);backdrop-filter:blur(4px);">
+        <div style="width:100%;max-width:380px;border-radius:20px;background:#151515;border:1px solid rgba(255,255,255,.10);box-shadow:0 24px 70px rgba(0,0,0,.45);overflow:hidden;">
             <div style="padding:24px 24px 10px;">
-                <div style="width:44px; height:44px; border-radius:14px; display:flex; align-items:center; justify-content:center; background:rgba(214,21,50,.12); border:1px solid rgba(214,21,50,.25); margin-bottom:14px;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="stroke:#f87171; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;">
-                        <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>
-                        <path d="M10 11v5M14 11v5"/>
+                <div style="width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:rgba(214,21,50,.12);border:1px solid rgba(214,21,50,.25);margin-bottom:14px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="stroke:#f87171;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;">
+                        <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/><path d="M10 11v5M14 11v5"/>
                     </svg>
                 </div>
-                <h2 style="font-size:18px; font-weight:800; margin:0 0 8px; color:#fff;">Deletar treino?</h2>
-                <p style="font-size:13px; line-height:1.5; color:rgba(255,255,255,.62); margin:0;">Essa ação remove o treino selecionado e seus exercícios vinculados.</p>
+                <h2 style="font-size:18px;font-weight:800;margin:0 0 8px;color:#fff;">Deletar treino?</h2>
+                <p style="font-size:13px;line-height:1.5;color:rgba(255,255,255,.62);margin:0;">Essa ação remove o treino selecionado e seus exercícios vinculados.</p>
             </div>
-            <div style="display:flex; gap:10px; justify-content:flex-end; padding:18px 24px 24px;">
+            <div style="display:flex;gap:10px;justify-content:flex-end;padding:18px 24px 24px;">
                 <button type="button" class="btn-ghost" onclick="closeWorkoutDeleteConfirm()">Cancelar</button>
                 <button type="button" class="btn-del" onclick="submitWorkoutDelete()">Deletar</button>
             </div>
         </div>
     </div>
 
-    <div id="exercise-modal" style="
-        display:none;
-        position:fixed; inset:0; z-index:9999;
-        background:rgba(0,0,0,0.88);
-        align-items:center; justify-content:center;
-        padding:16px;
-    ">
+    {{-- ══ MODAL TUTORIAL ══ --}}
+    <div id="exercise-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;padding:16px;">
         <div class="ex-modal-box">
-            {{-- Fechar --}}
             <button onclick="closeExerciseModal()" class="ex-modal-close">✕</button>
-
-            {{-- Nome do exercício --}}
             <p id="modal-exercise-name" class="ex-modal-title"></p>
-
-            {{-- Stats: séries / reps / descanso --}}
             <div class="ex-modal-stats">
                 <div class="ex-modal-stat ex-modal-stat--red">
                     <span class="ex-modal-stat__value" id="modal-sets">—</span>
@@ -471,177 +467,478 @@
                     <span class="ex-modal-stat__label">descanso</span>
                 </div>
             </div>
-
-            {{-- Loading --}}
-            <div id="modal-loading" style="text-align:center; color:var(--text-muted); padding:48px 0;">
+            <div id="modal-loading" style="text-align:center;color:var(--text-muted);padding:48px 0;">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-                     style="stroke:#f87171; stroke-width:2; stroke-linecap:round; margin:0 auto 12px; display:block; animation:spin 1s linear infinite;">
+                     style="stroke:#f87171;stroke-width:2;stroke-linecap:round;margin:0 auto 12px;display:block;animation:spin 1s linear infinite;">
                     <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
                 </svg>
                 Buscando tutorial...
             </div>
-
-            {{-- Vídeo --}}
             <div id="modal-video" style="display:none;">
-                <iframe
-                    id="yt-iframe"
-                    width="100%" height="370"
-                    frameborder="0" allowfullscreen
+                <iframe id="yt-iframe" width="100%" height="370" frameborder="0" allowfullscreen
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    style="border-radius:12px; display:block;"
-                ></iframe>
+                    style="border-radius:12px;display:block;"></iframe>
             </div>
-
-            {{-- Erro --}}
-            <div id="modal-error" style="display:none; text-align:center; padding:48px 0;">
+            <div id="modal-error" style="display:none;text-align:center;padding:48px 0;">
                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
-                     style="stroke:#f87171; stroke-width:1.8; stroke-linecap:round; margin:0 auto 12px; display:block; opacity:.6;">
+                     style="stroke:#f87171;stroke-width:1.8;stroke-linecap:round;margin:0 auto 12px;display:block;opacity:.6;">
                     <circle cx="12" cy="12" r="10"/>
                     <line x1="12" y1="8" x2="12" y2="12"/>
                     <line x1="12" y1="16" x2="12.01" y2="16"/>
                 </svg>
-                <p style="color:#f87171; font-size:13px;">Nenhum vídeo encontrado para este exercício.</p>
+                <p style="color:#f87171;font-size:13px;">Nenhum vídeo encontrado para este exercício.</p>
             </div>
         </div>
     </div>
 
     <style>
-        @keyframes spin { to { transform: rotate(360deg); } }
+    /* ── FLASH ── */
+    .wkt-flash {
+        margin-bottom: 16px;
+        padding: 12px 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    .wkt-flash--success {
+        background: rgba(74,222,128,0.08);
+        border: 1px solid rgba(74,222,128,0.2);
+        color: #4ade80;
+    }
 
-        /* ── MODAL BOX ── */
-        .ex-modal-box {
-            background: #111;
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 18px;
-            padding: 24px;
-            width: 100%; max-width: 740px;
-            position: relative;
-            box-shadow: 0 24px 64px rgba(0,0,0,0.6);
-        }
-        [data-theme="light"] .ex-modal-box {
-            background: #fff;
-            border-color: rgba(0,0,0,0.10);
-            box-shadow: 0 24px 64px rgba(0,0,0,0.18);
-        }
+    /* ── SECTION LABEL ── */
+    .wkt-section-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 12px;
+    }
+    .wkt-section-label__icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 7px;
+        background: rgba(214,21,50,0.12);
+        border: 1px solid rgba(214,21,50,0.22);
+        color: #f87171;
+        flex-shrink: 0;
+    }
+    .wkt-section-label__badge {
+        margin-left: auto;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 99px;
+        background: rgba(251,191,36,0.10);
+        border: 1px solid rgba(251,191,36,0.22);
+        color: #fbbf24;
+        letter-spacing: .04em;
+    }
 
-        /* ── FECHAR ── */
-        .ex-modal-close {
-            position: absolute; top: 14px; right: 16px;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.10);
-            color: #fff; width: 32px; height: 32px;
-            border-radius: 50%; font-size: 16px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: background .15s;
-        }
-        .ex-modal-close:hover { background: rgba(255,255,255,0.12); }
-        [data-theme="light"] .ex-modal-close {
-            background: rgba(0,0,0,0.05);
-            border-color: rgba(0,0,0,0.10);
-            color: #333;
-        }
-        [data-theme="light"] .ex-modal-close:hover { background: rgba(0,0,0,0.10); }
+    /* ── CARD BASE ── */
+    .wkt-card {
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.04);
+        border-radius: 18px;
+        padding: 24px 26px;
+    }
+    [data-theme="light"] .wkt-card {
+        background: #fff;
+        border-color: rgba(0,0,0,0.08);
+        box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    }
 
-        /* ── TÍTULO ── */
-        .ex-modal-title {
-            font-size: 17px; font-weight: 800; color: #fff;
-            margin: 0 40px 16px 0; letter-spacing: -.01em;
-        }
-        [data-theme="light"] .ex-modal-title { color: #111; }
+    /* ── TOP GRID (check + histórico) ── */
+    .wkt-top-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+        gap: 1.25rem;
+        align-items: start;
+        margin-bottom: 0;
+    }
 
-        /* ── STATS BAR ── */
-        .ex-modal-stats {
-            display: flex;
-            align-items: center;
-            gap: 0;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.07);
-            border-radius: 14px;
-            padding: 14px 20px;
-            margin-bottom: 18px;
-        }
-        [data-theme="light"] .ex-modal-stats {
-            background: rgba(0,0,0,0.03);
-            border-color: rgba(0,0,0,0.08);
-        }
+    /* ── CARD HEADER ── */
+    .wkt-card-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+    .wkt-card-head h2 {
+        color: var(--text-white);
+        font-size: 22px;
+        font-weight: 900;
+        margin: 0;
+    }
+    .wkt-card-head h3 {
+        color: var(--text-white);
+        font-size: 18px;
+        font-weight: 900;
+        margin: 0;
+    }
+    .wkt-card-head > span {
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+    .wkt-card-head--sub {
+        margin-top: 24px;
+        margin-bottom: 14px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    [data-theme="light"] .wkt-card-head h2,
+    [data-theme="light"] .wkt-card-head h3 { color: #111; }
+    [data-theme="light"] .wkt-card-head--sub { border-color: rgba(0,0,0,0.07); }
 
-        .ex-modal-stat {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3px;
-        }
+    /* ── PROGRESS ── */
+    .wkt-progress-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+    .wkt-progress-head strong {
+        display: block;
+        color: var(--text-white);
+        font-size: 32px;
+        font-weight: 900;
+        line-height: 1;
+    }
+    .wkt-progress-head span {
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 700;
+    }
+    [data-theme="light"] .wkt-progress-head strong { color: #111; }
 
-        .ex-modal-stat__value {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 32px;
-            letter-spacing: 1px;
-            line-height: 1;
-        }
-        .ex-modal-stat--red  .ex-modal-stat__value { color: #f87171; }
-        .ex-modal-stat--blue .ex-modal-stat__value { color: #60a5fa; }
-        .ex-modal-stat--green .ex-modal-stat__value { color: #4ade80; }
+    /* ── BADGES ── */
+    .wkt-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 10px;
+        border-radius: 99px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+    .wkt-badge--green {
+        color: #4ade80;
+        background: rgba(74,222,128,0.10);
+        border: 1px solid rgba(74,222,128,0.22);
+    }
+    .wkt-badge--yellow {
+        color: #fbbf24;
+        background: rgba(251,191,36,0.08);
+        border: 1px solid rgba(251,191,36,0.20);
+    }
+    [data-theme="light"] .wkt-badge--green { color: #16a34a; background: rgba(22,163,74,0.08); border-color: rgba(22,163,74,0.20); }
+    [data-theme="light"] .wkt-badge--yellow { color: #ca8a04; background: rgba(202,138,4,0.08); border-color: rgba(202,138,4,0.20); }
 
-        [data-theme="light"] .ex-modal-stat--red  .ex-modal-stat__value { color: #dc2626; }
-        [data-theme="light"] .ex-modal-stat--blue .ex-modal-stat__value { color: #2563eb; }
-        [data-theme="light"] .ex-modal-stat--green .ex-modal-stat__value { color: #16a34a; }
+    /* ── HISTORY SUMMARY ── */
+    .wkt-history-summary {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        flex-shrink: 0;
+    }
 
-        .ex-modal-stat__label {
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .10em;
-            color: var(--text-muted);
-        }
-        [data-theme="light"] .ex-modal-stat__label { color: rgba(0,0,0,0.40); }
+    /* ── HISTORY LIST ── */
+    .wkt-history-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .wkt-history-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.06);
+        background: var(--surface);
+        transition: border-color .18s;
+    }
+    .wkt-history-row.is-complete  { border-color: rgba(74,222,128,0.20); }
+    .wkt-history-row.is-incomplete{ border-color: rgba(251,191,36,0.18); }
+    [data-theme="light"] .wkt-history-row { background: #f7f7f7; border-color: rgba(0,0,0,0.07); }
 
-        .ex-modal-stat-divider {
-            width: 1px;
-            height: 36px;
-            background: rgba(255,255,255,0.07);
-            flex-shrink: 0;
-        }
-        [data-theme="light"] .ex-modal-stat-divider { background: rgba(0,0,0,0.08); }
+    .wkt-history-check {
+        flex-shrink: 0;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 800;
+        align-self: flex-start;
+        margin-top: 2px;
+    }
+    .wkt-history-check.is-checked {
+        color: #4ade80;
+        background: rgba(74,222,128,0.10);
+        border: 1px solid rgba(74,222,128,0.26);
+    }
+    .wkt-history-check.is-open {
+        color: #fbbf24;
+        background: rgba(251,191,36,0.10);
+        border: 1px solid rgba(251,191,36,0.24);
+    }
+    [data-theme="light"] .wkt-history-check.is-checked { color: #16a34a; }
+    [data-theme="light"] .wkt-history-check.is-open    { color: #ca8a04; }
 
-        .exercise-grid-card__thumb {
-    aspect-ratio: 1/1 !important;
-    background: #0a0a0a !important;
-}
-.exercise-grid-card__thumb img {
-    object-fit: contain !important;
-}
-[data-theme="light"] .exercise-grid-card__thumb {
-    background: #f5f5f5 !important;
-}
+    .wkt-history-main {
+        flex: 1;
+        min-width: 0;
+    }
+    .wkt-history-main strong {
+        display: block;
+        color: var(--text-white);
+        font-size: 14px;
+        font-weight: 800;
+        margin-bottom: 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .wkt-history-main > span {
+        display: block;
+        color: var(--text-muted);
+        font-size: 11px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    [data-theme="light"] .wkt-history-main strong { color: #111; }
 
-/* HISTÓRICO DE TREINOS - layout corrections */
-.workout-history-list { display:block; }
-.workout-history-row {
-    display:flex;
-    gap:12px;
-    align-items:flex-start;
-    padding:12px 18px;
-    border-radius:10px;
-    background: transparent;
-    border:1px solid rgba(255,255,255,0.03);
-    margin-bottom:12px;
-    position:relative;
-    width:100%;
-    box-sizing:border-box;
-    overflow:visible;
-}
-.workout-history-row__main { flex:1; min-width:0; }
-.workout-history-row__main strong { display:block; font-size:15px; margin-bottom:6px; }
-.workout-history-row__main > span { display:flex; align-items:center; gap:12px; color:var(--text-muted); font-size:13px; margin-bottom:10px; flex-wrap:wrap; }
-.workout-history-progress { height:8px; background:rgba(255,255,255,0.04); border-radius:6px; overflow:hidden; }
-.workout-history-progress span { display:block; height:100%; background:linear-gradient(90deg,#4ade80,#10b981); width:0%; }
-.workout-history-row__side { display:flex; flex-direction:column; align-items:flex-end; gap:6px; min-width:90px; margin-left:auto; }
-.workout-history-badge { display:inline-block; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:800; white-space:nowrap; position:relative; right:0; }
-.workout-history-badge.is-complete { background:rgba(34,197,94,0.12); color:#4ade80; border:1px solid rgba(34,197,94,0.18); }
-.workout-history-badge.is-incomplete { background:rgba(245,158,11,0.06); color:#f59e0b; border:1px solid rgba(245,158,11,0.08); }
-.workout-history-check { margin-right:8px; font-weight:700; display:flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:999px; background:rgba(255,255,255,0.02); }
+    .wkt-history-bar {
+        height: 6px;
+        border-radius: 99px;
+        background: rgba(255,255,255,0.07);
+        overflow: hidden;
+    }
+    .wkt-history-bar span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #4ade80, #10b981);
+    }
+    [data-theme="light"] .wkt-history-bar { background: rgba(0,0,0,0.07); }
 
+    .wkt-history-side {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6px;
+    }
+    .wkt-history-side em {
+        font-style: normal;
+        color: var(--text-muted);
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    /* ── AGENDA CARD ── */
+    .wkt-agenda-card {
+        margin-bottom: 0;
+    }
+    .wkt-agenda-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 10px;
+        margin-top: 18px;
+        padding-top: 18px;
+        border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    [data-theme="light"] .wkt-agenda-grid { border-color: rgba(0,0,0,0.07); }
+
+    .wkt-agenda-day {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 12px;
+        padding: 12px 14px;
+    }
+    [data-theme="light"] .wkt-agenda-day { background: #f7f7f7; border-color: rgba(0,0,0,0.08); }
+
+    .wkt-agenda-day__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    .wkt-agenda-day__head strong {
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--text-white);
+    }
+    .wkt-agenda-day__head span {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--text-muted);
+    }
+    [data-theme="light"] .wkt-agenda-day__head strong { color: #111; }
+
+    .wkt-agenda-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        text-decoration: none;
+        padding: 7px 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.06);
+        background: rgba(255,255,255,0.03);
+        margin-bottom: 6px;
+        transition: border-color .15s, background .15s;
+    }
+    .wkt-agenda-link:last-child { margin-bottom: 0; }
+    .wkt-agenda-link span {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-white);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .wkt-agenda-link em {
+        font-style: normal;
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--text-muted);
+        flex-shrink: 0;
+        margin-left: 6px;
+    }
+    .wkt-agenda-link:hover,
+    .wkt-agenda-link.is-active {
+        border-color: rgba(214,21,50,0.35);
+        background: rgba(214,21,50,0.08);
+    }
+    .wkt-agenda-link.is-active span { color: #f87171; }
+    [data-theme="light"] .wkt-agenda-link span { color: #111; }
+    [data-theme="light"] .wkt-agenda-link { background: #fff; border-color: rgba(0,0,0,0.08); }
+
+    .wkt-day-empty {
+        font-size: 11px;
+        color: var(--text-muted);
+        font-style: italic;
+        padding: 4px 0;
+    }
+    .wkt-day-empty--wide { grid-column: 1 / -1; text-align: center; padding: 20px; }
+
+    .wkt-unscheduled {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .wkt-unscheduled > span {
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: var(--text-muted);
+    }
+    .wkt-unscheduled a {
+        font-size: 11px;
+        font-weight: 700;
+        color: #f87171;
+        text-decoration: none;
+        padding: 3px 9px;
+        border-radius: 99px;
+        background: rgba(214,21,50,0.10);
+        border: 1px solid rgba(214,21,50,0.20);
+    }
+    .wkt-unscheduled a:hover { background: rgba(214,21,50,0.18); }
+
+    /* ── EXERCISE GRID THUMB FIX ── */
+    .exercise-grid-card__thumb {
+        aspect-ratio: 1/1;
+        background: #0a0a0a;
+    }
+    .exercise-grid-card__thumb img { object-fit: contain; }
+    [data-theme="light"] .exercise-grid-card__thumb { background: #f5f5f5; }
+
+    /* ── MODAL ── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .ex-modal-box {
+        background: #111;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 18px;
+        padding: 24px;
+        width: 100%;
+        max-width: 740px;
+        position: relative;
+        box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+    }
+    [data-theme="light"] .ex-modal-box { background: #fff; border-color: rgba(0,0,0,0.10); box-shadow: 0 24px 64px rgba(0,0,0,0.18); }
+    .ex-modal-close {
+        position: absolute; top: 14px; right: 16px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.10);
+        color: #fff; width: 32px; height: 32px;
+        border-radius: 50%; font-size: 16px; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: background .15s;
+    }
+    .ex-modal-close:hover { background: rgba(255,255,255,0.12); }
+    [data-theme="light"] .ex-modal-close { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.10); color: #333; }
+    .ex-modal-title {
+        font-size: 17px; font-weight: 800; color: #fff;
+        margin: 0 40px 16px 0; letter-spacing: -.01em;
+    }
+    [data-theme="light"] .ex-modal-title { color: #111; }
+    .ex-modal-stats {
+        display: flex; align-items: center;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 14px; padding: 14px 20px; margin-bottom: 18px;
+    }
+    [data-theme="light"] .ex-modal-stats { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.08); }
+    .ex-modal-stat { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .ex-modal-stat__value {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 32px; letter-spacing: 1px; line-height: 1;
+    }
+    .ex-modal-stat--red   .ex-modal-stat__value { color: #f87171; }
+    .ex-modal-stat--blue  .ex-modal-stat__value { color: #60a5fa; }
+    .ex-modal-stat--green .ex-modal-stat__value { color: #4ade80; }
+    [data-theme="light"] .ex-modal-stat--red   .ex-modal-stat__value { color: #dc2626; }
+    [data-theme="light"] .ex-modal-stat--blue  .ex-modal-stat__value { color: #2563eb; }
+    [data-theme="light"] .ex-modal-stat--green .ex-modal-stat__value { color: #16a34a; }
+    .ex-modal-stat__label {
+        font-size: 10px; font-weight: 700; text-transform: uppercase;
+        letter-spacing: .10em; color: var(--text-muted);
+    }
+    .ex-modal-stat-divider { width: 1px; height: 36px; background: rgba(255,255,255,0.07); flex-shrink: 0; }
+    [data-theme="light"] .ex-modal-stat-divider { background: rgba(0,0,0,0.08); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 960px) {
+        .wkt-top-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+        .wkt-card { padding: 18px 16px; border-radius: 14px; }
+        .wkt-agenda-grid { grid-template-columns: repeat(2, 1fr); }
+        .wkt-history-row { flex-wrap: wrap; }
+        .wkt-history-side { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; }
+    }
     </style>
 
     <script>
@@ -657,20 +954,20 @@
             empty: 'Sem treino',
         };
 
-        const statusBadge = document.getElementById('today-session-status');
-        const messageBox = document.getElementById('today-session-message');
-        const startButton = document.getElementById('today-session-start');
-        const finishButton = document.getElementById('today-session-finish');
-        const progressText = document.getElementById('today-session-progress-text');
-        const progressBar = document.getElementById('today-session-progress-bar');
+        const statusBadge   = document.getElementById('today-session-status');
+        const messageBox    = document.getElementById('today-session-message');
+        const startButton   = document.getElementById('today-session-start');
+        const finishButton  = document.getElementById('today-session-finish');
+        const progressText  = document.getElementById('today-session-progress-text');
+        const progressBar   = document.getElementById('today-session-progress-bar');
         const progressCount = document.getElementById('today-session-count');
         const exerciseButtons = panel.querySelectorAll('[data-complete-url]');
 
         if (!statusBadge) return;
 
-        let currentStatus = panel.dataset.sessionStatus || 'empty';
+        let currentStatus  = panel.dataset.sessionStatus || 'empty';
         let completedCount = Number(panel.dataset.completedCount || 0);
-        let totalCount = Number(panel.dataset.totalCount || 0);
+        let totalCount     = Number(panel.dataset.totalCount || 0);
 
         async function postJson(url) {
             const response = await fetch(url, {
@@ -684,13 +981,8 @@
                 },
                 body: JSON.stringify({}),
             });
-
             const data = await response.json().catch(() => ({}));
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Não foi possível concluir a ação.');
-            }
-
+            if (!response.ok) throw new Error(data.message || 'Não foi possível concluir a ação.');
             return data;
         }
 
@@ -710,15 +1002,11 @@
 
         function updateProgress(nextCompleted, nextTotal, nextProgress) {
             completedCount = Number(nextCompleted ?? completedCount);
-            totalCount = Number(nextTotal ?? totalCount);
-
+            totalCount     = Number(nextTotal ?? totalCount);
             const progress = Number(nextProgress ?? (totalCount ? Math.round((completedCount / totalCount) * 100) : 0));
-
-            if (progressText) progressText.textContent = progress + '%';
-            if (progressBar) progressBar.style.width = progress + '%';
-            if (progressCount) {
-                progressCount.textContent = completedCount + ' de ' + totalCount + ' exercícios concluídos';
-            }
+            if (progressText)  progressText.textContent = progress + '%';
+            if (progressBar)   progressBar.style.width  = progress + '%';
+            if (progressCount) progressCount.textContent = completedCount + ' de ' + totalCount + ' exercícios concluídos';
         }
 
         function applyStatus(nextStatus) {
@@ -727,20 +1015,13 @@
             statusBadge.textContent = statusLabels[nextStatus] || nextStatus;
             statusBadge.className = 'session-status session-status--' + nextStatus;
 
-            if (startButton) {
-                startButton.style.display = nextStatus === 'pending' ? '' : 'none';
-                startButton.disabled = nextStatus !== 'pending';
-            }
-
-            if (finishButton) {
-                finishButton.style.display = nextStatus === 'in_progress' ? '' : 'none';
-                finishButton.disabled = nextStatus !== 'in_progress';
-            }
+            if (startButton)  { startButton.style.display  = nextStatus === 'pending'      ? '' : 'none'; startButton.disabled  = nextStatus !== 'pending'; }
+            if (finishButton) { finishButton.style.display = nextStatus === 'in_progress'  ? '' : 'none'; finishButton.disabled = nextStatus !== 'in_progress'; }
 
             exerciseButtons.forEach((button) => {
-                const card = button.closest('[data-session-exercise-card]');
+                const card      = button.closest('[data-session-exercise-card]');
                 const completed = card?.dataset.completed === '1';
-                button.disabled = nextStatus !== 'in_progress' || completed;
+                button.disabled  = nextStatus !== 'in_progress' || completed;
                 button.textContent = completed ? 'Concluído' : 'Marcar concluído';
             });
         }
@@ -765,11 +1046,7 @@
                 const data = await postJson(finishButton.dataset.finishUrl);
                 showSessionMessage(data.message || 'Treino finalizado.');
                 applyStatus(data.status || 'completed');
-                if ((data.status || 'completed') === 'completed') {
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 600);
-                }
+                if ((data.status || 'completed') === 'completed') setTimeout(() => window.location.reload(), 600);
             } catch (error) {
                 showSessionMessage(error.message, 'error');
                 applyStatus(currentStatus);
@@ -788,10 +1065,7 @@
                         card.dataset.completed = '1';
                         card.classList.add('is-completed');
                         const mark = card.querySelector('.workout-check-mark');
-                        if (mark) {
-                            mark.classList.add('is-checked');
-                            mark.innerHTML = '&#10003;';
-                        }
+                        if (mark) { mark.classList.add('is-checked'); mark.innerHTML = '&#10003;'; }
                     }
                     updateProgress(data.completed_count, data.total_count, data.progress);
                     showSessionMessage(data.message || 'Exercício marcado como concluído.');
@@ -811,29 +1085,15 @@
     })();
 
     let workoutDeleteForm = null;
-
-    function openWorkoutDeleteConfirm(button) {
-        workoutDeleteForm = button.closest('form');
-        document.getElementById('workout-delete-overlay').style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeWorkoutDeleteConfirm() {
-        workoutDeleteForm = null;
-        document.getElementById('workout-delete-overlay').style.display = 'none';
-        document.body.style.overflow = '';
-    }
-
-    function submitWorkoutDelete() {
-        if (workoutDeleteForm) workoutDeleteForm.submit();
-    }
+    function openWorkoutDeleteConfirm(button)  { workoutDeleteForm = button.closest('form'); document.getElementById('workout-delete-overlay').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+    function closeWorkoutDeleteConfirm()        { workoutDeleteForm = null; document.getElementById('workout-delete-overlay').style.display = 'none'; document.body.style.overflow = ''; }
+    function submitWorkoutDelete()              { if (workoutDeleteForm) workoutDeleteForm.submit(); }
 
     const EXERCISE_VIDEO_URL = "{{ route('exercise.video', [], false) }}";
 
     async function openExerciseModal(exerciseName, sets, reps, rest) {
         const modal = document.getElementById('exercise-modal');
         modal.style.display = 'flex';
-
         document.getElementById('modal-exercise-name').textContent = exerciseName;
         document.getElementById('modal-sets').textContent  = sets  || '—';
         document.getElementById('modal-reps').textContent  = reps  || '—';
@@ -842,20 +1102,16 @@
         document.getElementById('modal-video').style.display   = 'none';
         document.getElementById('modal-error').style.display   = 'none';
         document.getElementById('yt-iframe').src               = '';
-
         try {
             const res  = await fetch(EXERCISE_VIDEO_URL + '?q=' + encodeURIComponent(exerciseName), {
                 credentials: 'same-origin',
                 headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
             });
-            if (!res.ok) throw new Error('Erro ao carregar video.');
+            if (!res.ok) throw new Error();
             const data = await res.json();
-
             document.getElementById('modal-loading').style.display = 'none';
-
             if (data.video_id) {
-                document.getElementById('yt-iframe').src =
-                    'https://www.youtube.com/embed/' + data.video_id + '?autoplay=1&rel=0';
+                document.getElementById('yt-iframe').src = 'https://www.youtube.com/embed/' + data.video_id + '?autoplay=1&rel=0';
                 document.getElementById('modal-video').style.display = 'block';
             } else {
                 document.getElementById('modal-error').style.display = 'block';
@@ -871,12 +1127,7 @@
         document.getElementById('yt-iframe').src = '';
     }
 
-    document.getElementById('exercise-modal').addEventListener('click', function (e) {
-        if (e.target === this) closeExerciseModal();
-    });
-
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') closeExerciseModal();
-    });
+    document.getElementById('exercise-modal').addEventListener('click', function (e) { if (e.target === this) closeExerciseModal(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeExerciseModal(); });
     </script>
 </x-app-layout>

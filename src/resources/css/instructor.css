@@ -200,6 +200,488 @@
 
 /* Cards de aluno — linha colorida no topo */
 
+.inst-frequency-panel {
+    margin: 18px 0 18px;
+    padding: 18px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 14px;
+    background: #161616;
+    color-scheme: dark;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+}
+
+.inst-frequency-modal[hidden] {
+    display: none;
+}
+
+.inst-frequency-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    padding: 28px;
+}
+
+.inst-frequency-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.72);
+    backdrop-filter: blur(8px);
+}
+
+.inst-frequency-panel--modal {
+    position: relative;
+    z-index: 1;
+    width: min(1120px, 100%);
+    max-height: min(760px, calc(100vh - 56px));
+    margin: 0;
+    padding: 26px 28px 24px;
+    overflow: auto;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(214,21,50,.85) rgba(255,255,255,.08);
+    box-shadow: 0 28px 80px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+.inst-frequency-panel--modal::-webkit-scrollbar {
+    width: 10px;
+}
+
+.inst-frequency-panel--modal::-webkit-scrollbar-track {
+    background: rgba(255,255,255,.08);
+    border-radius: 999px;
+}
+
+.inst-frequency-panel--modal::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #d61532, #ff6b78);
+    border: 2px solid #161616;
+    border-radius: 999px;
+}
+
+.inst-frequency-close {
+    position: absolute;
+    top: 18px;
+    right: 28px;
+    z-index: 4;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.05);
+    color: #fff;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background .18s, border-color .18s, transform .15s;
+}
+
+.inst-frequency-close:hover {
+    background: rgba(214,21,50,.14);
+    border-color: rgba(214,21,50,.38);
+    transform: translateY(-1px);
+}
+
+.inst-frequency-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding-right: 74px;
+}
+
+.inst-frequency-head .inst-section__label {
+    margin: 0 0 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    color: #d61532;
+    text-transform: uppercase;
+}
+
+.inst-frequency-head h3 {
+    margin: 4px 0 0;
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(38px, 5vw, 52px);
+    font-weight: 400;
+    letter-spacing: 3px;
+    line-height: .95;
+    text-transform: uppercase;
+}
+
+.inst-frequency-summary,
+.inst-frequency-card__totals {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.inst-frequency-summary span,
+.inst-frequency-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 28px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.08);
+    background: rgba(255,255,255,.035);
+    color: rgba(255,255,255,.58);
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.inst-frequency-summary strong {
+    color: #fff;
+}
+
+.inst-frequency-filters {
+    display: grid;
+    grid-template-columns: minmax(180px,1.2fr) minmax(140px,.8fr) auto;
+    gap: 10px;
+    align-items: end;
+    margin-bottom: 14px;
+}
+
+.inst-frequency-filters label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.inst-frequency-filters label span {
+    color: rgba(255,255,255,.48);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.inst-frequency-filters select,
+.inst-frequency-filters input {
+    width: 100%;
+    height: 40px;
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 12px;
+    background: rgba(255,255,255,.04);
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    outline: none;
+}
+
+.inst-frequency-filters select {
+    padding: 0 12px;
+}
+
+.inst-frequency-filters input {
+    padding: 0 10px;
+}
+
+.inst-frequency-custom {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(120px,1fr));
+    gap: 10px;
+}
+
+.inst-frequency-custom[hidden] {
+    display: none;
+}
+
+.inst-frequency-filter-btn {
+    min-height: 40px;
+    padding: 8px 18px;
+}
+
+.inst-frequency-message {
+    padding: 14px 16px;
+    border: 1px dashed rgba(255,255,255,.10);
+    border-radius: 12px;
+    background: rgba(255,255,255,.025);
+    color: rgba(255,255,255,.48);
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.inst-frequency-list {
+    display: grid;
+    gap: 12px;
+}
+
+.inst-frequency-card {
+    padding: 14px;
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 12px;
+    background: rgba(255,255,255,.03);
+}
+
+.inst-frequency-card__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.inst-frequency-card__student {
+    flex: 1;
+    min-width: 0;
+}
+
+.inst-frequency-card__student strong,
+.inst-frequency-card__student span,
+.inst-frequency-last {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.inst-frequency-card__student strong {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.inst-frequency-card__student span,
+.inst-frequency-last {
+    color: rgba(255,255,255,.42);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.inst-frequency-last {
+    margin: 10px 0 0;
+}
+
+.inst-frequency-days {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.inst-frequency-day {
+    display: inline-grid;
+    grid-template-columns: 1fr;
+    gap: 2px;
+    min-width: 78px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.08);
+    background: rgba(255,255,255,.035);
+}
+
+.inst-frequency-day strong,
+.inst-frequency-day em,
+.inst-frequency-day small {
+    font-style: normal;
+    line-height: 1.15;
+}
+
+.inst-frequency-day strong {
+    color: #fff;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.inst-frequency-day em,
+.inst-frequency-day small {
+    color: rgba(255,255,255,.50);
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.inst-frequency-day--present,
+.inst-frequency-mini--present {
+    border-color: rgba(34,197,94,.24);
+    background: rgba(34,197,94,.10);
+    color: #4ade80;
+}
+
+.inst-frequency-day--absent,
+.inst-frequency-mini--absent {
+    border-color: rgba(214,21,50,.28);
+    background: rgba(214,21,50,.12);
+    color: #f87171;
+}
+
+.inst-frequency-day--no_record,
+.inst-frequency-mini--no_record {
+    border-color: rgba(255,255,255,.08);
+    background: rgba(255,255,255,.035);
+    color: rgba(255,255,255,.46);
+}
+
+.inst-frequency-day--present em,
+.inst-frequency-day--present small {
+    color: #86efac;
+}
+
+.inst-frequency-day--absent em {
+    color: #fca5a5;
+}
+
+[data-theme="light"] .inst-frequency-panel {
+    background: #fff;
+    border-color: rgba(0,0,0,.08);
+    color-scheme: light;
+    box-shadow: 0 2px 10px rgba(0,0,0,.05);
+}
+
+[data-theme="light"] .inst-frequency-panel--modal {
+    box-shadow: 0 28px 80px rgba(0,0,0,.18);
+    scrollbar-color: rgba(196,18,48,.78) rgba(0,0,0,.08);
+}
+
+[data-theme="light"] .inst-frequency-panel--modal::-webkit-scrollbar-track {
+    background: rgba(0,0,0,.08);
+}
+
+[data-theme="light"] .inst-frequency-panel--modal::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #c1121f, #f87171);
+    border-color: #fff;
+}
+
+[data-theme="light"] .inst-frequency-close {
+    background: rgba(0,0,0,.04);
+    border-color: rgba(0,0,0,.08);
+    color: #111;
+}
+
+[data-theme="light"] .inst-frequency-head h3,
+[data-theme="light"] .inst-frequency-card__student strong,
+[data-theme="light"] .inst-frequency-day strong {
+    color: #111;
+}
+
+[data-theme="light"] .inst-frequency-head h3 {
+    color: #111;
+}
+
+[data-theme="light"] .inst-frequency-summary span,
+[data-theme="light"] .inst-frequency-mini,
+[data-theme="light"] .inst-frequency-message,
+[data-theme="light"] .inst-frequency-card,
+[data-theme="light"] .inst-frequency-day,
+[data-theme="light"] .inst-frequency-filters select,
+[data-theme="light"] .inst-frequency-filters input {
+    background: rgba(0,0,0,.025);
+    border-color: rgba(0,0,0,.08);
+}
+
+[data-theme="light"] .inst-frequency-summary span,
+[data-theme="light"] .inst-frequency-card__student span,
+[data-theme="light"] .inst-frequency-last,
+[data-theme="light"] .inst-frequency-day em,
+[data-theme="light"] .inst-frequency-day small,
+[data-theme="light"] .inst-frequency-filters label span,
+[data-theme="light"] .inst-frequency-message {
+    color: rgba(0,0,0,.48);
+}
+
+[data-theme="light"] .inst-frequency-filters select,
+[data-theme="light"] .inst-frequency-filters input {
+    color: #111;
+}
+
+.inst-frequency-filters select option {
+    background: #161616;
+    color: #fff;
+}
+
+[data-theme="light"] .inst-frequency-filters select option {
+    background: #fff;
+    color: #111;
+}
+
+[data-theme="light"] .inst-frequency-summary strong {
+    color: #111;
+}
+
+[data-theme="light"] .inst-frequency-day--present,
+[data-theme="light"] .inst-frequency-mini--present {
+    background: rgba(22,163,74,.08);
+    border-color: rgba(22,163,74,.18);
+    color: #15803d;
+}
+
+[data-theme="light"] .inst-frequency-day--absent,
+[data-theme="light"] .inst-frequency-mini--absent {
+    background: rgba(214,21,50,.08);
+    border-color: rgba(214,21,50,.18);
+    color: #b91c1c;
+}
+
+[data-theme="light"] .inst-frequency-day--no_record,
+[data-theme="light"] .inst-frequency-mini--no_record {
+    background: rgba(0,0,0,.025);
+    border-color: rgba(0,0,0,.10);
+    color: rgba(0,0,0,.52);
+}
+
+[data-theme="light"] .inst-frequency-day--present em,
+[data-theme="light"] .inst-frequency-day--present small {
+    color: #15803d;
+}
+
+[data-theme="light"] .inst-frequency-day--absent em {
+    color: #b91c1c;
+}
+
+[data-theme="light"] .inst-frequency-day--no_record em,
+[data-theme="light"] .inst-frequency-day--no_record small {
+    color: rgba(0,0,0,.52);
+}
+
+@media (max-width: 760px) {
+    .inst-frequency-modal {
+        padding: 14px;
+    }
+
+    .inst-frequency-panel--modal {
+        max-height: calc(100vh - 28px);
+        padding: 16px;
+    }
+
+    .inst-frequency-head h3 {
+        font-size: 34px;
+    }
+
+    .inst-frequency-head,
+    .inst-frequency-card__head {
+        display: grid;
+        grid-template-columns: 1fr;
+        align-items: start;
+    }
+
+    .inst-frequency-summary,
+    .inst-frequency-card__totals {
+        justify-content: flex-start;
+    }
+
+    .inst-frequency-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .inst-frequency-filter-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .inst-frequency-launch-card {
+        width: 100%;
+        margin: 0 0 18px;
+    }
+}
+
 .student-card {
     background: #161616;
     border: 1px solid rgba(255,255,255,.07);
@@ -307,6 +789,79 @@
 
 .student-card__workouts {
     padding: 0 0 6px;
+}
+
+.student-card__tabs {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+    background: rgba(255,255,255,.015);
+}
+
+.student-card__tab {
+    min-width: 0;
+    min-height: 36px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 999px;
+    background: rgba(255,255,255,.035);
+    color: rgba(255,255,255,.56);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background .18s, border-color .18s, color .18s, transform .15s;
+}
+
+.student-card__tab:hover,
+.student-card__tab.is-active {
+    border-color: rgba(214,21,50,.45);
+    background: rgba(214,21,50,.14);
+    color: #fff;
+}
+
+.student-card__tab:hover {
+    transform: translateY(-1px);
+}
+
+.student-card__panel[hidden] {
+    display: none;
+}
+
+.student-card__panel .student-card__schedule {
+    border-bottom: 0;
+}
+
+.student-card__panel-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 14px 16px;
+    border-top: 1px solid rgba(255,255,255,.06);
+}
+
+[data-theme="light"] .student-card__tabs {
+    background: rgba(0,0,0,.012);
+    border-bottom-color: rgba(0,0,0,.06);
+}
+
+[data-theme="light"] .student-card__tab {
+    background: rgba(0,0,0,.025);
+    border-color: rgba(0,0,0,.08);
+    color: rgba(0,0,0,.52);
+}
+
+[data-theme="light"] .student-card__tab:hover,
+[data-theme="light"] .student-card__tab.is-active {
+    background: rgba(214,21,50,.08);
+    border-color: rgba(214,21,50,.24);
+    color: #b91c1c;
+}
+
+[data-theme="light"] .student-card__panel-footer {
+    border-top-color: rgba(0,0,0,.06);
 }
 
 .badge-devedor {
@@ -841,6 +1396,56 @@
     flex-wrap: wrap;
 }
 
+.invite-box__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.invite-box__actions .btn-ghost {
+    min-height: 38px;
+}
+
+.inst-frequency-launch-card {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 3px;
+    min-height: 78px;
+    margin: 20px 0 20px 12px;
+    padding: 16px 22px;
+    border-radius: 16px;
+    border: 1px solid rgba(214,21,50,.24);
+    background: rgba(214,21,50,.08);
+    color: #f87171;
+    font-family: 'Montserrat', sans-serif;
+    cursor: pointer;
+    vertical-align: top;
+    transition: transform .15s, border-color .18s, background .18s;
+}
+
+.inst-frequency-launch-card:hover {
+    transform: translateY(-1px);
+    border-color: rgba(214,21,50,.45);
+    background: rgba(214,21,50,.12);
+}
+
+.inst-frequency-launch-card span {
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .10em;
+    text-transform: uppercase;
+}
+
+.inst-frequency-launch-card strong {
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
 .invite-code-label {
     font-size: 10px;
     font-weight: 700;
@@ -871,6 +1476,28 @@
 [data-theme="light"] .invite-code {
     color: #b91c1c;
     font-weight: 700;
+}
+
+[data-theme="light"] .inst-frequency-launch-card {
+    background: rgba(214,21,50,.06);
+    border-color: rgba(214,21,50,.18);
+    color: #b91c1c;
+}
+
+[data-theme="light"] .inst-frequency-launch-card:hover {
+    background: rgba(214,21,50,.10);
+    border-color: rgba(214,21,50,.30);
+}
+
+[data-theme="light"] .inst-frequency-launch-card strong {
+    color: #111;
+}
+
+@media (max-width: 760px) {
+    .inst-frequency-launch-card {
+        width: 100%;
+        margin: 0 0 18px;
+    }
 }
 
 /* FORMULÁRIO DE CRIAÇÃO DE TREINO */

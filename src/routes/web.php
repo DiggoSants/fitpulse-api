@@ -142,6 +142,10 @@ Route::middleware(['auth', 'verified', 'enrolled', 'role:student'])->group(funct
     Route::post('/frequency/register', [FrequencyController::class, 'register'])->name('frequency.register');
 });
 
+Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
+    Route::get('/instructor/frequency', [FrequencyController::class, 'instructorStudents'])->name('instructor.frequency.students');
+});
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/exercise-video', function (\Illuminate\Http\Request $request) {
         $query = urlencode($request->q . ' exercício como executar corretamente');

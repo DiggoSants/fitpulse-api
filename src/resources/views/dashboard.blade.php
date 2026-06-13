@@ -499,10 +499,65 @@
                         <p class="invite-code-label">Seu código de convite</p>
                         <p class="invite-code">{{ $instructor->invite_code ?? '—' }}</p>
                     </div>
-                    <form action="{{ route('instructors.regenerate-code', $instructor->id) }}" method="POST" style="margin:0;">
+                    <div class="invite-box__actions">
+                        <form action="{{ route('instructors.regenerate-code', $instructor->id) }}" method="POST" style="margin:0;">
                         @csrf
                         <button type="submit" class="btn-ghost">Regenerar código</button>
                     </form>
+                    </div>
+                </div>
+                <button type="button" class="inst-frequency-launch-card" onclick="openInstructorFrequencyModal()">
+                    <span>Frequência</span>
+                    <strong>Ver presença dos alunos</strong>
+                </button>
+                <div id="inst-frequency-modal-overlay" class="inst-frequency-modal" hidden>
+                    <div class="inst-frequency-modal__backdrop" onclick="closeInstructorFrequencyModal()"></div>
+                    <section id="inst-frequency-panel" class="inst-frequency-panel inst-frequency-panel--modal" data-endpoint="{{ route('instructor.frequency.students', [], false) }}" role="dialog" aria-modal="true" aria-labelledby="inst-frequency-title">
+                    <button type="button" class="inst-frequency-close" onclick="closeInstructorFrequencyModal()" aria-label="Fechar frequência">&times;</button>
+                    <div class="inst-frequency-head">
+                        <div>
+                            <p class="inst-section__label">Frequência</p>
+                            <h3 id="inst-frequency-title">Frequência dos alunos</h3>
+                        </div>
+                        <div class="inst-frequency-summary" aria-live="polite">
+                            <span><strong id="inst-frequency-present">0</strong> presenças</span>
+                            <span><strong id="inst-frequency-absent">0</strong> ausências</span>
+                            <span><strong id="inst-frequency-empty">0</strong> sem registro</span>
+                        </div>
+                    </div>
+                    <div class="inst-frequency-filters">
+                        <label>
+                            <span>Aluno</span>
+                            <select id="inst-frequency-student">
+                                <option value="">Todos</option>
+                                @foreach($instructor->students as $student)
+                                    <option value="{{ $student->id }}">{{ $student->user->name }}</option>
+                                @endforeach
+                            </select>
+                        </label>
+                        <label>
+                            <span>Período</span>
+                            <select id="inst-frequency-period">
+                                <option value="week">Semana</option>
+                                <option value="month">Mês</option>
+                                <option value="custom">Personalizado</option>
+                            </select>
+                        </label>
+                        <div id="inst-frequency-custom" class="inst-frequency-custom" hidden>
+                            <label>
+                                <span>Início</span>
+                                <input type="date" id="inst-frequency-start">
+                            </label>
+                            <label>
+                                <span>Fim</span>
+                                <input type="date" id="inst-frequency-end">
+                            </label>
+                        </div>
+                        <button type="button" class="btn-save inst-frequency-filter-btn" onclick="loadInstructorFrequency()">Filtrar</button>
+                    </div>
+                    <div id="inst-frequency-message" class="inst-frequency-message">Carregando frequência...</div>
+                    <div id="inst-frequency-list" class="inst-frequency-list"></div>
+                    </section>
                 </div>
                 <div class="instructor-search">
                     <div class="instructor-search__icon">
@@ -539,83 +594,91 @@
                                     ->all();
                                 $studentWorkoutsByDay = $student->workouts->groupBy('week_day');
                             @endphp
-                            <div class="student-card__schedule">
-                                <div class="student-card__schedule-head">
-                                    <span>Agenda semanal</span>
-                                    <em>{{ count($studentScheduleDays) }} dia{{ count($studentScheduleDays) !== 1 ? 's' : '' }}</em>
-                                </div>
+                            <div class="student-card__tabs" role="tablist" aria-label="Alternar agenda e treinos">
+                                <button type="button" class="student-card__tab is-active" aria-selected="true" onclick="switchStudentCardView(this, 'student-agenda-{{ $student->id }}', 'student-workouts-{{ $student->id }}')">Agenda</button>
+                                <button type="button" class="student-card__tab" aria-selected="false" onclick="switchStudentCardView(this, 'student-workouts-{{ $student->id }}', 'student-agenda-{{ $student->id }}')">Treinos</button>
+                            </div>
+                            <div id="student-agenda-{{ $student->id }}" class="student-card__panel">
+                                <div class="student-card__schedule">
+                                    <div class="student-card__schedule-head">
+                                        <span>Agenda semanal</span>
+                                        <em>{{ count($studentScheduleDays) }} dia{{ count($studentScheduleDays) !== 1 ? 's' : '' }}</em>
+                                    </div>
 
-                                @include('workouts.partials.schedule-form', [
-                                    'weekDays' => $weekDays,
-                                    'scheduleDays' => $studentScheduleDays,
-                                    'minScheduleDays' => $minScheduleDays,
-                                    'scheduleStudent' => $student,
-                                    'scheduleIsCompact' => true,
-                                ])
+                                    @include('workouts.partials.schedule-form', [
+                                        'weekDays' => $weekDays,
+                                        'scheduleDays' => $studentScheduleDays,
+                                        'minScheduleDays' => $minScheduleDays,
+                                        'scheduleStudent' => $student,
+                                        'scheduleIsCompact' => true,
+                                    ])
 
-                                <div class="weekly-agenda-list">
-                                    @forelse($studentScheduleDays as $dayKey)
-                                        @php $dayWorkouts = $studentWorkoutsByDay->get($dayKey, collect()); @endphp
-                                        <div class="weekly-agenda-list__row">
-                                            <strong>{{ $weekDays[$dayKey] ?? $dayKey }}</strong>
-                                            @if($dayWorkouts->count())
-                                                <span>{{ $dayWorkouts->pluck('name')->join(', ') }}</span>
-                                            @else
-                                                <span class="is-empty">Sem treino para este dia</span>
-                                            @endif
-                                        </div>
-                                    @empty
-                                        <div class="weekly-day-empty weekly-day-empty--wide">Nenhum dia cadastrado.</div>
-                                    @endforelse
+                                    <div class="weekly-agenda-list">
+                                        @forelse($studentScheduleDays as $dayKey)
+                                            @php $dayWorkouts = $studentWorkoutsByDay->get($dayKey, collect()); @endphp
+                                            <div class="weekly-agenda-list__row">
+                                                <strong>{{ $weekDays[$dayKey] ?? $dayKey }}</strong>
+                                                @if($dayWorkouts->count())
+                                                    <span>{{ $dayWorkouts->pluck('name')->join(', ') }}</span>
+                                                @else
+                                                    <span class="is-empty">Sem treino para este dia</span>
+                                                @endif
+                                            </div>
+                                        @empty
+                                            <div class="weekly-day-empty weekly-day-empty--wide">Nenhum dia cadastrado.</div>
+                                        @endforelse
+                                    </div>
                                 </div>
                             </div>
-                            <div class="student-card__workouts">
-                                @forelse($student->workouts as $workout)
-                                    <div class="workout-block">
-                                        <div class="workout-block__name">
-                                            {{ $workout->name }}
-                                            <div class="workout-block__summary" style="display:flex; align-items:center; gap:8px;">
-                                                <span>{{ $weekDays[$workout->week_day] ?? 'Sem dia' }}</span>
-                                                <span>{{ $workout->workoutExercises->count() }} exerc.</span>
-                                                <button type="button" class="btn-workout-action" style="font-size:11px; padding:4px 12px;" onclick="toggleWorkout('workout-inst-{{ $workout->id }}')" id="btn-workout-inst-{{ $workout->id }}">Ver exercícios ▾</button>
+                            <div id="student-workouts-{{ $student->id }}" class="student-card__panel" hidden>
+                                <div class="student-card__workouts">
+                                    @forelse($student->workouts as $workout)
+                                        <div class="workout-block">
+                                            <div class="workout-block__name">
+                                                {{ $workout->name }}
+                                                <div class="workout-block__summary" style="display:flex; align-items:center; gap:8px;">
+                                                    <span>{{ $weekDays[$workout->week_day] ?? 'Sem dia' }}</span>
+                                                    <span>{{ $workout->workoutExercises->count() }} exerc.</span>
+                                                    <button type="button" class="btn-workout-action" style="font-size:11px; padding:4px 12px;" onclick="toggleWorkout('workout-inst-{{ $workout->id }}')" id="btn-workout-inst-{{ $workout->id }}">Ver exercícios ▾</button>
+                                                </div>
+                                            </div>
+                                            <div id="workout-inst-{{ $workout->id }}" style="display:none; margin-top:10px;">
+                                                @if($workout->workoutExercises->count())
+                                                    <div class="ex-table">
+                                                        <div class="ex-table__head"><span>Exercício</span><span>Grupo</span><span>Séries</span><span>Reps</span><span>Desc.</span></div>
+                                                        @foreach($workout->workoutExercises as $we)
+                                                            <div class="ex-table__row">
+                                                                <span class="ex-table__name">{{ $we->exercise->name }}</span>
+                                                                <span class="ex-table__group">{{ $we->exercise->muscle_group ?? '—' }}</span>
+                                                                <span><span class="chip chip--series">{{ $we->sets }}</span></span>
+                                                                <span><span class="chip chip--reps">{{ $we->reps }}</span></span>
+                                                                <span><span class="chip chip--rest">{{ $we->rest_time ?? 0 }}s</span></span>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                @else
+                                                    <p style="font-size:13px; color:var(--text-muted); opacity:.6;">Nenhum exercício neste treino.</p>
+                                                @endif
+                                            </div>
+                                            <div class="workout-block__actions" style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+                                                <a href="{{ route('workouts.edit', [$workout->id, 'student_id' => $student->id]) }}" class="btn-workout-action">
+                                                    <svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z"/></svg>
+                                                    Editar
+                                                </a>
+                                                <form action="{{ route('workouts.destroy', $workout->id) }}" method="POST" style="margin:0;">
+                                                    @csrf @method('DELETE')
+                                                    <input type="hidden" name="student_id" value="{{ $student->id }}">
+                                                    <button type="submit" class="btn-workout-action" style="border-color:rgba(214,21,50,.6); color:#f87171;">🗑 Deletar</button>
+                                                </form>
                                             </div>
                                         </div>
-                                        <div id="workout-inst-{{ $workout->id }}" style="display:none; margin-top:10px;">
-                                            @if($workout->workoutExercises->count())
-                                                <div class="ex-table">
-                                                    <div class="ex-table__head"><span>Exercício</span><span>Grupo</span><span>Séries</span><span>Reps</span><span>Desc.</span></div>
-                                                    @foreach($workout->workoutExercises as $we)
-                                                        <div class="ex-table__row">
-                                                            <span class="ex-table__name">{{ $we->exercise->name }}</span>
-                                                            <span class="ex-table__group">{{ $we->exercise->muscle_group ?? '—' }}</span>
-                                                            <span><span class="chip chip--series">{{ $we->sets }}</span></span>
-                                                            <span><span class="chip chip--reps">{{ $we->reps }}</span></span>
-                                                            <span><span class="chip chip--rest">{{ $we->rest_time ?? 0 }}s</span></span>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                            @else
-                                                <p style="font-size:13px; color:var(--text-muted); opacity:.6;">Nenhum exercício neste treino.</p>
-                                            @endif
-                                        </div>
-                                        <div class="workout-block__actions" style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
-                                            <a href="{{ route('workouts.edit', [$workout->id, 'student_id' => $student->id]) }}" class="btn-workout-action">
-                                                <svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z"/></svg>
-                                                Editar
-                                            </a>
-                                            <form action="{{ route('workouts.destroy', $workout->id) }}" method="POST" style="margin:0;">
-                                                @csrf @method('DELETE')
-                                                <input type="hidden" name="student_id" value="{{ $student->id }}">
-                                                <button type="submit" class="btn-workout-action" style="border-color:rgba(214,21,50,.6); color:#f87171;">🗑 Deletar</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <div class="workout-empty">Nenhum treino cadastrado.</div>
-                                @endforelse
-                            </div>
-                            <div style="padding:14px 16px; border-top:1px solid rgba(255,255,255,.06); display:flex; justify-content:flex-end;">
-                                <a href="{{ route('workouts.create', ['student_id' => $student->id]) }}" class="btn-save" style="text-decoration:none; font-size:12px; padding:7px 16px;">+ Criar treino</a>
+                                    @empty
+                                        <div class="workout-empty">Nenhum treino cadastrado.</div>
+                                    @endforelse
+                                </div>
+                                <div class="student-card__panel-footer">
+                                    <a href="{{ route('workouts.create', ['student_id' => $student->id]) }}" class="btn-save" style="text-decoration:none; font-size:12px; padding:7px 16px;">+ Criar treino</a>
+                                </div>
                             </div>
                         </div>
                     @empty
@@ -1129,6 +1192,195 @@
         if (empty) empty.style.display = visibleCount === 0 ? 'block' : 'none';
     }
 
+    function initInstructorFrequency() {
+        const panel = document.getElementById('inst-frequency-panel');
+        if (!panel) return;
+
+        const period = document.getElementById('inst-frequency-period');
+        const student = document.getElementById('inst-frequency-student');
+        const start = document.getElementById('inst-frequency-start');
+        const end = document.getElementById('inst-frequency-end');
+        const today = new Date();
+        const weekStart = new Date();
+
+        weekStart.setDate(today.getDate() - 6);
+
+        if (start) start.value = toDateInputValue(weekStart);
+        if (end) end.value = toDateInputValue(today);
+
+        if (period) {
+            period.addEventListener('change', () => {
+                toggleInstructorFrequencyCustom();
+                if (period.value !== 'custom') loadInstructorFrequency();
+            });
+        }
+
+        if (student) {
+            student.addEventListener('change', loadInstructorFrequency);
+        }
+
+        toggleInstructorFrequencyCustom();
+    }
+
+    function toDateInputValue(date) {
+        const normalized = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+        return normalized.toISOString().slice(0, 10);
+    }
+
+    function toggleInstructorFrequencyCustom() {
+        const period = document.getElementById('inst-frequency-period');
+        const custom = document.getElementById('inst-frequency-custom');
+        if (!period || !custom) return;
+        custom.hidden = period.value !== 'custom';
+    }
+
+    function openInstructorFrequencyModal() {
+        const overlay = document.getElementById('inst-frequency-modal-overlay');
+        if (!overlay) return;
+        overlay.hidden = false;
+        document.body.style.overflow = 'hidden';
+        loadInstructorFrequency();
+    }
+
+    function closeInstructorFrequencyModal() {
+        const overlay = document.getElementById('inst-frequency-modal-overlay');
+        if (!overlay) return;
+        overlay.hidden = true;
+        document.body.style.overflow = '';
+    }
+
+    async function loadInstructorFrequency() {
+        const panel = document.getElementById('inst-frequency-panel');
+        if (!panel) return;
+
+        const endpoint = panel.dataset.endpoint;
+        const params = new URLSearchParams();
+        const period = document.getElementById('inst-frequency-period')?.value || 'week';
+        const student = document.getElementById('inst-frequency-student')?.value || '';
+        const start = document.getElementById('inst-frequency-start')?.value || '';
+        const end = document.getElementById('inst-frequency-end')?.value || '';
+
+        params.set('period', period);
+        if (student) params.set('student_id', student);
+        if (period === 'custom') {
+            if (start) params.set('start_date', start);
+            if (end) params.set('end_date', end);
+        }
+
+        setInstructorFrequencyMessage('Carregando frequência...');
+
+        try {
+            const res = await fetch(`${endpoint}?${params.toString()}`, {
+                method: 'GET',
+                credentials: 'same-origin',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Erro ao carregar frequência.');
+            renderInstructorFrequency(data);
+        } catch (error) {
+            renderInstructorFrequency({ students: [], totals: { present: 0, absent: 0, no_record: 0 }, message: error.message });
+        }
+    }
+
+    function setInstructorFrequencyMessage(message) {
+        const messageBox = document.getElementById('inst-frequency-message');
+        const list = document.getElementById('inst-frequency-list');
+        if (messageBox) {
+            messageBox.textContent = message;
+            messageBox.style.display = 'block';
+        }
+        if (list) list.innerHTML = '';
+    }
+
+    function renderInstructorFrequency(data) {
+        const list = document.getElementById('inst-frequency-list');
+        const messageBox = document.getElementById('inst-frequency-message');
+        const totals = data.totals || { present: 0, absent: 0, no_record: 0 };
+        const students = Array.isArray(data.students) ? data.students : [];
+
+        document.getElementById('inst-frequency-present').textContent = totals.present ?? 0;
+        document.getElementById('inst-frequency-absent').textContent = totals.absent ?? 0;
+        document.getElementById('inst-frequency-empty').textContent = totals.no_record ?? 0;
+
+        if (!list || !messageBox) return;
+        list.innerHTML = '';
+
+        if (!students.length) {
+            messageBox.textContent = data.message || 'Nenhum dado de frequência para exibir.';
+            messageBox.style.display = 'block';
+            return;
+        }
+
+        const hasTrackedData = Number(totals.present || 0) + Number(totals.absent || 0) > 0;
+        messageBox.textContent = hasTrackedData
+            ? ''
+            : 'Nenhum registro de frequência no período selecionado.';
+        messageBox.style.display = hasTrackedData ? 'none' : 'block';
+
+        list.innerHTML = students.map(student => {
+            const records = Array.isArray(student.records) ? student.records : [];
+            const initials = getInitials(student.name || 'Aluno');
+
+            return `
+                <article class="inst-frequency-card">
+                    <div class="inst-frequency-card__head">
+                        <div class="student-avatar">${escapeHtml(initials)}</div>
+                        <div class="inst-frequency-card__student">
+                            <strong>${escapeHtml(student.name || 'Aluno')}</strong>
+                            <span>${escapeHtml(student.email || '')}</span>
+                        </div>
+                        <div class="inst-frequency-card__totals">
+                            <span class="inst-frequency-mini inst-frequency-mini--present">${student.totals?.present ?? 0} pres.</span>
+                            <span class="inst-frequency-mini inst-frequency-mini--absent">${student.totals?.absent ?? 0} aus.</span>
+                            <span class="inst-frequency-mini inst-frequency-mini--no_record">${student.totals?.no_record ?? 0} sem reg.</span>
+                        </div>
+                    </div>
+                    <div class="inst-frequency-last">
+                        ${student.last_frequency ? `Última presença: ${escapeHtml(student.last_frequency)}` : 'Nenhuma presença registrada no período.'}
+                    </div>
+                    <div class="inst-frequency-days">
+                        ${records.map(record => `
+                            <span class="inst-frequency-day inst-frequency-day--${escapeHtml(record.status || 'no_record')}">
+                                <strong>${escapeHtml(record.date_label || record.date || '')}</strong>
+                                <em>${escapeHtml(record.status_label || 'Sem registro')}</em>
+                                ${record.registered_at ? `<small>${escapeHtml(record.registered_at)}</small>` : ''}
+                            </span>
+                        `).join('')}
+                    </div>
+                </article>
+            `;
+        }).join('');
+    }
+
+    function getInitials(name) {
+        return name
+            .trim()
+            .split(/\s+/)
+            .slice(0, 2)
+            .map(part => part.charAt(0))
+            .join('')
+            .toUpperCase();
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    document.addEventListener('DOMContentLoaded', initInstructorFrequency);
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') closeInstructorFrequencyModal();
+    });
+
     function toggleWorkoutMgr(id, row) {
         const el = document.getElementById(id);
         if (!el) return;
@@ -1156,6 +1408,23 @@
             event.preventDefault();
             toggleWorkoutMgr(id, row);
         }
+    }
+
+    function switchStudentCardView(button, showId, hideId) {
+        const showPanel = document.getElementById(showId);
+        const hidePanel = document.getElementById(hideId);
+        const card = button.closest('.student-card');
+
+        if (!showPanel || !hidePanel || !card) return;
+
+        showPanel.hidden = false;
+        hidePanel.hidden = true;
+
+        card.querySelectorAll('.student-card__tab').forEach(tab => {
+            const isActive = tab === button;
+            tab.classList.toggle('is-active', isActive);
+            tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
     }
 
     function toggleWorkout(id) {

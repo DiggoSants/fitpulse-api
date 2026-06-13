@@ -51,7 +51,7 @@ class Enrollment extends Model
     public function hasAccess(): bool
     {
         // Se a data fim já passou, não tem acesso
-        if ($this->end_date->isPast()) {
+        if ($this->end_date->lt(now()->startOfDay())) {
             return false;
         }
 
@@ -64,9 +64,10 @@ class Enrollment extends Model
      */
     public function daysLeft(): int
     {
-        if ($this->end_date->isPast()) {
+        if ($this->end_date->lt(now()->startOfDay())) {
             return 0;
         }
-        return now()->startOfDay()->diffInDays($this->end_date->startOfDay());
+        return (int) now()->startOfDay()
+            ->diffInDays($this->end_date->copy()->startOfDay(), false);
     }
 }

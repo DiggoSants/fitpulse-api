@@ -1,4 +1,40 @@
 <x-app-layout>
+
+    @push('styles')
+    <style>
+        .shop-stock-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 999px;
+            letter-spacing: .04em;
+        }
+        .shop-stock-badge--low {
+            background: rgba(251,191,36,0.12);
+            color: #fbbf24;
+            border: 1px solid rgba(251,191,36,0.25);
+        }
+        .shop-stock-badge--out {
+            background: rgba(214,21,50,0.12);
+            color: #f87171;
+            border: 1px solid rgba(214,21,50,0.25);
+        }
+        .shop-stock-count {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .shop-card__btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+    </style>
+    @endpush
+
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="dash-hero" style="margin-bottom:24px;">
@@ -39,73 +75,69 @@
         </div>
     </div>
 
-   <div id="shop-modal-overlay" class="shop-modal-overlay" style="display:none;">
-    <div class="shop-modal">
-        <div class="shop-modal__header">
-            <h3 class="shop-modal__title">Confirmar compra</h3>
-            <button type="button" class="shop-modal__close" onclick="closeShopModal()">✕</button>
-        </div>
-        <div class="shop-modal__body">
-            <div class="shop-modal__img-wrap">
-                <img id="shop-modal-img" src="" alt="" class="shop-modal__img" style="display:none;" />
-                <div id="shop-modal-img-placeholder" class="shop-modal__img-placeholder">
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
-                         style="stroke:currentColor; stroke-width:1.5; opacity:.35;">
-                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-                        <line x1="3" y1="6" x2="21" y2="6"/>
-                        <path d="M16 10a4 4 0 0 1-8 0"/>
-                    </svg>
+    <div id="shop-modal-overlay" class="shop-modal-overlay" style="display:none;">
+        <div class="shop-modal">
+            <div class="shop-modal__header">
+                <h3 class="shop-modal__title">Confirmar compra</h3>
+                <button type="button" class="shop-modal__close" onclick="closeShopModal()">✕</button>
+            </div>
+            <div class="shop-modal__body">
+                <div class="shop-modal__img-wrap">
+                    <img id="shop-modal-img" src="" alt="" class="shop-modal__img" style="display:none;" />
+                    <div id="shop-modal-img-placeholder" class="shop-modal__img-placeholder">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
+                             style="stroke:currentColor; stroke-width:1.5; opacity:.35;">
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                            <line x1="3" y1="6" x2="21" y2="6"/>
+                            <path d="M16 10a4 4 0 0 1-8 0"/>
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <div id="shop-modal-name" class="shop-modal__product-name"></div>
+                    <div id="shop-modal-cat" class="shop-modal__product-cat"></div>
+                    <div id="shop-modal-price" class="shop-modal__product-price"></div>
+                    <div id="shop-modal-stock-info" style="margin-top:6px; font-size:12px; color:var(--text-muted);"></div>
                 </div>
             </div>
-            <div>
-                <div id="shop-modal-name" class="shop-modal__product-name"></div>
-                <div id="shop-modal-cat" class="shop-modal__product-cat"></div>
-                <div id="shop-modal-price" class="shop-modal__product-price"></div>
+            <div class="shop-modal__qty-row">
+                <div class="shop-modal__qty-label">Quantidade</div>
+                <div class="shop-modal__qty-ctrl">
+                    <button type="button" class="shop-qty-btn" onclick="changeQty(-1)">-</button>
+                    <div id="shop-modal-qty" class="shop-modal__qty-val">1</div>
+                    <button type="button" class="shop-qty-btn" onclick="changeQty(1)">+</button>
+                </div>
             </div>
-        </div>
-        <div class="shop-modal__qty-row">
-            <div class="shop-modal__qty-label">Quantidade</div>
-            <div class="shop-modal__qty-ctrl">
-                <button type="button" class="shop-qty-btn" onclick="changeQty(-1)">-</button>
-                <div id="shop-modal-qty" class="shop-modal__qty-val">1</div>
-                <button type="button" class="shop-qty-btn" onclick="changeQty(1)">+</button>
+            <div class="shop-modal__total-row">
+                <span>Total</span>
+                <strong id="shop-modal-total" class="shop-modal__total-val">R$ 0,00</strong>
             </div>
-        </div>
-        <div class="shop-modal__total-row">
-            <span>Total</span>
-            <strong id="shop-modal-total" class="shop-modal__total-val">R$ 0,00</strong>
-        </div>
-        <div class="shop-modal__footer">
-            <button type="button" class="shop-modal__btn-cancel" onclick="closeShopModal()">Cancelar</button>
-            <button type="button" id="shop-modal-confirm-btn" class="shop-modal__btn" onclick="confirmPurchase()">Confirmar compra</button>
+            <div class="shop-modal__footer">
+                <button type="button" class="shop-modal__btn-cancel" onclick="closeShopModal()">Cancelar</button>
+                <button type="button" id="shop-modal-confirm-btn" class="shop-modal__btn" onclick="confirmPurchase()">Confirmar compra</button>
+            </div>
         </div>
     </div>
-</div>
 
-<div id="shop-toast" class="shop-toast" style="display:none;"></div>
+    <div id="shop-toast" class="shop-toast" style="display:none;"></div>
+
     <script>
-        const CSRF   = document.querySelector('meta[name="csrf-token"]').content;
+        const CSRF              = document.querySelector('meta[name="csrf-token"]').content;
         const ENDPOINT_PRODUCTS = "{{ route('products.index', [], false) }}";
         const ENDPOINT_SALE     = "{{ route('sales.store', [], false) }}";
 
-        let allProducts    = [];
-        let currentFilter  = 'all';
+        let allProducts     = [];
+        let currentFilter   = 'all';
         let selectedProduct = null;
-        let currentQty     = 1;
+        let currentQty      = 1;
 
         async function readJsonResponse(res) {
             try {
                 return await res.json();
             } catch (e) {
-                if (res.status === 419) {
-                    return { message: 'Sua sessão expirou. Atualize a página e tente novamente.' };
-                }
-                if (res.status === 401 || res.status === 403) {
-                    return { message: 'Você não tem permissão para concluir esta ação.' };
-                }
-                if (res.status >= 500) {
-                    return { message: 'Erro interno no servidor. Confira os logs do Railway.' };
-                }
+                if (res.status === 419) return { message: 'Sua sessão expirou. Atualize a página e tente novamente.' };
+                if (res.status === 401 || res.status === 403) return { message: 'Você não tem permissão para concluir esta ação.' };
+                if (res.status >= 500) return { message: 'Erro interno no servidor. Confira os logs do Railway.' };
                 return { message: 'O servidor respondeu de um jeito inesperado.' };
             }
         }
@@ -153,13 +185,28 @@
             grid.style.display = 'grid';
 
             filtered.forEach(p => {
-                const price = parseFloat(p.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                const catLabel = p.category === 'suplemento' ? 'Suplemento' : 'Acessório';
+                const price     = parseFloat(p.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                const catLabel  = p.category === 'suplemento' ? 'Suplemento' : 'Acessório';
                 const catClass  = p.category === 'suplemento' ? 'shop-badge--sup' : 'shop-badge--ace';
+                const outOfStock = p.stock === 0;
+                const lowStock   = p.is_low_stock && !outOfStock;
+
+                let stockBadge = '';
+                if (outOfStock) {
+                    stockBadge = `<span class="shop-stock-badge shop-stock-badge--out">Esgotado</span>`;
+                } else if (lowStock) {
+                    stockBadge = `<span class="shop-stock-badge shop-stock-badge--low">⚠ Últimas unidades</span>`;
+                }
+
+                let stockCount = '';
+                if (!outOfStock && p.stock !== null) {
+                    stockCount = `<p class="shop-stock-count">${p.stock} em estoque</p>`;
+                }
 
                 const card = document.createElement('div');
                 card.className        = 'shop-card';
                 card.dataset.category = p.category;
+                if (outOfStock) card.style.opacity = '0.65';
 
                 card.innerHTML = `
                     <div class="shop-card__img-wrap">
@@ -175,14 +222,18 @@
                                </div>`
                         }
                         <span class="shop-badge ${catClass}">${catLabel}</span>
+                        ${stockBadge ? `<span style="position:absolute; bottom:8px; left:8px;">${stockBadge}</span>` : ''}
                     </div>
                     <div class="shop-card__body">
                         <p class="shop-card__name">${p.name}</p>
                         ${p.description ? `<p class="shop-card__desc">${p.description}</p>` : ''}
+                        ${stockCount}
                         <div class="shop-card__footer">
                             <span class="shop-card__price">${price}</span>
-                            <button type="button" class="shop-card__btn" onclick="openShopModal(${JSON.stringify(p).replace(/"/g, '&quot;')})">
-                                Comprar
+                            <button type="button" class="shop-card__btn"
+                                ${outOfStock ? 'disabled' : ''}
+                                onclick="openShopModal(${JSON.stringify(p).replace(/"/g, '&quot;')})">
+                                ${outOfStock ? 'Esgotado' : 'Comprar'}
                             </button>
                         </div>
                     </div>
@@ -207,19 +258,29 @@
             const placeholder = document.getElementById('shop-modal-img-placeholder');
 
             if (product.image) {
-                img.src           = product.image;
-                img.style.display = 'block';
+                img.src                   = product.image;
+                img.style.display         = 'block';
                 placeholder.style.display = 'none';
             } else {
                 img.style.display         = 'none';
                 placeholder.style.display = 'flex';
             }
 
-            document.getElementById('shop-modal-name').textContent  = product.name;
-            document.getElementById('shop-modal-cat').textContent   = product.category === 'suplemento' ? 'Suplemento' : 'Acessório';
-            document.getElementById('shop-modal-qty').textContent   = '1';
-            updateModalTotal();
+            document.getElementById('shop-modal-name').textContent = product.name;
+            document.getElementById('shop-modal-cat').textContent  = product.category === 'suplemento' ? 'Suplemento' : 'Acessório';
+            document.getElementById('shop-modal-qty').textContent  = '1';
 
+            // Info de estoque no modal
+            const stockInfo = document.getElementById('shop-modal-stock-info');
+            if (product.is_low_stock) {
+                stockInfo.innerHTML = `<span style="color:#fbbf24;">⚠ Apenas ${product.stock} unidade(s) disponível(is)</span>`;
+            } else if (product.stock !== null) {
+                stockInfo.textContent = `${product.stock} em estoque`;
+            } else {
+                stockInfo.textContent = '';
+            }
+
+            updateModalTotal();
             document.getElementById('shop-modal-overlay').style.display = 'flex';
             document.body.style.overflow = 'hidden';
         };
@@ -231,7 +292,8 @@
         };
 
         window.changeQty = function (delta) {
-            currentQty = Math.max(1, currentQty + delta);
+            const max  = selectedProduct?.stock ?? 99;
+            currentQty = Math.min(max, Math.max(1, currentQty + delta));
             document.getElementById('shop-modal-qty').textContent = currentQty;
             updateModalTotal();
         };
@@ -248,8 +310,8 @@
         window.confirmPurchase = async function () {
             if (!selectedProduct) return;
 
-            const btn         = document.getElementById('shop-modal-confirm-btn');
-            btn.disabled      = true;
+            const btn       = document.getElementById('shop-modal-confirm-btn');
+            btn.disabled    = true;
             btn.textContent = 'Processando...';
 
             try {
@@ -257,10 +319,10 @@
                     method: 'POST',
                     credentials: 'same-origin',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Accept':       'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': CSRF,
+                        'Content-Type':       'application/json',
+                        'Accept':             'application/json',
+                        'X-Requested-With':   'XMLHttpRequest',
+                        'X-CSRF-TOKEN':       CSRF,
                     },
                     body: JSON.stringify({ product_id: selectedProduct.id, quantity: currentQty }),
                 });
@@ -268,10 +330,22 @@
                 const data = await readJsonResponse(res);
 
                 if (res.ok) {
+                    // Atualiza o estoque local sem recarregar a página
+                    const idx = allProducts.findIndex(p => p.id === selectedProduct.id);
+                    if (idx !== -1) {
+                        allProducts[idx].stock -= currentQty;
+                        if (allProducts[idx].stock <= 0) allProducts[idx].stock = 0;
+                    }
+
                     closeShopModal();
+                    renderProducts(allProducts);
                     showShopToast('Compra realizada com sucesso! 🎉', 'success');
                 } else {
-                    showShopToast(data.message || 'Erro ao processar compra.', 'error');
+                    // Erro do backend (estoque insuficiente, produto indisponível, etc.)
+                    const errMsg = data.errors
+                        ? Object.values(data.errors).flat().join(' ')
+                        : (data.message || 'Erro ao processar compra.');
+                    showShopToast(errMsg, 'error');
                 }
             } catch (e) {
                 showShopToast('Erro de conexão. Tente novamente.', 'error');

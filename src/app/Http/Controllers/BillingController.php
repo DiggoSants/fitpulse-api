@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Billing;
+use App\Models\Enrollment;
 use App\Models\Student;
 use App\Services\BillingService;
 use Illuminate\Http\Request;
@@ -15,20 +16,22 @@ class BillingController extends Controller
     {
         $request->validate([
             'payment_method' => ['required', 'in:credit_card,debit_card,pix'],
+            'enrollment_id'  => ['nullable', 'integer', 'exists:enrollments,id'],
         ], [
             'payment_method.required' => 'Informe o metodo de pagamento',
             'payment_method.in'       => 'Metodo invalido. Use: credit_card, debit_card ou pix',
+            'enrollment_id.exists'    => 'Matricula invalida.',
         ]);
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
         $student = Student::where('user_id', $user->id)->firstOrFail();
 
-        $enrollment = $student->activeEnrollment();
+        $enrollment = $this->payableEnrollmentFor($student, $request->integer('enrollment_id'));
 
         if (!$enrollment) {
             return $this->billingResponse($request, [
-                'message' => 'Nenhuma matricula ativa encontrada.',
+                'message' => 'Nao ha mensalidade pendente para pagar.',
             ], 422);
         }
 
@@ -90,13 +93,14 @@ class BillingController extends Controller
         $user = Auth::user();
         $student = Student::where('user_id', $user->id)->firstOrFail();
 
-        $activeEnrollment = $student->activeEnrollment();
+        $activeEnrollment = $this->payableEnrollmentFor($student) ?? $student->activeEnrollment();
+        $canPayEnrollment = $activeEnrollment && !$this->hasConfirmedBilling($activeEnrollment);
         $payments = Billing::with(['plan', 'enrollment'])
             ->where('student_id', $student->id)
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('billing.index', compact('activeEnrollment', 'payments'));
+        return view('billing.index', compact('activeEnrollment', 'payments', 'canPayEnrollment'));
     }
 
     public function all(Request $request)
@@ -143,5 +147,53 @@ class BillingController extends Controller
         return redirect()
             ->route('billing.index')
             ->with('success', $payload['message'] ?? 'Pagamento processado com sucesso.');
+    }
+
+    private function payableEnrollmentFor(Student $student, ?int $requestedEnrollmentId = null): ?Enrollment
+    {
+        if ($requestedEnrollmentId) {
+            $requestedEnrollment = $student->enrollments()
+                ->with('plan')
+                ->whereKey($requestedEnrollmentId)
+                ->whereIn('status', ['active', 'cancelled'])
+                ->where('end_date', '>=', now()->toDateString())
+                ->first();
+
+            if ($requestedEnrollment && !$this->hasConfirmedBilling($requestedEnrollment)) {
+                return $requestedEnrollment;
+            }
+        }
+
+        $pendingBilling = Billing::with('enrollment.plan')
+            ->where('student_id', $student->id)
+            ->where('status', 'pending')
+            ->whereHas('enrollment', function ($query) {
+                $query->whereIn('status', ['active', 'cancelled'])
+                    ->where('end_date', '>=', now()->toDateString());
+            })
+            ->get()
+            ->filter(fn ($billing) => $billing->enrollment !== null)
+            ->sortBy(fn ($billing) => $billing->enrollment->start_date?->format('Y-m-d') . '-' . str_pad((string) $billing->id, 10, '0', STR_PAD_LEFT))
+            ->first();
+
+        if ($pendingBilling?->enrollment) {
+            return $pendingBilling->enrollment;
+        }
+
+        return $student->enrollments()
+            ->with('plan')
+            ->whereIn('status', ['active', 'cancelled'])
+            ->where('end_date', '>=', now()->toDateString())
+            ->get()
+            ->filter(fn ($enrollment) => !$this->hasConfirmedBilling($enrollment))
+            ->sortBy(fn ($enrollment) => $enrollment->start_date?->format('Y-m-d') . '-' . str_pad((string) $enrollment->id, 10, '0', STR_PAD_LEFT))
+            ->first();
+    }
+
+    private function hasConfirmedBilling(Enrollment $enrollment): bool
+    {
+        return Billing::where('enrollment_id', $enrollment->id)
+            ->where('status', 'confirmed')
+            ->exists();
     }
 }

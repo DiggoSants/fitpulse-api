@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use App\Models\Plan;
 use App\Models\Enrollment;
 use App\Models\Student;
@@ -137,36 +139,103 @@ class ReportController extends Controller
 
     public function plansLoyalty(Request $request)
     {
-        $enrollments = Enrollment::with(['student.user', 'plan'])
-            ->where('status', 'active')
-            ->where('end_date', '>=', now()->toDateString())
-            ->orderBy('start_date', 'asc')
-            ->get()
-            ->groupBy('student_id')
-            ->map(function ($group) {
-                $oldest  = $group->first();
-                $current = $group->last();
+        $data = $request->validate([
+            'student_id' => ['nullable', 'integer', 'exists:students,id'],
+            'period'     => ['nullable', Rule::in(['month', 'custom'])],
+            'start_date' => ['nullable', 'date_format:Y-m-d'],
+            'end_date'   => ['nullable', 'date_format:Y-m-d', 'after_or_equal:start_date'],
+        ]);
 
-                $daysActive = (int) $oldest->start_date->startOfDay()
-                    ->diffInDays(now()->startOfDay());
+        $period = $data['period'] ?? 'month';
+        $startDate = $period === 'custom' && !empty($data['start_date'])
+            ? $data['start_date']
+            : now()->startOfMonth()->toDateString();
+        $endDate = $period === 'custom' && !empty($data['end_date'])
+            ? $data['end_date']
+            : now()->endOfMonth()->toDateString();
 
-                return [
-                    'student_name'  => $oldest->student->user->name,
-                    'student_email' => $oldest->student->user->email,
-                    'plan_name'     => $current->plan->name,
-                    'start_date'    => $oldest->start_date->format('d/m/Y'),
-                    'end_date'      => $current->end_date->format('d/m/Y'),
-                    'days_active'   => $daysActive,
-                ];
-            })
-            ->sortByDesc('days_active')
-            ->values();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
-        if ($request->expectsJson()) {
-            return response()->json(['data' => $enrollments]);
+        $baseStudentsQuery = Student::with(['user', 'enrollments.plan'])
+            ->whereHas('user')
+            ->whereHas('enrollments', function ($query) {
+                $query->whereIn('status', ['active', 'cancelled'])
+                    ->where('end_date', '>=', now()->toDateString());
+            });
+
+        if ($user->isInstructor()) {
+            $baseStudentsQuery->where('instructor_id', $user->instructor?->id);
         }
 
-        return view('reports.plans-loyalty', compact('enrollments'));
+        $studentOptions = (clone $baseStudentsQuery)
+            ->get()
+            ->sortBy(fn ($student) => mb_strtolower($student->user?->name ?? ''))
+            ->map(fn (Student $student) => [
+                'id' => $student->id,
+                'name' => $student->user->name,
+            ])
+            ->values();
+
+        if (!empty($data['student_id'])) {
+            $baseStudentsQuery->whereKey($data['student_id']);
+        }
+
+        $enrollments = $baseStudentsQuery
+            ->get()
+            ->map(function (Student $student) use ($startDate, $endDate) {
+                $currentEnrollment = $student->enrollments
+                    ->whereIn('status', ['active', 'cancelled'])
+                    ->filter(fn ($enrollment) => $enrollment->end_date->gte(now()->startOfDay()))
+                    ->sortByDesc('end_date')
+                    ->first();
+
+                $fidelity = $student->user->calculateFidelity($startDate, $endDate);
+                $fidelityStatus = $fidelity['status'] ?? $fidelity['fidelity_status'] ?? null;
+
+                return [
+                    'student_id'      => $student->id,
+                    'student_name'    => $student->user->name,
+                    'student_email'   => $student->user->email,
+                    'plan_name'       => $currentEnrollment?->plan?->name ?? '—',
+                    'period_label'    => \Carbon\Carbon::parse($startDate)->format('d/m/Y') . ' até ' . \Carbon\Carbon::parse($endDate)->format('d/m/Y'),
+                    'fidelity_rate'   => $fidelity['fidelity_rate'] ?? null,
+                    'total_expected'  => $fidelity['total_expected'] ?? 0,
+                    'total_present'   => $fidelity['total_present'] ?? 0,
+                    'message'         => $fidelity['message'] ?? null,
+                    'status'          => $fidelityStatus,
+                    'is_low_fidelity' => in_array($fidelityStatus, ['low', 'baixa', 'baixo', 'critical', 'critica'], true),
+                ];
+            })
+            ->sortBy([
+                fn ($a, $b) => ($b['fidelity_rate'] ?? -1) <=> ($a['fidelity_rate'] ?? -1),
+                fn ($a, $b) => mb_strtolower($a['student_name']) <=> mb_strtolower($b['student_name']),
+            ])
+            ->values();
+
+        $rates = $enrollments
+            ->pluck('fidelity_rate')
+            ->filter(fn ($rate) => $rate !== null);
+
+        $summary = [
+            'total_students' => $enrollments->count(),
+            'average_rate'   => $rates->count() ? round($rates->avg(), 1) : null,
+            'best_rate'      => $rates->count() ? round($rates->max(), 1) : null,
+            'low_count'      => $enrollments->where('is_low_fidelity', true)->count(),
+        ];
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'data' => $enrollments,
+                'period' => [
+                    'start' => $startDate,
+                    'end' => $endDate,
+                ],
+                'summary' => $summary,
+            ]);
+        }
+
+        return view('reports.plans-loyalty', compact('enrollments', 'studentOptions', 'period', 'startDate', 'endDate', 'summary'));
     }
 
     public function usersDelinquency(Request $request)

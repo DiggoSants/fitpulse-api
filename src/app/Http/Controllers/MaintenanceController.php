@@ -10,12 +10,12 @@ use App\Models\MaintenanceRequest;
 class MaintenanceController extends Controller
 {
     /**
-     * Renderiza a VIEW da tela de manutenção (só para gerente).*/
+     * Renderiza a VIEW da tela de manutenção (só para gerente).
+     */
     public function view()
     {
         return view('maintenance.index');
     }
-
 
     public function index()
     {
@@ -50,10 +50,13 @@ class MaintenanceController extends Controller
     {
         $equipment = Equipment::orderBy('name')->get()->map(function ($item) {
             return [
-                'id'          => $item->id,
-                'name'        => $item->name,
-                'unique_code' => $item->unique_code,
-                'status'      => $item->status,
+                'id'                    => $item->id,
+                'name'                  => $item->name,
+                'unique_code'           => $item->unique_code,
+                'status'                => $item->status,
+                'last_maintenance_date' => $item->last_maintenance_date
+                    ? \Carbon\Carbon::parse($item->last_maintenance_date)->format('d/m/Y')
+                    : null,
             ];
         });
 
@@ -79,7 +82,6 @@ class MaintenanceController extends Controller
         ], 201);
     }
 
-
     public function store(Request $request)
     {
         $request->validate([
@@ -92,6 +94,7 @@ class MaintenanceController extends Controller
         ]);
 
         $equipment = Equipment::findOrFail($request->equipment_id);
+
         $hasOpen = DB::transaction(function () use ($equipment, $request) {
             $existing = MaintenanceRequest::where('equipment_id', $equipment->id)
                 ->where('status', 'aberto')
@@ -136,7 +139,6 @@ class MaintenanceController extends Controller
         ], 201);
     }
 
- 
     public function resolve($id)
     {
         $maintenanceRequest = MaintenanceRequest::with('equipment')->findOrFail($id);

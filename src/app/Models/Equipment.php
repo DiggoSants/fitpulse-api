@@ -11,6 +11,11 @@ class Equipment extends Model
         'description',
         'status',
         'unique_code',
+        'last_maintenance_date',
+    ];
+
+    protected $casts = [
+        'last_maintenance_date' => 'date',
     ];
 
     public function maintenanceRequests()
@@ -18,19 +23,16 @@ class Equipment extends Model
         return $this->hasMany(MaintenanceRequest::class);
     }
 
-    /** Disponível para uso — apenas status ativo */
     public function isAvailable(): bool
     {
         return $this->status === 'ativo';
     }
 
-    /** Está em manutenção */
     public function isUnderMaintenance(): bool
     {
         return $this->status === 'manutencao';
     }
 
-    /** Inativo (desativado pelo gerente) */
     public function isInactive(): bool
     {
         return $this->status === 'inativo';
@@ -51,7 +53,6 @@ class Equipment extends Model
             if (empty($equipment->unique_code)) {
                 $equipment->unique_code = self::generateUniqueCode();
             }
-            // Garante status padrão
             if (empty($equipment->status)) {
                 $equipment->status = 'ativo';
             }

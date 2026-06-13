@@ -6,9 +6,11 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Schema;
 use App\Models\StudentSchedule;
 use App\Models\WorkoutSession;
 use App\Models\Attendance;
+use App\Models\Frequency;
 
 class User extends Authenticatable
 {
@@ -286,14 +288,31 @@ class User extends Authenticatable
             ];
         }
 
-        $attendances = Attendance::where('student_id', $this->id)
-            ->whereBetween('attendance_date', [$startDate, $endDate])
-            ->where('status', 'present')
-            ->get();
+        if (Schema::hasTable('attendances')) {
+            $presenceDates = Attendance::where('student_id', $this->id)
+                ->whereBetween('attendance_date', [$startDate, $endDate])
+                ->where('status', 'present')
+                ->get()
+                ->map(fn ($attendance) => \Carbon\Carbon::parse($attendance->attendance_date)->toDateString())
+                ->unique()
+                ->values();
+        } else {
+            $student = $this->student;
+
+            $presenceDates = $student
+                ? Frequency::where('student_id', $student->id)
+                    ->whereDate('created_at', '>=', $startDate)
+                    ->whereDate('created_at', '<=', $endDate)
+                    ->get()
+                    ->map(fn ($frequency) => $frequency->created_at->toDateString())
+                    ->unique()
+                    ->values()
+                : collect();
+        }
 
         $totalPresent = 0;
-        foreach ($attendances as $att) {
-            $attDate = \Carbon\Carbon::parse($att->attendance_date);
+        foreach ($presenceDates as $date) {
+            $attDate = \Carbon\Carbon::parse($date);
             $weekDayNum = (int) $attDate->format('N');
             if (in_array($weekDayNum, $scheduleNumeric)) {
                 $totalPresent++;
@@ -301,11 +320,17 @@ class User extends Authenticatable
         }
 
         $fidelityRate = round(($totalPresent / $totalExpected) * 100, 2);
+        $status = match (true) {
+            $fidelityRate < 60 => 'baixa',
+            $fidelityRate < 80 => 'regular',
+            default => 'alta',
+        };
 
         return [
             'fidelity_rate' => $fidelityRate,
             'total_expected' => $totalExpected,
             'total_present' => $totalPresent,
+            'status' => $status,
             'message' => null
         ];
     }

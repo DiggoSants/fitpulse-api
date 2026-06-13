@@ -191,13 +191,20 @@
             {{-- PLANO ATIVO --}}
             @if($activeEnrollment)
                 <div class="billing-plan-card">
-                    <p class="billing-plan-card__label">Plano Ativo</p>
+                    <p class="billing-plan-card__label">{{ $canPayEnrollment ? 'Pagamento pendente' : 'Plano Ativo' }}</p>
                     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
                         <div>
                             <p class="billing-plan-card__name">{{ $activeEnrollment->plan->name }}</p>
                             <p class="billing-plan-card__sub">
-                                Vence em
-                                <strong>{{ \Carbon\Carbon::parse($activeEnrollment->end_date)->format('d/m/Y') }}</strong>
+                                @if($canPayEnrollment)
+                                    Período de
+                                    <strong>{{ \Carbon\Carbon::parse($activeEnrollment->start_date)->format('d/m/Y') }}</strong>
+                                    até
+                                    <strong>{{ \Carbon\Carbon::parse($activeEnrollment->end_date)->format('d/m/Y') }}</strong>
+                                @else
+                                    Vence em
+                                    <strong>{{ \Carbon\Carbon::parse($activeEnrollment->end_date)->format('d/m/Y') }}</strong>
+                                @endif
                             </p>
                         </div>
                         <div>
@@ -210,7 +217,8 @@
                 </div>
 
                 {{-- FORMULÁRIO --}}
-                <form action="{{ route('billing.process') }}" method="POST">
+                @if($canPayEnrollment)
+                    <form action="{{ route('billing.process') }}" method="POST">
                     @csrf
                     <input type="hidden" name="enrollment_id" value="{{ $activeEnrollment->id }}">
 
@@ -277,7 +285,12 @@
                         </div>
 
                     </div>
-                </form>
+                    </form>
+                @else
+                    <div class="billing-info-box">
+                        Não há mensalidade pendente para este plano.
+                    </div>
+                @endif
 
             @else
                 <div class="enrollment-info">

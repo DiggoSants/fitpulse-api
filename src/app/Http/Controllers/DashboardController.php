@@ -10,6 +10,7 @@ use App\Models\Workout;
 use App\Models\WorkoutExercise;
 use App\Models\Frequency;
 use App\Models\Plan;
+use App\Models\Enrollment;
 
 class DashboardController extends Controller
 {
@@ -118,11 +119,33 @@ class DashboardController extends Controller
         // ── ALUNO ─────────────────────────────────────────────────────────────
         $student = Student::where('user_id', $user->id)->first();
 
-        if (!$student || !$student->isEnrolled()) {
+        if (!$student) {
             return view('dashboard', ['enrolled' => false]);
         }
 
+        if (!$student->isEnrolled()) {
+            $lastEnrollment = $student->enrollments()
+                ->orderByDesc('end_date')
+                ->orderByDesc('id')
+                ->first();
+
+            return view('dashboard', [
+                'enrolled'          => false,
+                'studentAccessInfo' => $this->studentAccessInfo($student, $lastEnrollment),
+            ]);
+        }
+
         $activeEnrollment = $student->activeEnrollment();
+
+        if (!$activeEnrollment) {
+            return view('dashboard', [
+                'enrolled'          => false,
+                'studentAccessInfo' => $this->studentAccessInfo($student),
+            ]);
+        }
+
+        $studentAccessInfo = $this->studentAccessInfo($student, $activeEnrollment);
+
         $checkedInToday = Frequency::where('student_id', $student->id)
             ->where(function ($query) use ($activeEnrollment) {
                 $query->where('enrollment_id', $activeEnrollment->id)
@@ -170,6 +193,7 @@ class DashboardController extends Controller
                 'enrolled'         => true,
                 'exercises'        => collect(),
                 'activeEnrollment' => $activeEnrollment,
+                'studentAccessInfo' => $studentAccessInfo,
                 'checkedInToday'   => $checkedInToday,
                 'lastFrequency'    => $lastFrequency,
                 'frequencyThisWeek'=> $frequencyThisWeek,
@@ -184,9 +208,42 @@ class DashboardController extends Controller
             'exercises',
             'workout',
             'activeEnrollment',
+            'studentAccessInfo',
             'checkedInToday',
             'lastFrequency',
             'frequencyThisWeek'
         ) + ['enrolled' => true]);
+    }
+
+    private function studentAccessInfo(?Student $student, ?Enrollment $enrollment = null): array
+    {
+        $cancelledEnrollment = $student?->enrollments()
+            ->where('status', 'cancelled')
+            ->where('end_date', '>=', now()->toDateString())
+            ->orderByDesc('end_date')
+            ->orderByDesc('id')
+            ->first();
+
+        $enrollment = $cancelledEnrollment ?? $enrollment;
+
+        if (!$enrollment) {
+            return [
+                'state'     => 'none',
+                'status'    => null,
+                'days_left' => null,
+                'end_date'  => null,
+            ];
+        }
+
+        $hasAccess = $enrollment->hasAccess();
+
+        return [
+            'state'     => $hasAccess
+                ? ($enrollment->status === 'cancelled' ? 'cancelled_valid' : 'valid')
+                : 'ended',
+            'status'    => $enrollment->status,
+            'days_left' => $hasAccess ? $enrollment->daysLeft() : 0,
+            'end_date'  => $enrollment->end_date?->format('d/m/Y'),
+        ];
     }
 }

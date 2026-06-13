@@ -9,44 +9,95 @@
                     <div>
                         <div class="dash-hero__eyebrow">Relatórios</div>
                         <h2 class="dash-hero__title">Fidelidade</h2>
-                        <p class="dash-hero__sub">Ranking de alunos ativos ordenados por tempo de permanência</p>
+                        <p class="dash-hero__sub">Percentual calculado pela agenda do aluno e presenças registradas</p>
                     </div>
                     <div class="dash-hero__right">
                         <span class="dash-hero__pulse">
                             <span class="dash-hero__pulse-dot"></span>
-                            GERENTE
+                            {{ Auth::user()->isInstructor() ? 'INSTRUTOR' : 'GERENTE' }}
                         </span>
-                        <a href="{{ route('reports.plans.comparative') }}" class="btn-ghost" style="text-decoration:none;">
-                            Ver Comparativo
-                        </a>
-                        <a href="{{ route('reports.plans.cancellations') }}" class="btn-ghost" style="text-decoration:none;">
-                            Ver Cancelamentos
-                        </a>
+                        @if(Auth::user()->isManager())
+                            <a href="{{ route('reports.plans.comparative') }}" class="btn-ghost" style="text-decoration:none;">
+                                Ver Comparativo
+                            </a>
+                            <a href="{{ route('reports.plans.cancellations') }}" class="btn-ghost" style="text-decoration:none;">
+                                Ver Cancelamentos
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>
 
+            {{-- FILTROS --}}
+            <form method="GET" action="{{ route('reports.plans.loyalty') }}" class="mgr-section" style="margin-bottom:24px;">
+                <div class="mgr-section-head" style="align-items:center;">
+                    <div style="align-self:center;">
+                        <p class="section-label" style="margin-bottom:0;">FILTROS</p>
+                    </div>
+                    <label style="display:flex; flex-direction:column; gap:6px; min-width:220px;">
+                        <span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.08em;">Aluno</span>
+                        <select name="student_id" class="mgr-search" style="width:100%;">
+                            <option value="">Todos</option>
+                            @foreach($studentOptions as $student)
+                                <option value="{{ $student['id'] }}" @selected((string) request('student_id') === (string) $student['id'])>
+                                    {{ $student['name'] }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </label>
+                    <label style="display:flex; flex-direction:column; gap:6px; min-width:150px;">
+                        <span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.08em;">Período</span>
+                        <select name="period" class="mgr-search" style="width:100%;">
+                            <option value="month" @selected($period === 'month')>Mês atual</option>
+                            <option value="custom" @selected($period === 'custom')>Personalizado</option>
+                        </select>
+                    </label>
+                    <label style="display:flex; flex-direction:column; gap:6px; min-width:150px;">
+                        <span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.08em;">Início</span>
+                        <input type="date" name="start_date" value="{{ $startDate }}" class="mgr-search" style="width:100%;">
+                    </label>
+                    <label style="display:flex; flex-direction:column; gap:6px; min-width:150px;">
+                        <span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.08em;">Fim</span>
+                        <input type="date" name="end_date" value="{{ $endDate }}" class="mgr-search" style="width:100%;">
+                    </label>
+                    <button type="submit" class="btn-save" style="height:42px; padding:0 20px; align-self:flex-end;">Aplicar</button>
+                </div>
+            </form>
+
             {{-- CARDS RESUMO --}}
-            <div class="mgr-stats" style="margin-bottom:28px;">
-                <div class="mgr-stat-card mgr-stat-card--green">
-                    <span class="mgr-stat-card__label">Alunos ativos</span>
-                    <strong class="mgr-stat-card__value">{{ count($enrollments) }}</strong>
-                    <span class="mgr-stat-card__sub">no ranking</span>
+            <div class="mgr-stats" style="margin-bottom:28px; grid-template-columns: repeat(4, 1fr);">
+                <div class="mgr-stat-card mgr-stat-card--green" style="padding:14px 16px;">
+                    <span class="mgr-stat-card__label" style="font-size:11px;">Alunos no relatório</span>
+                    <strong class="mgr-stat-card__value" style="font-size:28px;">{{ $summary['total_students'] }}</strong>
                 </div>
-                <div class="mgr-stat-card">
-                    <span class="mgr-stat-card__label">Média de permanência</span>
-                    <strong class="mgr-stat-card__value">
-                        {{ count($enrollments) > 0 ? round(collect($enrollments)->avg('days_active')) : 0 }}
-                    </strong>
-                    <span class="mgr-stat-card__sub">dias</span>
+                <div class="mgr-stat-card" style="padding:14px 16px;">
+                    <span class="mgr-stat-card__label" style="font-size:11px;">Média de fidelidade</span>
+                    <div style="display:flex; align-items:baseline; gap:3px;">
+                        <strong class="mgr-stat-card__value" style="font-size:28px;">{{ $summary['average_rate'] !== null ? number_format($summary['average_rate'], 1, ',', '.') : '—' }}</strong>
+                        @if($summary['average_rate'] !== null)
+                            <span style="font-size:16px; color:var(--text-muted); font-weight:600;">%</span>
+                        @endif
+                    </div>
                 </div>
-                <div class="mgr-stat-card">
-                    <span class="mgr-stat-card__label">Maior fidelidade</span>
-                    <strong class="mgr-stat-card__value">
-                        {{ count($enrollments) > 0 ? collect($enrollments)->max('days_active') : 0 }}
-                    </strong>
-                    <span class="mgr-stat-card__sub">dias</span>
+                <div class="mgr-stat-card" style="padding:14px 16px;">
+                    <span class="mgr-stat-card__label" style="font-size:11px;">Maior fidelidade</span>
+                    <div style="display:flex; align-items:baseline; gap:3px;">
+                        <strong class="mgr-stat-card__value" style="font-size:28px;">{{ $summary['best_rate'] !== null ? number_format($summary['best_rate'], 1, ',', '.') : '—' }}</strong>
+                        @if($summary['best_rate'] !== null)
+                            <span style="font-size:16px; color:var(--text-muted); font-weight:600;">%</span>
+                        @endif
+                    </div>
                 </div>
+                @if($summary['low_count'] > 0)
+                    <div class="mgr-stat-card" style="padding:14px 16px;">
+                        <span class="mgr-stat-card__label" style="font-size:11px;">Baixa fidelidade</span>
+                        <strong class="mgr-stat-card__value" style="font-size:28px; color:#f87171;">{{ $summary['low_count'] }}</strong>
+                    </div>
+                @endif
+            </div>
+
+            <div style="margin-bottom:16px;">
+                <p class="section-label" style="margin-bottom:0;">PERÍODO: {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} ATÉ {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</p>
             </div>
 
             {{-- TABELA --}}
@@ -59,24 +110,16 @@
                                 <th>Aluno</th>
                                 <th>Email</th>
                                 <th>Plano</th>
-                                <th>Desde</th>
-                                <th>Vencimento</th>
-                                <th>Tempo Ativo</th>
+                                <th>Período</th>
+                                <th>Presenças</th>
+                                <th>Fidelidade</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($enrollments as $index => $item)
-                                <tr>
+                                <tr style="{{ $item['is_low_fidelity'] ? 'background:rgba(214,21,50,0.06);' : '' }}">
                                     <td>
-                                        @if($index === 0)
-                                            <span style="font-size:18px;" title="1º lugar">🥇</span>
-                                        @elseif($index === 1)
-                                            <span style="font-size:18px;" title="2º lugar">🥈</span>
-                                        @elseif($index === 2)
-                                            <span style="font-size:18px;" title="3º lugar">🥉</span>
-                                        @else
-                                            <span style="font-size:13px; color:var(--text-muted); font-weight:700;">{{ $index + 1 }}º</span>
-                                        @endif
+                                        <span style="font-size:13px; color:var(--text-muted); font-weight:700;">{{ $index + 1 }}º</span>
                                     </td>
                                     <td>
                                         <div class="mgr-student-cell">
@@ -95,19 +138,27 @@
                                         <span style="font-size:13px; color:var(--text-white);">{{ $item['plan_name'] }}</span>
                                     </td>
                                     <td>
-                                        <span style="font-size:13px; color:var(--text-muted);">{{ $item['start_date'] }}</span>
+                                        <span style="font-size:13px; color:var(--text-muted);">{{ $item['period_label'] }}</span>
                                     </td>
                                     <td>
-                                        <span style="font-size:13px; color:var(--text-muted);">{{ $item['end_date'] }}</span>
-                                    </td>
-                                    <td>
-                                        @php
-                                            $days = $item['days_active'];
-                                            $badgeClass = $days >= 180 ? 'mgr-badge-ok' : ($days >= 30 ? 'mgr-badge-neutral' : 'mgr-badge-bad');
-                                        @endphp
-                                        <span class="{{ $badgeClass }}" style="font-weight:700;">
-                                            {{ $days }} {{ $days === 1 ? 'dia' : 'dias' }}
+                                        <span style="font-size:13px; color:var(--text-muted);">
+                                            {{ $item['total_present'] }} / {{ $item['total_expected'] }}
                                         </span>
+                                    </td>
+                                    <td>
+                                        @if($item['fidelity_rate'] === null)
+                                            <span class="mgr-badge-neutral" style="font-weight:700;">Sem cálculo</span>
+                                            @if($item['message'])
+                                                <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">{{ $item['message'] }}</div>
+                                            @endif
+                                        @else
+                                            <span class="{{ $item['is_low_fidelity'] ? 'mgr-badge-bad' : 'mgr-badge-ok' }}" style="font-weight:700;">
+                                                {{ number_format($item['fidelity_rate'], 1, ',', '.') }}%
+                                            </span>
+                                            @if($item['status'])
+                                                <div style="font-size:11px; color:var(--text-muted); margin-top:5px;">{{ $item['status'] }}</div>
+                                            @endif
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
@@ -122,7 +173,7 @@
                     </svg>
                     <p>Nenhum aluno ativo encontrado.</p>
                     <p style="font-size:13px; margin-top:6px; opacity:.45;">
-                        O ranking será exibido assim que houver alunos com matrículas ativas.
+                        O relatório será exibido assim que houver alunos com acesso válido no período.
                     </p>
                 </div>
             @endif

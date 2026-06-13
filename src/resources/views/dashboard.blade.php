@@ -704,6 +704,19 @@
                         </div>
                     </div>
                 </div>
+                @if(($studentAccessInfo['state'] ?? null) === 'ended')
+                    <div class="student-access-alert student-access-alert--ended">
+                        <div class="student-access-alert__icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        </div>
+                        <div class="student-access-alert__body">
+                            <span class="student-access-alert__title">Acesso encerrado</span>
+                            <p class="student-access-alert__text">
+                                Seu período pago terminou{{ !empty($studentAccessInfo['end_date']) ? ' em '.$studentAccessInfo['end_date'] : '' }}. Renove sua matrícula para liberar o dashboard completo.
+                            </p>
+                        </div>
+                    </div>
+                @endif
                 <div class="empty-state" style="padding:4rem 1rem;">
                     <svg width="56" height="56" viewBox="0 0 24 24" fill="none" style="stroke:var(--text-muted); stroke-width:1.1; margin:0 auto 18px; display:block; opacity:.20;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                     <p>Você ainda não possui uma matrícula ativa.</p>
@@ -719,6 +732,13 @@
     $dashUser      = Auth::user();
     $st            = $dashUser->student?->status ?? 'active';
     $firstName     = explode(' ', $dashUser->name)[0];
+    $studentAccessInfo = $studentAccessInfo ?? [];
+    $accessState   = $studentAccessInfo['state'] ?? null;
+    $accessEndDate = $studentAccessInfo['end_date'] ?? $activeEnrollment?->end_date?->format('d/m/Y');
+    $accessDaysLeft = $studentAccessInfo['days_left'] ?? null;
+    $accessDaysText = $accessDaysLeft !== null
+        ? ((int) $accessDaysLeft === 1 ? '1 dia restante' : ((int) $accessDaysLeft).' dias restantes')
+        : null;
 
     $studentPlan = $dashUser->student?->plan;
     $daysRemaining = null;
@@ -760,7 +780,12 @@
         </div>
 
         <div class="dash-hero__right">
-            @if($st === 'active')
+            @if($accessState === 'cancelled_valid')
+                <span class="dash-hero__pulse">
+                    <span class="dash-hero__pulse-dot"></span>
+                    ACESSO PAGO ATÉ {{ $accessEndDate }}
+                </span>
+            @elseif($st === 'active')
                 <span class="dash-hero__pulse">
                     <span class="dash-hero__pulse-dot"></span>
                     FITPULSE ATIVO
@@ -769,6 +794,23 @@
         </div>
     </div>
 </div>
+
+                @if($accessState === 'cancelled_valid')
+                    <div class="student-access-alert student-access-alert--paid">
+                        <div class="student-access-alert__icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        </div>
+                        <div class="student-access-alert__body">
+                            <span class="student-access-alert__title">Acesso mantido após cancelamento</span>
+                            <p class="student-access-alert__text">
+                                Seu plano foi cancelado, mas o período já pago segue liberado até {{ $accessEndDate }}.
+                                @if($accessDaysText)
+                                    <strong>{{ (int) $accessDaysLeft === 0 ? 'Último dia de acesso' : $accessDaysText }}</strong>
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                @endif
 
                 {{-- ── BANNER STATUS (só se não ativo) ── --}}
                 @php $studentAccess = Auth::user()->student; @endphp
@@ -991,19 +1033,31 @@
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; opacity:.45; flex-shrink:0;"><path d="M2.5 7h9M7.5 3l4 4-4 4"/></svg>
                     </button>
 
-                    <form id="cancel-enrollment-form" action="{{ route('enrollment.cancel', $activeEnrollment->id) }}" method="POST" style="display:contents;">
-                        @csrf
-                        <button type="button" onclick="confirmCancelPlan()" class="student-action-card student-action-card--green" style="width:100%; text-align:left; cursor:pointer; font-family:inherit;">
+                    @if($activeEnrollment->status !== 'cancelled' && $accessState !== 'cancelled_valid')
+                        <form id="cancel-enrollment-form" action="{{ route('enrollment.cancel', $activeEnrollment->id) }}" method="POST" style="display:contents;">
+                            @csrf
+                            <button type="button" onclick="confirmCancelPlan()" class="student-action-card student-action-card--green" style="width:100%; text-align:left; cursor:pointer; font-family:inherit;">
+                                <div class="student-action-card__icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+                                </div>
+                                <div class="student-action-card__content">
+                                    <p class="student-action-card__label">Cancelar Plano</p>
+                                    <p class="student-action-card__hint">Encerrar renovação futura</p>
+                                </div>
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; opacity:.45; flex-shrink:0;"><path d="M2.5 7h9M7.5 3l4 4-4 4"/></svg>
+                            </button>
+                        </form>
+                    @else
+                        <div class="student-action-card student-action-card--green student-action-card--disabled">
                             <div class="student-action-card__icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>
                             </div>
                             <div class="student-action-card__content">
-                                <p class="student-action-card__label">Cancelar Plano</p>
-                                <p class="student-action-card__hint">Encerrar matrícula atual</p>
+                                <p class="student-action-card__label">Plano Cancelado</p>
+                                <p class="student-action-card__hint">Acesso mantido até {{ $accessEndDate }}</p>
                             </div>
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; opacity:.45; flex-shrink:0;"><path d="M2.5 7h9M7.5 3l4 4-4 4"/></svg>
-                        </button>
-                    </form>
+                        </div>
+                    @endif
                 </div>
 
             @endif
@@ -1024,7 +1078,11 @@
         </div>
         <div style="padding:20px 22px 22px;">
             <p style="font-size:14px; color:rgba(255,255,255,0.75); line-height:1.6; margin:0 0 20px;">
-                Esta ação encerrará sua matrícula e bloqueará seu acesso. Esta ação <strong style="color:#f87171;">não pode ser desfeita</strong>.
+                @if(isset($activeEnrollment) && $activeEnrollment)
+                    Esta ação cancela a renovação do plano. Você mantém acesso até {{ $activeEnrollment->end_date->format('d/m/Y') }} pelo período já pago; depois dessa data, o acesso será encerrado. Esta ação <strong style="color:#f87171;">não pode ser desfeita</strong>.
+                @else
+                    Esta ação cancela o plano selecionado. Esta ação <strong style="color:#f87171;">não pode ser desfeita</strong>.
+                @endif
             </p>
             <div style="display:flex; gap:10px;">
                 <button type="button" onclick="closeCancelModal()" class="shop-modal__btn-cancel" style="flex:1; padding:11px;">Voltar</button>

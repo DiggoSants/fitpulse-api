@@ -87,11 +87,15 @@ Route::middleware(['auth', 'verified', 'role:manager,instructor'])->group(functi
         ->name('instructors.regenerate-code');
 });
 
+// ── Relatório de fidelidade (gerentes e instrutores) ─────────────────────────
+Route::middleware(['auth', 'verified', 'role:manager,instructor'])->group(function () {
+    Route::get('/reports/plans/loyalty', [ReportController::class, 'plansLoyalty'])->name('reports.plans.loyalty');
+});
+
 // ── Relatórios (só gerentes) ──────────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
     Route::get('/reports/plans/comparative',   [ReportController::class, 'plansComparative'])->name('reports.plans.comparative');
     Route::get('/reports/plans/cancellations', [ReportController::class, 'plansCancellations'])->name('reports.plans.cancellations');
-    Route::get('/reports/plans/loyalty',       [ReportController::class, 'plansLoyalty'])->name('reports.plans.loyalty');
     Route::get('/reports/users/delinquency',   [ReportController::class, 'usersDelinquency'])->name('reports.users.delinquency');
     Route::get('/reports/plans/occupation',    [ReportController::class, 'plansOccupation'])->name('reports.plans.occupation');
     Route::get('/reports/frequency/heatmap',   [FrequencyController::class, 'heatmap'])->name('reports.frequency.heatmap');

@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Equipment;
 
 class MaintenanceRequest extends Model
 {
@@ -11,7 +10,7 @@ class MaintenanceRequest extends Model
         'equipment_id',
         'reported_by',
         'description',
-        'status', // pending, in_progress, completed, cancelled
+        'status',
         'completed_at',
         'solution_notes',
     ];
@@ -20,22 +19,28 @@ class MaintenanceRequest extends Model
         'completed_at' => 'datetime',
     ];
 
-    // Relacionamento com equipamento
     public function equipment()
     {
         return $this->belongsTo(Equipment::class);
     }
 
-    // Evento: quando o status mudar para 'completed', atualiza a última manutenção do equipamento
+    /**
+     * Verifica se a solicitação já foi resolvida.
+     * O controller usa status = 'resolvido'.
+     */
+    public function isResolved(): bool
+    {
+        return $this->status === 'resolvido';
+    }
+
     protected static function booted()
     {
-        static::updated(function ($maintenanceRequest) {
-            // Verifica se o status foi alterado para 'completed'
-            if ($maintenanceRequest->wasChanged('status') && $maintenanceRequest->status === 'completed') {
-                $equipment = $maintenanceRequest->equipment;
+        static::updated(function ($req) {
+            if ($req->wasChanged('status') && $req->status === 'resolvido') {
+                $equipment = $req->equipment;
                 if ($equipment) {
                     $equipment->update([
-                        'last_maintenance_date' => now()->toDateString()
+                        'last_maintenance_date' => now()->toDateString(),
                     ]);
                 }
             }

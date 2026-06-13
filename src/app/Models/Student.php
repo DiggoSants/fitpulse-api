@@ -62,30 +62,43 @@ class Student extends Model
 
     public function activeEnrollment()
     {
+        $today = now()->toDateString();
+
         return $this->enrollments()
-            ->where('status', 'active')
-            ->where('end_date', '>=', now()->toDateString())
-            ->latest('start_date')
+            ->where(function ($q) {
+                $q->where('status', 'active')
+                    ->orWhere('status', 'cancelled');
+            })
+            ->where('start_date', '<=', $today)
+            ->where('end_date', '>=', $today)
+            ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
+            ->orderByDesc('end_date')
+            ->orderByDesc('start_date')
+            ->orderByDesc('id')
             ->first();
     }
 
     public function isEnrolled(): bool
     {
+        $today = now()->toDateString();
+
         return $this->enrollments()
             ->where(function ($q) {
                 $q->where('status', 'active')
                     ->orWhere(function ($q2) {
                         $q2->where('status', 'cancelled')
-                            ->where('end_date', '>', now());
+                            ->where('end_date', '>=', now()->toDateString());
                     });
             })
-            ->where('end_date', '>=', now()->startOfDay())
+            ->where('start_date', '<=', $today)
+            ->where('end_date', '>=', $today)
             ->exists();
     }
 
     public function hasAccess(): bool
     {
-        return $this->status === 'active';
+        return $this->status === 'active'
+            && (bool) $this->activeEnrollment()?->hasAccess();
     }
 
     public function paymentStatus(): ?string

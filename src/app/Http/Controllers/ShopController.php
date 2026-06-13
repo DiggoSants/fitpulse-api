@@ -44,6 +44,8 @@ class ShopController extends Controller
                 'description' => $product->description,
                 'image'       => $product->image,
                 'price'       => $product->price,
+                'stock'        => $product->stock,
+                'is_low_stock' => $product->isLowStock(),
             ];
         });
 

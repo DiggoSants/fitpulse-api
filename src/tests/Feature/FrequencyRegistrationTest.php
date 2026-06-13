@@ -98,6 +98,42 @@ it('allows a new frequency after cancelling an enrollment and creating another o
         ->and(Frequency::latest('id')->first()->enrollment_id)->toBe($newEnrollment->id);
 });
 
+it('keeps access after cancellation until the paid period ends', function () {
+    [, $student, , $enrollment] = createStudentWithEnrollment();
+
+    $enrollment->update([
+        'status' => 'cancelled',
+        'cancelled_at' => now(),
+    ]);
+
+    $student = $student->fresh();
+    $currentEnrollment = $student->activeEnrollment();
+
+    expect($student->isEnrolled())->toBeTrue()
+        ->and($student->hasAccess())->toBeTrue()
+        ->and($currentEnrollment?->id)->toBe($enrollment->id)
+        ->and($currentEnrollment?->daysLeft())->toBeGreaterThan(0);
+});
+
+it('ends access after a cancelled paid period expires', function () {
+    [, $student, , $enrollment] = createStudentWithEnrollment();
+
+    $enrollment->update([
+        'status' => 'cancelled',
+        'cancelled_at' => now()->subDays(2),
+        'end_date' => now()->subDay()->toDateString(),
+    ]);
+
+    $student = $student->fresh();
+    $enrollment = $enrollment->fresh();
+
+    expect($student->isEnrolled())->toBeFalse()
+        ->and($student->hasAccess())->toBeFalse()
+        ->and($student->activeEnrollment())->toBeNull()
+        ->and($enrollment->hasAccess())->toBeFalse()
+        ->and($enrollment->daysLeft())->toBe(0);
+});
+
 it('blocks frequency when the student access is not active', function () {
     [$user] = createStudentWithEnrollment('delinquent');
 
@@ -108,4 +144,3 @@ it('blocks frequency when the student access is not active', function () {
         ->assertForbidden()
         ->assertJsonPath('message', 'Seu acesso está suspenso por inadimplência. Regularize seu pagamento.');
 });
-

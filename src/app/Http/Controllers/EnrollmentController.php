@@ -248,10 +248,15 @@ class EnrollmentController extends Controller
             ], 403);
         }
 
+        $openEnrollments = Enrollment::where('student_id', $enrollment->student_id)
+            ->where('status', 'active')
+            ->where('end_date', '>=', now()->toDateString())
+            ->get();
+
         // Verifica se já foi cancelada
-        if ($enrollment->status === 'cancelled') {
+        if ($enrollment->status === 'cancelled' && $openEnrollments->isEmpty()) {
             if (!$request->expectsJson()) {
-                return redirect('/')->with('info', 'Esta matrícula já foi cancelada.');
+                return redirect()->route('dashboard')->with('info', 'Esta matrícula já foi cancelada.');
             }
 
             return response()->json([
@@ -260,7 +265,7 @@ class EnrollmentController extends Controller
         }
 
         // Verifica se a matrícula já expirou
-        if ($enrollment->end_date->isPast()) {
+        if ($enrollment->end_date->lt(now()->startOfDay()) && $openEnrollments->isEmpty()) {
             if (!$request->expectsJson()) {
                 return back()->with('error', 'Matrícula já expirada. Não é possível cancelar.');
             }
@@ -270,19 +275,30 @@ class EnrollmentController extends Controller
             ], 400);
         }
 
-        // Cancela matrícula (mantém end_date inalterado)
-        $enrollment->update([
-            'status'       => 'cancelled',
-            'cancelled_at' => now(),
-        ]);
+        // Cancela todas as matrículas pagas ainda abertas, mantendo end_date inalterado.
+        DB::transaction(function () use ($openEnrollments) {
+            foreach ($openEnrollments as $openEnrollment) {
+                $openEnrollment->update([
+                    'status'       => 'cancelled',
+                    'cancelled_at' => now(),
+                ]);
+            }
+        });
 
-        $daysLeft = $enrollment->daysLeft();
-        $endDate  = $enrollment->end_date->format('d/m/Y');
+        $accessEnrollment = Enrollment::where('student_id', $enrollment->student_id)
+            ->where('status', 'cancelled')
+            ->where('end_date', '>=', now()->toDateString())
+            ->orderByDesc('end_date')
+            ->orderByDesc('id')
+            ->first() ?? $enrollment->fresh();
+
+        $daysLeft = $accessEnrollment->daysLeft();
+        $endDate  = $accessEnrollment->end_date->format('d/m/Y');
 
         $message = "Cancelamento solicitado. Você mantém acesso até {$endDate} (faltam {$daysLeft} dias).";
 
         if (!$request->expectsJson()) {
-            return redirect('/')->with('success', $message);
+            return redirect()->route('dashboard')->with('success', $message);
         }
 
         return response()->json([

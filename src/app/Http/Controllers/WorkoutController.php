@@ -8,6 +8,8 @@ use App\Models\Exercise;
 use App\Models\WorkoutExercise;
 use App\Models\Student;
 use App\Models\StudentSchedule;
+use App\Models\WorkoutSession;
+use App\Models\WorkoutSessionExercise;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -54,6 +56,93 @@ class WorkoutController extends Controller
             ->toArray();
     }
 
+    private function todayWorkoutSessionFor(Student $student, array $scheduleDays, int $userId): array
+    {
+        $todayWeekDay = strtolower(now()->englishDayOfWeek);
+
+        $data = [
+            'todayWorkout' => null,
+            'todaySession' => null,
+            'todaySessionExercises' => collect(),
+            'todaySessionMessage' => 'Hoje não é dia de treino de acordo com sua agenda.',
+            'todayWeekDay' => $todayWeekDay,
+        ];
+
+        if (!in_array($todayWeekDay, $scheduleDays, true)) {
+            return $data;
+        }
+
+        $todayWorkout = Workout::where('student_id', $student->id)
+            ->where('week_day', $todayWeekDay)
+            ->with('workoutExercises.exercise')
+            ->latest()
+            ->first();
+
+        $hasWorkoutsWithDay = Workout::where('student_id', $student->id)
+            ->whereNotNull('week_day')
+            ->exists();
+
+        if (!$todayWorkout && !$hasWorkoutsWithDay) {
+            $todayWorkout = Workout::where('student_id', $student->id)
+                ->with('workoutExercises.exercise')
+                ->latest()
+                ->first();
+        }
+
+        if (!$todayWorkout) {
+            $data['todaySessionMessage'] = 'Não há treino cadastrado para este dia da sua agenda.';
+            return $data;
+        }
+
+        $todayWorkout->loadMissing('workoutExercises.exercise');
+
+        $todaySession = WorkoutSession::firstOrCreate(
+            [
+                'workout_id' => $todayWorkout->id,
+                'student_id' => $userId,
+                'session_date' => today(),
+            ],
+            [
+                'status' => 'pending',
+                'total_exercises' => $todayWorkout->workoutExercises->count(),
+                'completed_exercises' => 0,
+            ]
+        );
+
+        $existingExerciseIds = $todaySession->sessionExercises()
+            ->pluck('workout_exercise_id')
+            ->toArray();
+
+        foreach ($todayWorkout->workoutExercises as $workoutExercise) {
+            if (!in_array($workoutExercise->id, $existingExerciseIds, true)) {
+                WorkoutSessionExercise::create([
+                    'workout_session_id' => $todaySession->id,
+                    'workout_exercise_id' => $workoutExercise->id,
+                    'completed' => false,
+                ]);
+            }
+        }
+
+        $totalExercises = $todayWorkout->workoutExercises()->count();
+        $completedExercises = $todaySession->sessionExercises()->where('completed', true)->count();
+
+        if ($todaySession->total_exercises !== $totalExercises || $todaySession->completed_exercises !== $completedExercises) {
+            $todaySession->update([
+                'total_exercises' => $totalExercises,
+                'completed_exercises' => $completedExercises,
+            ]);
+        }
+
+        $todaySession->load('workout', 'sessionExercises.workoutExercise.exercise');
+
+        return array_merge($data, [
+            'todayWorkout' => $todayWorkout,
+            'todaySession' => $todaySession,
+            'todaySessionExercises' => $todaySession->sessionExercises,
+            'todaySessionMessage' => null,
+        ]);
+    }
+
     private function validateWorkoutDay(Request $request, Student $student): void
     {
         $scheduleDays = $this->scheduleDaysFor($student);
@@ -81,6 +170,9 @@ class WorkoutController extends Controller
         }
 
         $student = Student::where('user_id', $user->id)->firstOrFail();
+        $weekDays        = StudentSchedule::weekDays();
+        $scheduleDays    = $this->scheduleDaysFor($student);
+        $todaySessionData = $this->todayWorkoutSessionFor($student, $scheduleDays, $user->id);
 
         $allWorkouts = Workout::with('workoutExercises')
             ->where('student_id', $student->id)
@@ -96,13 +188,21 @@ class WorkoutController extends Controller
             ? WorkoutExercise::with('exercise')->where('workout_id', $workout->id)->get()
             : collect();
 
-        $weekDays        = StudentSchedule::weekDays();
-        $scheduleDays    = $this->scheduleDaysFor($student);
         $minScheduleDays = StudentSchedule::MIN_DAYS;
         $workoutsByDay   = $allWorkouts->groupBy('week_day');
         $workoutsWithoutDay = $allWorkouts->filter(fn ($item) => empty($item->week_day));
+        $workoutHistory = WorkoutSession::with('workout')
+            ->where('student_id', $user->id)
+            ->where(function ($query) {
+                $query->whereDate('session_date', '<', today())
+                    ->orWhere('status', 'completed');
+            })
+            ->orderByDesc('session_date')
+            ->orderByDesc('updated_at')
+            ->take(12)
+            ->get();
 
-        return view('workouts.index', compact(
+        return view('workouts.index', array_merge(compact(
             'workout',
             'exercises',
             'allWorkouts',
@@ -110,8 +210,9 @@ class WorkoutController extends Controller
             'scheduleDays',
             'minScheduleDays',
             'workoutsByDay',
-            'workoutsWithoutDay'
-        ));
+            'workoutsWithoutDay',
+            'workoutHistory'
+        ), $todaySessionData));
     }
 
     public function create(Request $request)

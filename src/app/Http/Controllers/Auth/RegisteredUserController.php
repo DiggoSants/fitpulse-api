@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Student;
+use App\Rules\ValidNomeAluno;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -31,16 +32,19 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'name'     => ['required', 'string', 'max:255'],
+        $validated = $request->validate([
+            'name'     => ['required', 'string', 'max:255', new ValidNomeAluno],
             'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'name.required' => 'Informe o nome do aluno.',
+            'name.max'      => 'O nome não pode ter mais de 255 caracteres.',
         ]);
 
         $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
+            'name'     => trim($validated['name']),
+            'email'    => $validated['email'],
+            'password' => Hash::make($validated['password']),
         ]);
 
         Student::create([

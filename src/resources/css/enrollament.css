@@ -92,6 +92,109 @@
 
 [data-theme="light"] .enrollment-section-label { color: rgba(0,0,0,0.40); }
 
+.enrollment-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.enrollment-progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 2px;
+}
+
+.enrollment-progress__item {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    transition: background .2s, border-color .2s, color .2s;
+    flex: 0 0 28px;
+}
+
+.enrollment-progress__item.is-active {
+    border-color: var(--red);
+    background: var(--red);
+    color: #fff;
+}
+
+.enrollment-progress__line {
+    height: 1px;
+    background: var(--border);
+    flex: 1 1 auto;
+    min-width: 24px;
+}
+
+[data-theme="light"] .enrollment-progress__item {
+    background: #f7f7f7;
+    border-color: rgba(0,0,0,0.10);
+}
+
+[data-theme="light"] .enrollment-progress__item.is-active {
+    background: var(--red);
+    border-color: var(--red);
+    color: #fff;
+}
+
+.enrollment-wizard-viewport {
+    width: 100%;
+    overflow: hidden;
+    transition: height .25s ease;
+}
+
+.enrollment-wizard-track {
+    display: flex;
+    width: 100%;
+    align-items: flex-start;
+    transition: transform .32s ease;
+    will-change: transform;
+}
+
+.enrollment-step {
+    min-width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    opacity: .35;
+    pointer-events: none;
+    transition: opacity .2s ease;
+}
+
+.enrollment-step.is-active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.wizard-inline-feedback {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.wizard-inline-feedback:empty {
+    display: none;
+}
+
+.wizard-inline-feedback.is-error {
+    color: var(--red-light);
+}
+
+.wizard-inline-feedback.is-ok {
+    color: var(--green-light);
+}
+
+[data-theme="light"] .wizard-inline-feedback.is-error { color: #b91c1c; }
+[data-theme="light"] .wizard-inline-feedback.is-ok { color: #15803d; }
+
 /* LISTA DE PLANOS */
 
 .plan-list {
@@ -230,10 +333,159 @@
     flex-wrap: wrap;
 }
 
+.enrollment-actions .btn-save:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+    filter: grayscale(.25);
+}
+
 .payment-method-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px;
+}
+
+.schedule-days-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.schedule-day-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    cursor: pointer;
+    transition: border-color .18s, background .18s;
+}
+
+.schedule-day-option:hover {
+    border-color: rgba(214,21,50,0.35);
+    background: var(--surface-2);
+}
+
+.enrollment-card .schedule-day-option input[type="checkbox"] {
+    width: 16px !important;
+    min-width: 16px !important;
+    max-width: 16px !important;
+    height: 16px !important;
+    min-height: 16px;
+    margin: 0;
+    padding: 0;
+    accent-color: var(--red);
+    flex: 0 0 16px;
+}
+
+.schedule-day-option span {
+    color: var(--text-white);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+
+.schedule-day-option:has(input:checked) {
+    border-color: var(--red);
+    background: var(--red-dim);
+}
+
+[data-theme="light"] .schedule-day-option {
+    background: #f7f7f7;
+    border-color: rgba(0,0,0,0.10);
+}
+
+[data-theme="light"] .schedule-day-option:hover {
+    background: #fff;
+    border-color: rgba(214,21,50,0.28);
+}
+
+[data-theme="light"] .schedule-day-option span { color: #111; }
+
+.available-instructor-panel {
+    border: 1px solid rgba(214,21,50,0.32);
+    border-radius: var(--radius-md);
+    background: var(--red-dim);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.available-instructor-panel.is-empty {
+    border-color: var(--border);
+    background: var(--surface);
+}
+
+.available-instructor-panel__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.available-instructor-panel__head strong {
+    display: block;
+    color: var(--text-white);
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+.available-instructor-panel__head small,
+.available-instructor-panel p {
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.available-instructor-panel__head > span {
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: var(--radius-pill);
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 5px 10px;
+    white-space: nowrap;
+}
+
+.available-instructor-panel__days {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.available-instructor-panel__days span {
+    border-radius: var(--radius-pill);
+    background: rgba(255,255,255,0.08);
+    color: var(--text-white);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 9px;
+}
+
+[data-theme="light"] .available-instructor-panel {
+    background: rgba(214,21,50,0.06);
+    border-color: rgba(214,21,50,0.22);
+}
+
+[data-theme="light"] .available-instructor-panel.is-empty {
+    background: #f7f7f7;
+    border-color: rgba(0,0,0,0.10);
+}
+
+[data-theme="light"] .available-instructor-panel__head strong,
+[data-theme="light"] .available-instructor-panel__days span {
+    color: #111;
+}
+
+[data-theme="light"] .available-instructor-panel__days span {
+    background: rgba(0,0,0,0.06);
 }
 
 .payment-method-option {
@@ -594,6 +846,30 @@
 [data-theme="light"] .plan-modal__close:hover { background: rgba(0,0,0,0.10); color: #111; }
 
 @media (max-width: 640px) {
+    .enrollment-card {
+        padding: 24px 18px;
+        border-radius: 16px;
+    }
+
+    .enrollment-progress__item {
+        width: 26px;
+        height: 26px;
+        flex-basis: 26px;
+    }
+
+    .enrollment-step {
+        gap: 18px;
+    }
+
+    .schedule-days-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .available-instructor-panel__head {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
     .payment-method-grid {
         grid-template-columns: 1fr;
     }

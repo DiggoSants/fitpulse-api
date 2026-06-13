@@ -49,13 +49,183 @@
                 </div>
             </div>
 
+            @php
+                $todayStatus = $todaySession?->status ?? 'empty';
+                $todayStatusLabels = [
+                    'pending' => 'Não iniciado',
+                    'in_progress' => 'Em andamento',
+                    'completed' => 'Finalizado',
+                    'empty' => 'Sem treino',
+                ];
+                $todayProgress = $todaySession ? $todaySession->progress_percentage : 0;
+                $completedHistoryCount = $workoutHistory->where('status', 'completed')->count();
+                $incompleteHistoryCount = $workoutHistory->where('status', '!=', 'completed')->count();
+            @endphp
+
+            <div class="workout-top-grid">
+            <div
+                id="today-workout-panel"
+                class="session-card session-card--embedded workout-check-panel"
+                data-session-status="{{ $todayStatus }}"
+                data-completed-count="{{ $todaySession?->completed_exercises ?? 0 }}"
+                data-total-count="{{ $todaySession?->total_exercises ?? 0 }}"
+            >
+                <div class="session-list-head session-list-head--embedded">
+                    <div>
+                        <p class="session-section-label">CHECK DO DIA</p>
+                        <h2>{{ $todayWorkout ? $todayWorkout->name : 'Nenhum treino para hoje' }}</h2>
+                    </div>
+                    <span id="today-session-status" class="session-status session-status--{{ $todayStatus }}">
+                        {{ $todayStatusLabels[$todayStatus] ?? $todayStatus }}
+                    </span>
+                </div>
+
+                @if($todaySession && $todayWorkout)
+                    <div class="session-progress-head">
+                        <div>
+                            <strong id="today-session-progress-text">{{ $todayProgress }}%</strong>
+                            <span id="today-session-count">
+                                {{ $todaySession->completed_exercises }} de {{ $todaySession->total_exercises }} exercícios concluídos
+                            </span>
+                        </div>
+                        <span>{{ $weekDays[$todayWeekDay] ?? 'Hoje' }}</span>
+                    </div>
+
+                    <div class="session-progress-bar" aria-label="Progresso do treino">
+                        <span id="today-session-progress-bar" style="width: {{ $todayProgress }}%;"></span>
+                    </div>
+
+                    <div id="today-session-message" class="session-alert" style="display:none; margin-top:16px;"></div>
+
+                    <div class="session-actions">
+                        <button
+                            type="button"
+                            id="today-session-start"
+                            class="btn-save"
+                            data-start-url="{{ route('workout-sessions.start', $todaySession->id) }}"
+                            style="{{ $todayStatus === 'pending' ? '' : 'display:none;' }}"
+                        >
+                            Iniciar treino
+                        </button>
+                        <button
+                            type="button"
+                            id="today-session-finish"
+                            class="btn-save"
+                            data-finish-url="{{ route('workout-sessions.complete', $todaySession->id) }}"
+                            style="{{ $todayStatus === 'in_progress' ? '' : 'display:none;' }}"
+                        >
+                            Finalizar treino
+                        </button>
+                    </div>
+
+                    <div class="session-list-head session-list-head--exercises">
+                        <h2>Exercícios</h2>
+                        <span>{{ $todaySessionExercises->count() }} itens</span>
+                    </div>
+
+                    <div class="session-exercise-list">
+                        @foreach($todaySessionExercises as $sessionExercise)
+                            @php
+                                $sessionWorkoutExercise = $sessionExercise->workoutExercise;
+                                $sessionExerciseData = $sessionWorkoutExercise?->exercise;
+                            @endphp
+                            <div
+                                class="session-exercise-card {{ $sessionExercise->completed ? 'is-completed' : '' }}"
+                                data-session-exercise-card
+                                data-completed="{{ $sessionExercise->completed ? '1' : '0' }}"
+                            >
+                                <div class="session-exercise-main">
+                                    <span class="workout-check-mark {{ $sessionExercise->completed ? 'is-checked' : '' }}" aria-hidden="true">
+                                        {!! $sessionExercise->completed ? '&#10003;' : '' !!}
+                                    </span>
+                                    <span class="session-exercise-order">{{ $loop->iteration }}</span>
+                                    <div>
+                                        <h3>{{ $sessionExerciseData?->name ?? 'Exercício' }}</h3>
+                                        <p>{{ $sessionExerciseData?->muscle_group ?? 'Grupo muscular' }}</p>
+                                        <div class="session-exercise-meta">
+                                            <span>{{ $sessionWorkoutExercise?->sets ?? 0 }} séries</span>
+                                            <span>{{ $sessionWorkoutExercise?->reps ?? 0 }} reps</span>
+                                            <span>{{ $sessionWorkoutExercise?->rest_time ?? 0 }}s descanso</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    class="session-exercise-check"
+                                    data-complete-url="{{ route('workout-sessions.complete-exercise', $sessionExercise->id) }}"
+                                    {{ $todayStatus !== 'in_progress' || $sessionExercise->completed ? 'disabled' : '' }}
+                                >
+                                    {{ $sessionExercise->completed ? 'Concluído' : 'Marcar concluído' }}
+                                </button>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="session-empty-state session-empty-state--compact">
+                        <h2>Nenhum treino para hoje</h2>
+                        <p>{{ $todaySessionMessage }}</p>
+                    </div>
+                @endif
+            </div>
+            <div class="session-card workout-history-panel" id="workout-history-panel">
+                <div class="workout-history-head">
+                    <div>
+                        <p class="session-section-label">HISTÓRICO</p>
+                        <h2>Histórico de treinos</h2>
+                    </div>
+                    <div class="workout-history-summary">
+                        <span>{{ $completedHistoryCount }} completo{{ $completedHistoryCount !== 1 ? 's' : '' }}</span>
+                        <span>{{ $incompleteHistoryCount }} não completo{{ $incompleteHistoryCount !== 1 ? 's' : '' }}</span>
+                    </div>
+                </div>
+
+                @if($workoutHistory->isEmpty())
+                    <div class="session-empty-state session-empty-state--compact">
+                        <h2>Nenhum histórico ainda</h2>
+                        <p>Quando você iniciar treinos, eles aparecerão aqui como completos ou não completos.</p>
+                    </div>
+                @else
+                    <div class="workout-history-list">
+                        @foreach($workoutHistory as $historySession)
+                            @php
+                                $historyIsComplete = $historySession->status === 'completed';
+                                $historyStatusLabel = $historyIsComplete ? 'Completo' : 'Não completo';
+                                $historyProgress = $historySession->progress_percentage;
+                            @endphp
+                            <div class="workout-history-row {{ $historyIsComplete ? 'is-complete' : 'is-incomplete' }}">
+                                <span class="workout-history-check {{ $historyIsComplete ? 'is-checked' : 'is-open' }}" aria-hidden="true">
+                                    {!! $historyIsComplete ? '&#10003;' : '!' !!}
+                                </span>
+                                <div class="workout-history-row__main">
+                                    <strong>{{ $historySession->workout?->name ?? 'Treino removido' }}</strong>
+                                    <span>
+                                        {{ $historySession->session_date?->format('d/m/Y') ?? '--/--/----' }}
+                                        • {{ $historySession->completed_exercises }} de {{ $historySession->total_exercises }} exercícios
+                                    </span>
+                                    <div class="workout-history-progress">
+                                        <span style="width: {{ $historyProgress }}%;"></span>
+                                    </div>
+                                </div>
+                                <div class="workout-history-row__side">
+                                    <span class="workout-history-badge {{ $historyIsComplete ? 'is-complete' : 'is-incomplete' }}">
+                                        {{ $historyStatusLabel }}
+                                    </span>
+                                    <em>{{ $historyProgress }}%</em>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+            </div>
+
             <div class="weekly-schedule-panel">
                 <div class="weekly-schedule-head">
                     <div>
                         <p class="section-label">AGENDA SEMANAL</p>
                         <h3>Configurar dias de treino</h3>
                     </div>
-                    <span class="weekly-schedule-min">Minimo backend: {{ $minScheduleDays }} dias</span>
+                    <span class="weekly-schedule-min">Mínimo {{ $minScheduleDays }} dias</span>
                 </div>
 
                 @include('workouts.partials.schedule-form', [
@@ -444,9 +614,202 @@
 [data-theme="light"] .exercise-grid-card__thumb {
     background: #f5f5f5 !important;
 }
+
+/* HISTÓRICO DE TREINOS - layout corrections */
+.workout-history-list { display:block; }
+.workout-history-row {
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    padding:12px 18px;
+    border-radius:10px;
+    background: transparent;
+    border:1px solid rgba(255,255,255,0.03);
+    margin-bottom:12px;
+    position:relative;
+    width:100%;
+    box-sizing:border-box;
+    overflow:visible;
+}
+.workout-history-row__main { flex:1; min-width:0; }
+.workout-history-row__main strong { display:block; font-size:15px; margin-bottom:6px; }
+.workout-history-row__main > span { display:flex; align-items:center; gap:12px; color:var(--text-muted); font-size:13px; margin-bottom:10px; flex-wrap:wrap; }
+.workout-history-progress { height:8px; background:rgba(255,255,255,0.04); border-radius:6px; overflow:hidden; }
+.workout-history-progress span { display:block; height:100%; background:linear-gradient(90deg,#4ade80,#10b981); width:0%; }
+.workout-history-row__side { display:flex; flex-direction:column; align-items:flex-end; gap:6px; min-width:90px; margin-left:auto; }
+.workout-history-badge { display:inline-block; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:800; white-space:nowrap; position:relative; right:0; }
+.workout-history-badge.is-complete { background:rgba(34,197,94,0.12); color:#4ade80; border:1px solid rgba(34,197,94,0.18); }
+.workout-history-badge.is-incomplete { background:rgba(245,158,11,0.06); color:#f59e0b; border:1px solid rgba(245,158,11,0.08); }
+.workout-history-check { margin-right:8px; font-weight:700; display:flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:999px; background:rgba(255,255,255,0.02); }
+
     </style>
 
     <script>
+    (function () {
+        const panel = document.getElementById('today-workout-panel');
+        if (!panel) return;
+
+        const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+        const statusLabels = {
+            pending: 'Não iniciado',
+            in_progress: 'Em andamento',
+            completed: 'Finalizado',
+            empty: 'Sem treino',
+        };
+
+        const statusBadge = document.getElementById('today-session-status');
+        const messageBox = document.getElementById('today-session-message');
+        const startButton = document.getElementById('today-session-start');
+        const finishButton = document.getElementById('today-session-finish');
+        const progressText = document.getElementById('today-session-progress-text');
+        const progressBar = document.getElementById('today-session-progress-bar');
+        const progressCount = document.getElementById('today-session-count');
+        const exerciseButtons = panel.querySelectorAll('[data-complete-url]');
+
+        if (!statusBadge) return;
+
+        let currentStatus = panel.dataset.sessionStatus || 'empty';
+        let completedCount = Number(panel.dataset.completedCount || 0);
+        let totalCount = Number(panel.dataset.totalCount || 0);
+
+        async function postJson(url) {
+            const response = await fetch(url, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrf,
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: JSON.stringify({}),
+            });
+
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Não foi possível concluir a ação.');
+            }
+
+            return data;
+        }
+
+        function showSessionMessage(text, type = 'success') {
+            if (!messageBox) return;
+            messageBox.textContent = text;
+            messageBox.className = 'session-alert ' + (type === 'error' ? 'session-alert--error' : 'session-alert--success');
+            messageBox.style.display = 'block';
+        }
+
+        function setButtonLoading(button, isLoading) {
+            if (!button) return;
+            button.disabled = isLoading;
+            button.dataset.originalText = button.dataset.originalText || button.textContent.trim();
+            button.textContent = isLoading ? 'Aguarde...' : button.dataset.originalText;
+        }
+
+        function updateProgress(nextCompleted, nextTotal, nextProgress) {
+            completedCount = Number(nextCompleted ?? completedCount);
+            totalCount = Number(nextTotal ?? totalCount);
+
+            const progress = Number(nextProgress ?? (totalCount ? Math.round((completedCount / totalCount) * 100) : 0));
+
+            if (progressText) progressText.textContent = progress + '%';
+            if (progressBar) progressBar.style.width = progress + '%';
+            if (progressCount) {
+                progressCount.textContent = completedCount + ' de ' + totalCount + ' exercícios concluídos';
+            }
+        }
+
+        function applyStatus(nextStatus) {
+            currentStatus = nextStatus;
+            panel.dataset.sessionStatus = nextStatus;
+            statusBadge.textContent = statusLabels[nextStatus] || nextStatus;
+            statusBadge.className = 'session-status session-status--' + nextStatus;
+
+            if (startButton) {
+                startButton.style.display = nextStatus === 'pending' ? '' : 'none';
+                startButton.disabled = nextStatus !== 'pending';
+            }
+
+            if (finishButton) {
+                finishButton.style.display = nextStatus === 'in_progress' ? '' : 'none';
+                finishButton.disabled = nextStatus !== 'in_progress';
+            }
+
+            exerciseButtons.forEach((button) => {
+                const card = button.closest('[data-session-exercise-card]');
+                const completed = card?.dataset.completed === '1';
+                button.disabled = nextStatus !== 'in_progress' || completed;
+                button.textContent = completed ? 'Concluído' : 'Marcar concluído';
+            });
+        }
+
+        startButton?.addEventListener('click', async () => {
+            setButtonLoading(startButton, true);
+            try {
+                const data = await postJson(startButton.dataset.startUrl);
+                showSessionMessage(data.message || 'Treino iniciado.');
+                applyStatus(data.status || 'in_progress');
+            } catch (error) {
+                showSessionMessage(error.message, 'error');
+                applyStatus(currentStatus);
+            } finally {
+                setButtonLoading(startButton, false);
+            }
+        });
+
+        finishButton?.addEventListener('click', async () => {
+            setButtonLoading(finishButton, true);
+            try {
+                const data = await postJson(finishButton.dataset.finishUrl);
+                showSessionMessage(data.message || 'Treino finalizado.');
+                applyStatus(data.status || 'completed');
+                if ((data.status || 'completed') === 'completed') {
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 600);
+                }
+            } catch (error) {
+                showSessionMessage(error.message, 'error');
+                applyStatus(currentStatus);
+            } finally {
+                setButtonLoading(finishButton, false);
+            }
+        });
+
+        exerciseButtons.forEach((button) => {
+            button.addEventListener('click', async () => {
+                setButtonLoading(button, true);
+                try {
+                    const data = await postJson(button.dataset.completeUrl);
+                    const card = button.closest('[data-session-exercise-card]');
+                    if (card) {
+                        card.dataset.completed = '1';
+                        card.classList.add('is-completed');
+                        const mark = card.querySelector('.workout-check-mark');
+                        if (mark) {
+                            mark.classList.add('is-checked');
+                            mark.innerHTML = '&#10003;';
+                        }
+                    }
+                    updateProgress(data.completed_count, data.total_count, data.progress);
+                    showSessionMessage(data.message || 'Exercício marcado como concluído.');
+                    applyStatus(currentStatus);
+                } catch (error) {
+                    showSessionMessage(error.message, 'error');
+                    applyStatus(currentStatus);
+                } finally {
+                    if (button.closest('[data-session-exercise-card]')?.dataset.completed !== '1') {
+                        setButtonLoading(button, false);
+                    }
+                }
+            });
+        });
+
+        applyStatus(currentStatus);
+    })();
+
     let workoutDeleteForm = null;
 
     function openWorkoutDeleteConfirm(button) {

@@ -1,7 +1,6 @@
 <x-app-layout>
 <div class="enrollment-wrap">
 
-    {{-- Cabeçalho --}}
     <div class="enrollment-header">
         <div>
             <p class="enrollment-kicker">FitPulse</p>
@@ -23,138 +22,182 @@
     @endif
 
     <div class="enrollment-card">
-        <form action="{{ route('enrollment.store') }}" method="POST">
+        <form action="{{ route('enrollment.store') }}" method="POST" id="enrollment-form" data-min-days="{{ \App\Models\StudentSchedule::MIN_DAYS }}">
             @csrf
 
-            <div class="profile-field">
-                <p class="enrollment-section-label">Código do Instrutor</p>
-                <input
-                    type="text"
-                    name="invite_code"
-                    value="{{ old('invite_code') }}"
-                    placeholder="Ex: A3BX92KL"
-                    maxlength="8"
-                    style="text-transform:uppercase;"
-                >
-                @error('invite_code')
-                    <span class="profile-field-error">{{ $message }}</span>
-                @enderror
+            @php
+                $checkedScheduleDays = old('days', $selectedScheduleDays ?? []);
+                $checkedScheduleDays = is_array($checkedScheduleDays) ? $checkedScheduleDays : [];
+                $goalOptions = \App\Models\Student::getGoalOptions();
+            @endphp
+
+            <div class="enrollment-progress" aria-hidden="true">
+                <span class="enrollment-progress__item is-active" data-progress-step="0">1</span>
+                <span class="enrollment-progress__line"></span>
+                <span class="enrollment-progress__item" data-progress-step="1">2</span>
+                <span class="enrollment-progress__line"></span>
+                <span class="enrollment-progress__item" data-progress-step="2">3</span>
             </div>
 
-            <p class="enrollment-section-label">Escolha seu Plano</p>
+            <div class="enrollment-wizard-viewport">
+                <div class="enrollment-wizard-track" id="enrollment-wizard-track">
+                    <section class="enrollment-step" data-step="0">
+                        <p class="enrollment-section-label">Escolha seu plano</p>
 
-            <ul class="plan-list">
-                @forelse($plans as $plan)
-                    <li class="plan-option">
-                        <input
-                            type="radio"
-                            name="plan_id"
-                            value="{{ $plan->id }}"
-                            id="plan_{{ $plan->id }}"
-                            {{ old('plan_id') == $plan->id ? 'checked' : '' }}
-                        >
-                        <label for="plan_{{ $plan->id }}">
-                            <div class="plan-option__info">
-                                <p class="plan-option__name">{{ $plan->name }}</p>
-                                <p class="plan-option__meta">{{ $plan->duration_days }} dias</p>
+                        <ul class="plan-list">
+                            @forelse($plans as $plan)
+                                <li class="plan-option">
+                                    <input
+                                        type="radio"
+                                        name="plan_id"
+                                        value="{{ $plan->id }}"
+                                        id="plan_{{ $plan->id }}"
+                                        {{ old('plan_id') == $plan->id ? 'checked' : '' }}
+                                    >
+                                    <label for="plan_{{ $plan->id }}">
+                                        <div class="plan-option__info">
+                                            <p class="plan-option__name">{{ $plan->name }}</p>
+                                            <p class="plan-option__meta">{{ $plan->duration_days }} dias</p>
+                                        </div>
+                                        <span class="plan-option__price">
+                                            R$ {{ number_format($plan->price, 2, ',', '.') }}
+                                        </span>
+                                    </label>
+                                    <button
+                                        type="button"
+                                        class="plan-option__details-btn"
+                                        onclick="openPlanModal('modal-{{ $plan->id }}')"
+                                    >
+                                        Ver detalhes
+                                    </button>
+                                </li>
+                            @empty
+                                <li class="enrollment-empty">Nenhum plano disponível no momento.</li>
+                            @endforelse
+                        </ul>
+
+                        @error('plan_id')
+                            <span class="profile-field-error">{{ $message }}</span>
+                        @enderror
+
+                        <div class="profile-field">
+                            <p class="enrollment-section-label">Objetivo na academia</p>
+                            <select id="goal-select-enrollment" name="goal" required>
+                                <option value="" disabled selected>Selecione seu objetivo</option>
+                                @foreach($goalOptions as $key => $label)
+                                    <option value="{{ $key }}" {{ old('goal') === $key ? 'selected' : '' }}>
+                                        {{ $label }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('goal')
+                                <span class="profile-field-error">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="profile-field" id="custom-goal-field" style="display: none;">
+                            <label for="custom_goal">Descreva seu objetivo</label>
+                            <textarea
+                                id="custom_goal"
+                                name="custom_goal"
+                                class="profile-textarea"
+                                placeholder="Ex: Melhorar meu condicionamento físico para correr uma meia maratona"
+                                rows="4">{{ old('custom_goal') }}</textarea>
+                            @error('custom_goal')
+                                <span class="profile-field-error">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="wizard-inline-feedback" data-step-message="0"></div>
+
+                        <div class="enrollment-actions">
+                            <button type="button" class="btn-save" data-next-step>Continuar</button>
+                        </div>
+                    </section>
+
+                    <section class="enrollment-step" data-step="1">
+                        <p class="enrollment-section-label">Dias de treino</p>
+
+                        <div class="schedule-days-grid">
+                            @foreach($weekDays as $dayKey => $dayLabel)
+                                <label class="schedule-day-option">
+                                    <input
+                                        type="checkbox"
+                                        name="days[]"
+                                        value="{{ $dayKey }}"
+                                        @checked(in_array($dayKey, $checkedScheduleDays, true))
+                                    >
+                                    <span>{{ $dayLabel }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+
+                        @error('days')
+                            <span class="profile-field-error">{{ $message }}</span>
+                        @enderror
+                        @error('days.*')
+                            <span class="profile-field-error">{{ $message }}</span>
+                        @enderror
+
+                        <div class="wizard-inline-feedback" id="schedule-feedback" data-step-message="1"></div>
+
+                        <div class="enrollment-actions">
+                            <button type="button" class="btn-cancel" data-prev-step>Voltar</button>
+                            <button type="button" class="btn-save" data-next-step>Ver instrutor</button>
+                        </div>
+                    </section>
+
+                    <section class="enrollment-step" data-step="2">
+                        <p class="enrollment-section-label">Instrutor disponível</p>
+                        <div class="available-instructor-panel" id="available-instructor-panel"></div>
+
+                        @error('instructor')
+                            <span class="profile-field-error">{{ $message }}</span>
+                        @enderror
+
+                        <p class="enrollment-section-label">Forma de pagamento</p>
+                        <div class="payment-method-grid">
+                            <label class="payment-method-option">
+                                <input type="radio" name="payment_method" value="pix" {{ old('payment_method', 'pix') === 'pix' ? 'checked' : '' }}>
+                                <span>
+                                    <strong>Pix</strong>
+                                    <small>Confirmação imediata</small>
+                                </span>
+                            </label>
+                            <label class="payment-method-option">
+                                <input type="radio" name="payment_method" value="debit_card" {{ old('payment_method') === 'debit_card' ? 'checked' : '' }}>
+                                <span>
+                                    <strong>Débito</strong>
+                                    <small>Confirmação imediata</small>
+                                </span>
+                            </label>
+                            <label class="payment-method-option">
+                                <input type="radio" name="payment_method" value="credit_card" {{ old('payment_method') === 'credit_card' ? 'checked' : '' }}>
+                                <span>
+                                    <strong>Crédito</strong>
+                                    <small>Aprovação automática</small>
+                                </span>
+                            </label>
+                        </div>
+
+                        @error('payment_method')
+                            <span class="profile-field-error">{{ $message }}</span>
+                        @enderror
+
+                        @if($plans->count())
+                            <div class="enrollment-actions">
+                                <button type="button" class="btn-cancel" data-prev-step>Voltar</button>
+                                <button type="submit" class="btn-save" id="confirm-enrollment-btn">Confirmar Matrícula</button>
                             </div>
-                            <span class="plan-option__price">
-                                R$ {{ number_format($plan->price, 2, ',', '.') }}
-                            </span>
-                        </label>
-                        <button
-                            type="button"
-                            class="plan-option__details-btn"
-                            onclick="openPlanModal('modal-{{ $plan->id }}')"
-                        >
-                            Ver detalhes
-                        </button>
-                    </li>
-                @empty
-                    <li class="enrollment-empty">Nenhum plano disponível no momento.</li>
-                @endforelse
-            </ul>
-
-            @error('plan_id')
-                <span class="profile-field-error">{{ $message }}</span>
-            @enderror
-
-            <div class="profile-field">
-                <p class="enrollment-section-label">Qual é seu objetivo?</p>
-                <select id="goal-select-enrollment" name="goal" required>
-                    <option value="" disabled selected>Selecione seu objetivo</option>
-                    @php
-                        $goalOptions = \App\Models\Student::getGoalOptions();
-                    @endphp
-                    @foreach($goalOptions as $key => $label)
-                        <option value="{{ $key }}" {{ old('goal') === $key ? 'selected' : '' }}>
-                            {{ $label }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('goal')
-                    <span class="profile-field-error">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <div class="profile-field" id="custom-goal-field" style="display: none;">
-                <label for="custom_goal">Descreva seu objetivo</label>
-                <textarea 
-                    id="custom_goal" 
-                    name="custom_goal" 
-                    class="profile-textarea"
-                    placeholder="Ex: Melhorar meu condicionamento físico para correr uma meia maratona"
-                    rows="4">{{ old('custom_goal') }}</textarea>
-                @error('custom_goal')
-                    <span class="profile-field-error">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <p class="enrollment-section-label">Forma de pagamento</p>
-            <div class="payment-method-grid">
-                <label class="payment-method-option">
-                    <input type="radio" name="payment_method" value="pix" {{ old('payment_method', 'pix') === 'pix' ? 'checked' : '' }}>
-                    <span>
-                        <strong>Pix</strong>
-                        <small>Confirmacao imediata</small>
-                    </span>
-                </label>
-                <label class="payment-method-option">
-                    <input type="radio" name="payment_method" value="debit_card" {{ old('payment_method') === 'debit_card' ? 'checked' : '' }}>
-                    <span>
-                        <strong>Débito</strong>
-                        <small>Confirmação imediata</small>
-                    </span>
-                </label>
-                <label class="payment-method-option">
-                    <input type="radio" name="payment_method" value="credit_card" {{ old('payment_method') === 'credit_card' ? 'checked' : '' }}>
-                    <span>
-                        <strong>Crédito</strong>
-                        <small>Aprovação automática</small>
-                    </span>
-                </label>
-            </div>
-
-            @error('payment_method')
-                <span class="profile-field-error">{{ $message }}</span>
-            @enderror
-
-            @if($plans->count())
-                <div class="enrollment-actions" style="margin-top: 8px;">
-                    <button type="submit" class="btn-save">Confirmar Matrícula</button>
+                        @endif
+                    </section>
                 </div>
-            @endif
-
+            </div>
         </form>
     </div>
 
 </div>
 
-{{-- ═══════════════════════════════════════════════
-     MODAIS DE DETALHES DOS PLANOS
-     Usa as classes .plan-modal-overlay / .plan-modal
-     já definidas no app.css do projeto
-════════════════════════════════════════════════ --}}
 @foreach($plans as $plan)
     <div
         id="modal-{{ $plan->id }}"
@@ -162,15 +205,12 @@
         onclick="closePlanModalOutside(event, 'modal-{{ $plan->id }}')"
     >
         <div class="plan-modal">
-
-            {{-- Botão fechar --}}
             <button
                 type="button"
                 class="plan-modal__close"
                 onclick="closePlanModal('modal-{{ $plan->id }}')"
             >×</button>
 
-            {{-- Topo com gradiente vermelho (igual ao CSS .plan-modal__top) --}}
             <div class="plan-modal__top">
                 <p class="plan-modal__kicker">Detalhes do Plano</p>
                 <p class="plan-modal__name">{{ $plan->name }}</p>
@@ -183,17 +223,13 @@
                 </div>
             </div>
 
-            {{-- Corpo --}}
             <div class="plan-modal__body">
-
-                {{-- Descrição --}}
                 @if($plan->description)
                     <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin:0;">
                         {{ $plan->description }}
                     </p>
                 @endif
 
-                {{-- Benefícios --}}
                 @if($plan->benefits)
                     <div>
                         <p class="plan-modal__features-label">O que está incluso</p>
@@ -216,7 +252,6 @@
                     </p>
                 @endif
 
-                {{-- Ações --}}
                 <div class="plan-modal__footer">
                     <button
                         type="button"
@@ -234,13 +269,15 @@
                         Fechar
                     </button>
                 </div>
-
             </div>
         </div>
     </div>
 @endforeach
 
 <script>
+const ENROLLMENT_INSTRUCTORS = @json($instructorOptions);
+const ENROLLMENT_WEEK_DAYS = @json($weekDays);
+
 function openPlanModal(id) {
     const modal = document.getElementById(id);
     if (modal) {
@@ -258,7 +295,6 @@ function closePlanModal(id) {
 }
 
 function closePlanModalOutside(event, id) {
-    // Fecha só se clicou no backdrop, não dentro do .plan-modal
     if (event.target === document.getElementById(id)) {
         closePlanModal(id);
     }
@@ -266,11 +302,13 @@ function closePlanModalOutside(event, id) {
 
 function selectPlanAndClose(radioId, modalId) {
     const radio = document.getElementById(radioId);
-    if (radio) radio.checked = true;
+    if (radio) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
+    }
     closePlanModal(modalId);
 }
 
-// Fecha com ESC
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         document.querySelectorAll('.plan-modal-overlay.is-open').forEach(function(m) {
@@ -280,12 +318,64 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Controlar visibilidade do campo de objetivo customizado
 document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('enrollment-form');
+    const viewport = document.querySelector('.enrollment-wizard-viewport');
+    const track = document.getElementById('enrollment-wizard-track');
+    const steps = Array.from(document.querySelectorAll('.enrollment-step'));
+    const progressItems = Array.from(document.querySelectorAll('[data-progress-step]'));
+    const minDays = Number(form.dataset.minDays || 2);
     const goalSelect = document.getElementById('goal-select-enrollment');
     const customGoalField = document.getElementById('custom-goal-field');
     const customGoalTextarea = document.getElementById('custom_goal');
-    
+    const scheduleFeedback = document.getElementById('schedule-feedback');
+    const instructorPanel = document.getElementById('available-instructor-panel');
+    const confirmButton = document.getElementById('confirm-enrollment-btn');
+    let currentStep = 0;
+    let currentInstructor = null;
+
+    function escapeHtml(value) {
+        return String(value || '').replace(/[&<>"']/g, function(char) {
+            return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[char];
+        });
+    }
+
+    function selectedPlan() {
+        return form.querySelector('input[name="plan_id"]:checked');
+    }
+
+    function selectedDays() {
+        return Array.from(form.querySelectorAll('input[name="days[]"]:checked')).map(input => input.value);
+    }
+
+    function adjustWizardHeight() {
+        const activeStep = steps[currentStep];
+        if (!viewport || !activeStep) return;
+
+        requestAnimationFrame(() => {
+            viewport.style.height = `${activeStep.scrollHeight}px`;
+        });
+    }
+
+    function setStep(step) {
+        currentStep = Math.max(0, Math.min(step, steps.length - 1));
+        track.style.transform = `translateX(-${currentStep * 100}%)`;
+        steps.forEach((item, index) => item.classList.toggle('is-active', index === currentStep));
+        progressItems.forEach((item, index) => {
+            item.classList.toggle('is-active', index <= currentStep);
+        });
+        adjustWizardHeight();
+    }
+
+    function setMessage(step, message, type = 'error') {
+        const target = document.querySelector(`[data-step-message="${step}"]`);
+        if (!target) return;
+        target.textContent = message || '';
+        target.classList.toggle('is-error', type === 'error' && Boolean(message));
+        target.classList.toggle('is-ok', type === 'ok' && Boolean(message));
+        adjustWizardHeight();
+    }
+
     function updateCustomGoalVisibility() {
         if (goalSelect.value === 'other') {
             customGoalField.style.display = 'block';
@@ -294,12 +384,164 @@ document.addEventListener('DOMContentLoaded', function() {
             customGoalField.style.display = 'none';
             customGoalTextarea.removeAttribute('required');
         }
+        adjustWizardHeight();
     }
-    
-    if (goalSelect) {
-        goalSelect.addEventListener('change', updateCustomGoalVisibility);
-        // Verificar ao carregar página
+
+    function validateFirstStep() {
+        if (!selectedPlan()) {
+            setMessage(0, 'Selecione um plano.');
+            return false;
+        }
+
+        if (!goalSelect.value) {
+            setMessage(0, 'Selecione seu objetivo.');
+            return false;
+        }
+
+        if (goalSelect.value === 'other' && !customGoalTextarea.value.trim()) {
+            setMessage(0, 'Descreva seu objetivo personalizado.');
+            return false;
+        }
+
+        setMessage(0, '');
+        return true;
+    }
+
+    function matchingInstructors(days) {
+        if (days.length < minDays) return [];
+
+        return ENROLLMENT_INSTRUCTORS
+            .filter(instructor => days.every(day => {
+                return (instructor.availability || []).some(slot => slot.week_day === day);
+            }))
+            .sort((a, b) => {
+                const load = Number(a.students_count || 0) - Number(b.students_count || 0);
+                return load !== 0 ? load : String(a.name || '').localeCompare(String(b.name || ''));
+            });
+    }
+
+    function renderInstructor() {
+        const days = selectedDays();
+        const dayLabels = days.map(day => ENROLLMENT_WEEK_DAYS[day] || day);
+        const matches = matchingInstructors(days);
+        currentInstructor = matches[0] || null;
+
+        if (days.length < minDays) {
+            instructorPanel.className = 'available-instructor-panel is-empty';
+            instructorPanel.innerHTML = `<strong>Selecione pelo menos ${minDays} dias.</strong>`;
+            if (confirmButton) confirmButton.disabled = true;
+            scheduleFeedback.textContent = '';
+            scheduleFeedback.className = 'wizard-inline-feedback';
+            adjustWizardHeight();
+            return false;
+        }
+
+        if (!currentInstructor) {
+            instructorPanel.className = 'available-instructor-panel is-empty';
+            instructorPanel.innerHTML = '<strong>Nenhum instrutor disponível para esses dias.</strong>';
+            if (confirmButton) confirmButton.disabled = true;
+            scheduleFeedback.textContent = 'Nenhum instrutor disponível para os dias escolhidos.';
+            scheduleFeedback.className = 'wizard-inline-feedback is-error';
+            adjustWizardHeight();
+            return false;
+        }
+
+        const dayBadges = dayLabels.map(label => `<span>${escapeHtml(label)}</span>`).join('');
+        const shifts = Array.from(new Set((currentInstructor.availability || [])
+            .filter(slot => days.includes(slot.week_day))
+            .map(slot => slot.shift_label || slot.shift)
+        ));
+
+        instructorPanel.className = 'available-instructor-panel';
+        instructorPanel.innerHTML = `
+            <div class="available-instructor-panel__head">
+                <div>
+                    <strong>${escapeHtml(currentInstructor.name)}</strong>
+                    <small>${escapeHtml(currentInstructor.specialty || 'Instrutor FitPulse')}</small>
+                </div>
+                <span>${Number(currentInstructor.students_count || 0)} alunos</span>
+            </div>
+            <div class="available-instructor-panel__days">${dayBadges}</div>
+            <p>${escapeHtml(shifts.join(' • ') || 'Disponibilidade ativa')}</p>
+        `;
+
+        if (confirmButton) confirmButton.disabled = false;
+        scheduleFeedback.textContent = `${matches.length} instrutor(es) disponível(is).`;
+        scheduleFeedback.className = 'wizard-inline-feedback is-ok';
+        adjustWizardHeight();
+        return true;
+    }
+
+    function validateDaysStep() {
+        const days = selectedDays();
+
+        if (days.length < minDays) {
+            setMessage(1, `Selecione pelo menos ${minDays} dias de treino.`);
+            renderInstructor();
+            return false;
+        }
+
+        if (!renderInstructor()) {
+            setMessage(1, 'Escolha outros dias para encontrar um instrutor disponível.');
+            return false;
+        }
+
+        setMessage(1, '');
+        return true;
+    }
+
+    document.querySelectorAll('[data-next-step]').forEach(button => {
+        button.addEventListener('click', function() {
+            if (currentStep === 0 && !validateFirstStep()) return;
+            if (currentStep === 1 && !validateDaysStep()) return;
+            setStep(currentStep + 1);
+        });
+    });
+
+    document.querySelectorAll('[data-prev-step]').forEach(button => {
+        button.addEventListener('click', function() {
+            setStep(currentStep - 1);
+        });
+    });
+
+    form.querySelectorAll('input[name="plan_id"]').forEach(input => {
+        input.addEventListener('change', () => setMessage(0, ''));
+    });
+
+    form.querySelectorAll('input[name="days[]"]').forEach(input => {
+        input.addEventListener('change', renderInstructor);
+    });
+
+    goalSelect.addEventListener('change', function() {
         updateCustomGoalVisibility();
+        setMessage(0, '');
+    });
+
+    customGoalTextarea.addEventListener('input', () => setMessage(0, ''));
+    window.addEventListener('resize', adjustWizardHeight);
+
+    form.addEventListener('submit', function(event) {
+        if (!validateFirstStep()) {
+            event.preventDefault();
+            setStep(0);
+            return;
+        }
+
+        if (!validateDaysStep()) {
+            event.preventDefault();
+            setStep(1);
+        }
+    });
+
+    updateCustomGoalVisibility();
+    renderInstructor();
+
+    if (selectedPlan() && goalSelect.value && selectedDays().length >= minDays) {
+        setStep(2);
+    } else if (selectedPlan() && goalSelect.value) {
+        setStep(1);
+    } else {
+        setStep(0);
     }
 });
 </script>

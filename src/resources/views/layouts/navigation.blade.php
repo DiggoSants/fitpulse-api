@@ -109,7 +109,7 @@
                     {{-- ══ ALUNO MATRICULADO ══ --}}
 
                         @if(Auth::user()->student?->isEnrolled())
-                            <x-nav-link :href="route('workouts.index')" :active="request()->routeIs('workouts.*')">
+                            <x-nav-link :href="route('workouts.index')" :active="request()->routeIs('workouts.*') || request()->routeIs('workout-sessions.*')">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                      style="flex-shrink:0; margin-right:8px;">
@@ -192,7 +192,7 @@
                         Painel
                     @elseif(request()->routeIs('reception.*'))
                         Recepção
-                    @elseif(request()->routeIs('workouts.*'))
+                    @elseif(request()->routeIs('workouts.*') || request()->routeIs('workout-sessions.*'))
                         Treinos
                     @elseif(request()->routeIs('profile.*'))
                         Perfil
@@ -250,7 +250,7 @@
 
             @else
                 @if(Auth::user()->student?->isEnrolled())
-                    <x-responsive-nav-link :href="route('workouts.index')" :active="request()->routeIs('workouts.*')">
+                    <x-responsive-nav-link :href="route('workouts.index')" :active="request()->routeIs('workouts.*') || request()->routeIs('workout-sessions.*')">
                         {{ __('Treinos') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('shop.index')" :active="request()->routeIs('shop.index')">

@@ -30,4 +30,12 @@ class ProfileUpdateRequest extends FormRequest
             'custom_goal' => ['nullable', 'string', 'required_if:goal,other', 'max:500'],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'Informe o nome do aluno.',
+            'name.max'      => 'O nome não pode ter mais de 255 caracteres.',
+        ];
+    }
 }

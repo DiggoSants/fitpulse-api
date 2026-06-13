@@ -280,7 +280,7 @@ Route::middleware(['auth'])->group(function () {
 
 // Rotas para execução de treino (aluno)
 Route::middleware(['auth'])->prefix('treino')->group(function () {
-    Route::get('/hoje', [WorkoutSessionController::class, 'today'])->name('workout-sessions.today');
+    Route::get('/hoje', fn () => redirect()->route('workouts.index'))->name('workout-sessions.today');
     Route::post('/sessao/{sessionId}/iniciar', [WorkoutSessionController::class, 'start'])->name('workout-sessions.start');
     Route::post('/sessao/{sessionId}/finalizar', [WorkoutSessionController::class, 'complete'])->name('workout-sessions.complete');
     Route::post('/exercicio/{sessionExerciseId}/completar', [WorkoutSessionController::class, 'completeExercise'])->name('workout-sessions.complete-exercise');

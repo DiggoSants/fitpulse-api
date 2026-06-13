@@ -35,10 +35,12 @@
                     <input id="name" type="text" name="name"
                            value="{{ old('name', $user->name) }}"
                            required autofocus autocomplete="name"
-                           placeholder="Seu nome">
+                           placeholder="Seu nome"
+                           data-name-validation>
                     @error('name')
                         <p class="profile-field-error">{{ $message }}</p>
                     @enderror
+                    <p class="profile-field-error" data-name-validation-message style="display:none;"></p>
                 </div>
 
                 <div class="profile-field">
@@ -251,6 +253,35 @@ document.addEventListener('DOMContentLoaded', function() {
     const goalSelect = document.getElementById('goal-select-profile');
     const customGoalField = document.getElementById('custom-goal-field-profile');
     const customGoalTextarea = document.getElementById('custom_goal_profile');
+    const nameInput = document.querySelector('[data-name-validation]');
+    const nameMessage = document.querySelector('[data-name-validation-message]');
+    const nameForm = nameInput?.closest('form');
+
+    function nameError(value) {
+        const trimmed = value.trim();
+
+        if (!trimmed) return 'Informe o nome do aluno.';
+        if (value.includes('@')) return 'O nome não pode conter @. Use apenas letras, espaços e acentos.';
+        if (!/^[A-Za-zÀ-ÿ\s]+$/u.test(value)) return 'Nome inválido. Use apenas letras, espaços e acentos.';
+        if ((value.match(/[A-Za-zÀ-ÿ]/gu) || []).length < 2) return 'O nome deve conter pelo menos 2 letras.';
+        if (/\s{2,}/.test(value)) return 'O nome não pode ter espaços duplos.';
+
+        return '';
+    }
+
+    function validateName() {
+        if (!nameInput) return true;
+
+        const error = nameError(nameInput.value);
+        nameInput.setCustomValidity(error);
+
+        if (nameMessage) {
+            nameMessage.textContent = error;
+            nameMessage.style.display = error ? 'block' : 'none';
+        }
+
+        return !error;
+    }
     
     function updateCustomGoalVisibility() {
         if (goalSelect && goalSelect.value === 'other') {
@@ -266,6 +297,17 @@ document.addEventListener('DOMContentLoaded', function() {
         goalSelect.addEventListener('change', updateCustomGoalVisibility);
         // Verificar ao carregar página
         updateCustomGoalVisibility();
+    }
+
+    if (nameInput && nameForm) {
+        nameInput.addEventListener('input', validateName);
+        nameForm.addEventListener('submit', function(event) {
+            if (!validateName()) {
+                event.preventDefault();
+                nameInput.reportValidity();
+                nameInput.focus();
+            }
+        });
     }
 });
 </script>

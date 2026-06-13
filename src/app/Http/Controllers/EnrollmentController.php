@@ -13,6 +13,7 @@ use App\Models\StudentSchedule;
 use App\Models\InstructorAvailability;
 use App\Services\BillingService;
 use Carbon\Carbon;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class EnrollmentController extends Controller
@@ -28,8 +29,35 @@ class EnrollmentController extends Controller
         }
 
         $plans = Plan::active()->orderedByPrice()->get();
+        $weekDays = StudentSchedule::weekDays();
+        $selectedScheduleDays = $student
+            ? StudentSchedule::where('user_id', $user->id)
+                ->where('active', true)
+                ->pluck('week_day')
+                ->toArray()
+            : [];
+        $instructorOptions = Instructor::with([
+                'user:id,name',
+                'availability' => fn ($query) => $query->where('active', true),
+            ])
+            ->withCount('students')
+            ->get()
+            ->map(fn ($instructor) => [
+                'id' => $instructor->id,
+                'name' => $instructor->user?->name ?? 'Instrutor',
+                'specialty' => $instructor->specialty,
+                'students_count' => $instructor->students_count,
+                'availability' => $instructor->availability
+                    ->map(fn ($availability) => [
+                        'week_day' => $availability->week_day,
+                        'shift' => $availability->shift,
+                        'shift_label' => InstructorAvailability::shiftLabels()[$availability->shift] ?? $availability->shift,
+                    ])
+                    ->values(),
+            ])
+            ->values();
 
-        return view('enrollments.index', compact('plans'));
+        return view('enrollments.index', compact('plans', 'weekDays', 'selectedScheduleDays', 'instructorOptions'));
     }
 
     /**
@@ -37,12 +65,16 @@ class EnrollmentController extends Controller
      */
     public function store(Request $request, BillingService $billingService)
     {
+        $weekDayKeys = array_keys(StudentSchedule::weekDays());
+
         $request->validate([
             'plan_id'         => ['required', 'exists:plans,id'],
             'payment_method'  => ['required', 'in:credit_card,debit_card,pix'],
             'preferred_shift' => ['nullable', 'string', 'in:morning,afternoon,evening,full_day'],
             'goal'            => ['required', 'string', 'in:hypertrophy,weight_loss,conditioning,health,rehabilitation,other'],
             'custom_goal'     => ['nullable', 'string', 'required_if:goal,other', 'max:500'],
+            'days'            => ['required', 'array', 'min:' . StudentSchedule::MIN_DAYS],
+            'days.*'          => ['required', 'string', 'distinct', Rule::in($weekDayKeys)],
         ], [
             'payment_method.required' => 'Informe o método de pagamento',
             'payment_method.in'       => 'Método de pagamento inválido.',
@@ -52,6 +84,11 @@ class EnrollmentController extends Controller
             'goal.in'                 => 'Objetivo inválido',
             'custom_goal.required_if' => 'Descreva seu objetivo personalizado',
             'custom_goal.max'         => 'O objetivo não pode ter mais de 500 caracteres',
+            'days.required'           => 'Selecione os dias que deseja treinar.',
+            'days.array'              => 'Agenda de treino inválida.',
+            'days.min'                => 'Selecione pelo menos ' . StudentSchedule::MIN_DAYS . ' dias de treino na semana.',
+            'days.*.in'               => 'Dia da semana inválido.',
+            'days.*.distinct'         => 'Não repita dias na agenda de treino.',
         ]);
 
         /** @var \App\Models\User $user */
@@ -69,39 +106,48 @@ class EnrollmentController extends Controller
         $student->update($updateData);
 
         // --------------------------------------------------------------
-        // 1. Validar agenda do aluno (dias de treino)
+        // 1. Salvar agenda do aluno (dias de treino)
         // --------------------------------------------------------------
-        $studentScheduleDays = StudentSchedule::where('user_id', $user->id)
-            ->where('active', true)
-            ->pluck('week_day')
-            ->toArray();
+        $studentScheduleDays = array_values(array_unique($request->input('days', [])));
 
-        if (empty($studentScheduleDays)) {
-            return back()
-                ->withInput()
-                ->withErrors(['schedule' => 'Você precisa definir sua agenda de treino (dias da semana) antes de se matricular.']);
+        StudentSchedule::where('user_id', $user->id)->delete();
+
+        foreach ($studentScheduleDays as $day) {
+            StudentSchedule::create([
+                'user_id'  => $user->id,
+                'week_day' => $day,
+                'active'   => true,
+            ]);
         }
 
         // --------------------------------------------------------------
-        // 2. Turno preferido (padrão: full_day)
+        // 2. Turno preferido (opcional)
         // --------------------------------------------------------------
-        $shift = $request->input('preferred_shift', 'full_day');
+        $shift = $request->input('preferred_shift') ?: null;
 
         // --------------------------------------------------------------
         // 3. Buscar instrutores que cobrem TODOS os dias da agenda no turno
         // --------------------------------------------------------------
         $availableInstructors = Instructor::whereHas('availability', function ($q) use ($studentScheduleDays, $shift) {
             $q->whereIn('week_day', $studentScheduleDays)
-              ->where('shift', $shift)
               ->where('active', true);
+
+            if ($shift) {
+                $q->where('shift', $shift);
+            }
         })
         ->with('user')
         ->get()
         ->filter(function ($instructor) use ($studentScheduleDays, $shift) {
-            $availableDays = InstructorAvailability::where('instructor_id', $instructor->id)
+            $availableDaysQuery = InstructorAvailability::where('instructor_id', $instructor->id)
                 ->whereIn('week_day', $studentScheduleDays)
-                ->where('shift', $shift)
-                ->where('active', true)
+                ->where('active', true);
+
+            if ($shift) {
+                $availableDaysQuery->where('shift', $shift);
+            }
+
+            $availableDays = $availableDaysQuery
                 ->pluck('week_day')
                 ->unique()
                 ->toArray();

@@ -8,6 +8,7 @@
 @import "./enrollament.css";
 @import "./dashboard.css";
 @import "./reception.css";
+@import "./workout-session.css";
 
 @tailwind base;
 @tailwind components;

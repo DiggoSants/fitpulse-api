@@ -57,6 +57,10 @@ class StudentScheduleController extends Controller
 
         // Quando nenhum checkbox é enviado, days não vem no POST — tratamos como array vazio
         $days = $request->input('days', []);
+        $requestedShifts = $request->input('shifts', []);
+        $existingShifts = StudentSchedule::where('user_id', $user->id)
+            ->pluck('shift', 'week_day')
+            ->toArray();
 
         if (count($days) < StudentSchedule::MIN_DAYS) {
             $error = 'Selecione pelo menos ' . StudentSchedule::MIN_DAYS . ' dias de treino na semana.';
@@ -75,6 +79,7 @@ class StudentScheduleController extends Controller
             StudentSchedule::create([
                 'user_id'  => $user->id,
                 'week_day' => $day,
+                'shift'    => $requestedShifts[$day] ?? $existingShifts[$day] ?? 'full_day',
                 'active'   => true,
             ]);
         }
@@ -82,6 +87,9 @@ class StudentScheduleController extends Controller
         $payload = [
             'message'    => 'Agenda salva com sucesso!',
             'days'       => $days,
+            'shifts'     => collect($days)
+                ->mapWithKeys(fn ($day) => [$day => $requestedShifts[$day] ?? $existingShifts[$day] ?? 'full_day'])
+                ->all(),
             'total_days' => count($days),
         ];
 
@@ -103,8 +111,10 @@ class StudentScheduleController extends Controller
         $user   = $this->resolveTargetUser(request(), (int) $userId);
         $userId = $user->id;
 
-        $schedule = StudentSchedule::where('user_id', $userId)
+        $scheduleRows = StudentSchedule::where('user_id', $userId)
             ->where('active', true)
+            ->get(['week_day', 'shift']);
+        $schedule = $scheduleRows
             ->pluck('week_day')
             ->toArray();
 
@@ -112,6 +122,10 @@ class StudentScheduleController extends Controller
 
         return response()->json([
             'days'           => $schedule,
+            'shifts'         => $scheduleRows
+                ->pluck('shift', 'week_day')
+                ->map(fn ($shift) => $shift ?: 'full_day')
+                ->toArray(),
             'total_days'     => count($schedule),
             'formatted_days' => array_map(fn ($day) => $weekDaysMap[$day] ?? $day, $schedule),
         ]);

@@ -30,34 +30,55 @@ class EnrollmentController extends Controller
 
         $plans = Plan::active()->orderedByPrice()->get();
         $weekDays = StudentSchedule::weekDays();
-        $selectedScheduleDays = $student
+        $shiftLabels = StudentSchedule::shiftLabels();
+        $selectedSchedule = $student
             ? StudentSchedule::where('user_id', $user->id)
                 ->where('active', true)
-                ->pluck('week_day')
-                ->toArray()
-            : [];
+                ->get(['week_day', 'shift'])
+            : collect();
+        $selectedScheduleDays = $selectedSchedule->pluck('week_day')->toArray();
+        $selectedScheduleShifts = $selectedSchedule
+            ->pluck('shift', 'week_day')
+            ->map(fn ($shift) => $shift ?: 'full_day')
+            ->toArray();
+        $occupiedSlotsByInstructor = $this->occupiedSlotsByInstructor($student?->id);
         $instructorOptions = Instructor::with([
                 'user:id,name',
                 'availability' => fn ($query) => $query->where('active', true),
             ])
             ->withCount('students')
             ->get()
-            ->map(fn ($instructor) => [
-                'id' => $instructor->id,
-                'name' => $instructor->user?->name ?? 'Instrutor',
-                'specialty' => $instructor->specialty,
-                'students_count' => $instructor->students_count,
-                'availability' => $instructor->availability
-                    ->map(fn ($availability) => [
-                        'week_day' => $availability->week_day,
-                        'shift' => $availability->shift,
-                        'shift_label' => InstructorAvailability::shiftLabels()[$availability->shift] ?? $availability->shift,
-                    ])
-                    ->values(),
-            ])
+            ->map(function ($instructor) use ($occupiedSlotsByInstructor) {
+                return [
+                    'id' => $instructor->id,
+                    'name' => $instructor->user?->name ?? 'Instrutor',
+                    'specialty' => $instructor->specialty,
+                    'students_count' => $instructor->students_count,
+                    'availability' => $instructor->availability
+                        ->map(function ($availability) use ($occupiedSlotsByInstructor, $instructor) {
+                            $occupiedShifts = $occupiedSlotsByInstructor[$instructor->id][$availability->week_day] ?? [];
+
+                            return [
+                                'week_day' => $availability->week_day,
+                                'shift' => $availability->shift,
+                                'shift_label' => InstructorAvailability::shiftLabels()[$availability->shift] ?? $availability->shift,
+                                'time_label' => $this->availabilityTimeLabel($availability),
+                                'occupied' => $this->slotIsOccupied($availability->shift, $occupiedShifts),
+                            ];
+                        })
+                        ->values(),
+                ];
+            })
             ->values();
 
-        return view('enrollments.index', compact('plans', 'weekDays', 'selectedScheduleDays', 'instructorOptions'));
+        return view('enrollments.index', compact(
+            'plans',
+            'weekDays',
+            'shiftLabels',
+            'selectedScheduleDays',
+            'selectedScheduleShifts',
+            'instructorOptions'
+        ));
     }
 
     /**
@@ -66,15 +87,17 @@ class EnrollmentController extends Controller
     public function store(Request $request, BillingService $billingService)
     {
         $weekDayKeys = array_keys(StudentSchedule::weekDays());
+        $shiftKeys = array_keys(StudentSchedule::shiftLabels());
 
         $request->validate([
             'plan_id'         => ['required', 'exists:plans,id'],
             'payment_method'  => ['required', 'in:credit_card,debit_card,pix'],
-            'preferred_shift' => ['nullable', 'string', 'in:morning,afternoon,evening,full_day'],
             'goal'            => ['required', 'string', 'in:hypertrophy,weight_loss,conditioning,health,rehabilitation,other'],
             'custom_goal'     => ['nullable', 'string', 'required_if:goal,other', 'max:500'],
             'days'            => ['required', 'array', 'min:' . StudentSchedule::MIN_DAYS],
             'days.*'          => ['required', 'string', 'distinct', Rule::in($weekDayKeys)],
+            'shifts'          => ['required', 'array'],
+            'shifts.*'        => ['required', 'string', Rule::in($shiftKeys)],
         ], [
             'payment_method.required' => 'Informe o método de pagamento',
             'payment_method.in'       => 'Método de pagamento inválido.',
@@ -89,6 +112,10 @@ class EnrollmentController extends Controller
             'days.min'                => 'Selecione pelo menos ' . StudentSchedule::MIN_DAYS . ' dias de treino na semana.',
             'days.*.in'               => 'Dia da semana inválido.',
             'days.*.distinct'         => 'Não repita dias na agenda de treino.',
+            'shifts.required'         => 'Informe o turno de treino para cada dia escolhido.',
+            'shifts.array'            => 'Turnos da agenda inválidos.',
+            'shifts.*.required'       => 'Informe o turno de treino para cada dia escolhido.',
+            'shifts.*.in'             => 'Turno de treino inválido.',
         ]);
 
         /** @var \App\Models\User $user */
@@ -105,54 +132,19 @@ class EnrollmentController extends Controller
         
         $student->update($updateData);
 
-        // --------------------------------------------------------------
-        // 1. Salvar agenda do aluno (dias de treino)
-        // --------------------------------------------------------------
         $studentScheduleDays = array_values(array_unique($request->input('days', [])));
+        $studentSchedule = $this->scheduleFromSelection($studentScheduleDays, $request->input('shifts', []));
 
-        StudentSchedule::where('user_id', $user->id)->delete();
-
-        foreach ($studentScheduleDays as $day) {
-            StudentSchedule::create([
-                'user_id'  => $user->id,
-                'week_day' => $day,
-                'active'   => true,
+        if (count($studentSchedule) !== count($studentScheduleDays)) {
+            throw ValidationException::withMessages([
+                'shifts' => 'Informe o turno de treino para cada dia escolhido.',
             ]);
         }
 
         // --------------------------------------------------------------
-        // 2. Turno preferido (opcional)
+        // 1. Buscar instrutores que cobrem TODOS os dias e turnos livres
         // --------------------------------------------------------------
-        $shift = $request->input('preferred_shift') ?: null;
-
-        // --------------------------------------------------------------
-        // 3. Buscar instrutores que cobrem TODOS os dias da agenda no turno
-        // --------------------------------------------------------------
-        $availableInstructors = Instructor::whereHas('availability', function ($q) use ($studentScheduleDays, $shift) {
-            $q->whereIn('week_day', $studentScheduleDays)
-              ->where('active', true);
-
-            if ($shift) {
-                $q->where('shift', $shift);
-            }
-        })
-        ->with('user')
-        ->get()
-        ->filter(function ($instructor) use ($studentScheduleDays, $shift) {
-            $availableDaysQuery = InstructorAvailability::where('instructor_id', $instructor->id)
-                ->whereIn('week_day', $studentScheduleDays)
-                ->where('active', true);
-
-            if ($shift) {
-                $availableDaysQuery->where('shift', $shift);
-            }
-
-            $availableDays = $availableDaysQuery
-                ->pluck('week_day')
-                ->unique()
-                ->toArray();
-            return count(array_intersect($studentScheduleDays, $availableDays)) === count($studentScheduleDays);
-        });
+        $availableInstructors = $this->availableInstructorsForSchedule($studentSchedule, $student->id);
 
         if ($availableInstructors->isEmpty()) {
             $message = 'Nenhum instrutor disponível para os dias e horários da sua agenda. Entre em contato com a recepção.';
@@ -163,25 +155,34 @@ class EnrollmentController extends Controller
         }
 
         // --------------------------------------------------------------
-        // 4. Selecionar instrutor com menos alunos (balanceamento de carga)
+        // 2. Selecionar instrutor com menos alunos (balanceamento de carga)
         // --------------------------------------------------------------
-        $selectedInstructor = $availableInstructors->sortBy(function ($instructor) {
-            return $instructor->students()->count();
-        })->first();
+        $selectedInstructor = $availableInstructors->first();
 
         // --------------------------------------------------------------
-        // 5. Processar plano e criar matrícula
+        // 3. Processar plano, agenda e matrícula
         // --------------------------------------------------------------
         $plan      = Plan::where('status', 'active')->findOrFail($request->plan_id);
         $startDate = Carbon::today();
         $endDate   = $startDate->copy()->addDays($plan->duration_days);
 
-        $billing = DB::transaction(function () use ($student, $selectedInstructor, $plan, $startDate, $endDate, $request, $billingService) {
+        [$billing, $enrollment] = DB::transaction(function () use ($student, $selectedInstructor, $plan, $startDate, $endDate, $request, $billingService, $studentSchedule) {
             $lockedStudent = Student::whereKey($student->id)->lockForUpdate()->firstOrFail();
 
             if ($lockedStudent->isEnrolled()) {
                 throw ValidationException::withMessages([
                     'plan_id' => 'Você já possui uma matrícula ativa.',
+                ]);
+            }
+
+            StudentSchedule::where('user_id', $lockedStudent->user_id)->delete();
+
+            foreach ($studentSchedule as $scheduleItem) {
+                StudentSchedule::create([
+                    'user_id'  => $lockedStudent->user_id,
+                    'week_day' => $scheduleItem['week_day'],
+                    'shift'    => $scheduleItem['shift'],
+                    'active'   => true,
                 ]);
             }
 
@@ -197,7 +198,10 @@ class EnrollmentController extends Controller
                 'instructor_id' => $selectedInstructor->id,
             ]);
 
-            return $billingService->createForEnrollment($lockedStudent, $enrollment, $request->payment_method);
+            return [
+                $billingService->createForEnrollment($lockedStudent, $enrollment, $request->payment_method),
+                $enrollment,
+            ];
         });
 
         $instructorName = $selectedInstructor->user->name;
@@ -207,13 +211,150 @@ class EnrollmentController extends Controller
             return response()->json([
                 'message'     => $successMessage,
                 'instructor'  => $selectedInstructor->only(['id', 'user.name']),
-                'enrollment'  => $enrollment ?? null,
+                'enrollment'  => $enrollment,
             ]);
         }
 
         return redirect()
             ->route('dashboard')
             ->with('success', $successMessage);
+    }
+
+    private function scheduleFromSelection(array $days, array $shifts): array
+    {
+        $schedule = [];
+
+        foreach ($days as $day) {
+            $shift = $shifts[$day] ?? null;
+
+            if (!$shift) {
+                continue;
+            }
+
+            $schedule[] = [
+                'week_day' => $day,
+                'shift'    => $shift,
+            ];
+        }
+
+        return $schedule;
+    }
+
+    private function availableInstructorsForSchedule(array $schedule, ?int $ignoredStudentId = null)
+    {
+        $occupiedSlotsByInstructor = $this->occupiedSlotsByInstructor($ignoredStudentId);
+
+        return Instructor::with([
+                'user',
+                'availability' => fn ($query) => $query->where('active', true),
+            ])
+            ->withCount('students')
+            ->get()
+            ->filter(function (Instructor $instructor) use ($schedule, $occupiedSlotsByInstructor) {
+                foreach ($schedule as $slot) {
+                    $hasAvailability = $instructor->availability->contains(function (InstructorAvailability $availability) use ($slot) {
+                        return $availability->week_day === $slot['week_day']
+                            && $availability->shift === $slot['shift']
+                            && $availability->active;
+                    });
+
+                    if (!$hasAvailability) {
+                        return false;
+                    }
+
+                    $occupiedShifts = $occupiedSlotsByInstructor[$instructor->id][$slot['week_day']] ?? [];
+
+                    if ($this->slotIsOccupied($slot['shift'], $occupiedShifts)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            })
+            ->sortBy(fn (Instructor $instructor) => sprintf(
+                '%08d|%s',
+                (int) ($instructor->students_count ?? 0),
+                mb_strtolower($instructor->user?->name ?? '')
+            ))
+            ->values();
+    }
+
+    private function occupiedSlotsByInstructor(?int $ignoredStudentId = null): array
+    {
+        $rows = StudentSchedule::query()
+            ->join('users', 'users.id', '=', 'student_schedules.user_id')
+            ->join('students', 'students.user_id', '=', 'users.id')
+            ->where('student_schedules.active', true)
+            ->whereNotNull('students.instructor_id')
+            ->whereNotNull('student_schedules.shift')
+            ->when($ignoredStudentId, fn ($query) => $query->where('students.id', '<>', $ignoredStudentId))
+            ->get([
+                'students.instructor_id',
+                'student_schedules.week_day',
+                'student_schedules.shift',
+            ]);
+
+        $slots = [];
+
+        foreach ($rows as $row) {
+            $shift = (string) $row->shift;
+
+            if (!$shift) {
+                continue;
+            }
+
+            $instructorId = (int) $row->instructor_id;
+            $weekDay      = (string) $row->week_day;
+
+            $slots[$instructorId][$weekDay] ??= [];
+            $slots[$instructorId][$weekDay][] = $shift;
+            $slots[$instructorId][$weekDay] = array_values(array_unique($slots[$instructorId][$weekDay]));
+        }
+
+        return $slots;
+    }
+
+    private function slotIsOccupied(string $shift, array $occupiedShifts): bool
+    {
+        foreach ($occupiedShifts as $occupiedShift) {
+            if ($this->shiftsConflict($shift, (string) $occupiedShift)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function shiftsConflict(string $left, string $right): bool
+    {
+        // full_day só conflita com outro full_day
+        if ($left === 'full_day' && $right === 'full_day') {
+            return true;
+        }
+
+        if ($left === 'full_day' || $right === 'full_day') {
+            return false;
+        }
+
+        return $left === $right;
+    }
+
+    private function availabilityTimeLabel(InstructorAvailability $availability): string
+    {
+        if ($availability->start_time && $availability->end_time) {
+            return $this->formatAvailabilityTime($availability->start_time) . ' às ' . $this->formatAvailabilityTime($availability->end_time);
+        }
+
+        return InstructorAvailability::shiftLabels()[$availability->shift] ?? $availability->shift;
+    }
+
+    private function formatAvailabilityTime($time): string
+    {
+        if ($time instanceof \Carbon\CarbonInterface) {
+            return $time->format('H:i');
+        }
+
+        return mb_substr((string) $time, 0, 5);
     }
 
     /**

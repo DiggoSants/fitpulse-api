@@ -60,21 +60,29 @@ class Instructor extends Model
      */
     public function isAvailableForStudent(Student $student, string $shift = 'full_day'): bool
     {
-        $studentDays = $student->user->schedule()->where('active', true)->pluck('week_day')->toArray();
-        if (empty($studentDays)) {
+        $studentSchedule = $student->user->schedule()
+            ->where('active', true)
+            ->get(['week_day', 'shift']);
+
+        if ($studentSchedule->isEmpty()) {
             return false; // aluno sem agenda não pode ser vinculado
         }
 
-        $availableDays = $this->availability()
-            ->whereIn('week_day', $studentDays)
-            ->where('shift', $shift)
-            ->where('active', true)
-            ->pluck('week_day')
-            ->unique()
-            ->toArray();
+        foreach ($studentSchedule as $schedule) {
+            $scheduleShift = $schedule->shift ?: $shift;
 
-        // Deve cobrir todos os dias da agenda do aluno
-        return count(array_intersect($studentDays, $availableDays)) === count($studentDays);
+            $hasAvailability = $this->availability()
+                ->where('week_day', $schedule->week_day)
+                ->where('shift', $scheduleShift)
+                ->where('active', true)
+                ->exists();
+
+            if (!$hasAvailability) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

@@ -351,6 +351,26 @@
     gap: 10px;
 }
 
+.schedule-days-grid--detailed {
+    grid-template-columns: 1fr;
+}
+
+.schedule-day-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: rgba(255,255,255,0.025);
+    padding: 10px;
+}
+
+.schedule-day-card[hidden] {
+    display: none;
+}
+
+.schedule-day-card .schedule-day-option {
+    width: 100%;
+    box-sizing: border-box;
+}
+
 .schedule-day-option {
     display: flex;
     align-items: center;
@@ -394,6 +414,76 @@
     background: var(--red-dim);
 }
 
+.schedule-shift-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.schedule-shift-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: rgba(255,255,255,0.035);
+    cursor: pointer;
+    transition: border-color .18s, background .18s, opacity .18s;
+}
+
+.schedule-shift-option[hidden] {
+    display: none;
+}
+
+.schedule-shift-option:has(input:disabled) {
+    opacity: .55;
+}
+
+.enrollment-card .schedule-shift-option input[type="radio"] {
+    width: 14px !important;
+    min-width: 14px !important;
+    max-width: 14px !important;
+    height: 14px !important;
+    min-height: 14px;
+    margin: 0;
+    padding: 0;
+    accent-color: var(--red);
+    flex: 0 0 14px;
+}
+
+.schedule-shift-option span {
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+
+.schedule-shift-option:has(input:checked) {
+    border-color: rgba(214,21,50,0.55);
+    background: var(--red-dim);
+}
+
+.schedule-shift-option:has(input:checked) span {
+    color: var(--text-white);
+}
+
+.schedule-day-note {
+    margin: 8px 2px 0;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+.schedule-day-note:empty {
+    display: none;
+}
+
 [data-theme="light"] .schedule-day-option {
     background: #f7f7f7;
     border-color: rgba(0,0,0,0.10);
@@ -405,6 +495,24 @@
 }
 
 [data-theme="light"] .schedule-day-option span { color: #111; }
+
+[data-theme="light"] .schedule-day-card {
+    background: rgba(0,0,0,0.025);
+    border-color: rgba(0,0,0,0.08);
+}
+
+[data-theme="light"] .schedule-shift-option {
+    background: #fff;
+    border-color: rgba(0,0,0,0.10);
+}
+
+[data-theme="light"] .schedule-shift-option:has(input:checked) {
+    background: rgba(214,21,50,0.06);
+}
+
+[data-theme="light"] .schedule-shift-option:has(input:checked) span {
+    color: #111;
+}
 
 .available-instructor-panel {
     border: 1px solid rgba(214,21,50,0.32);
@@ -862,6 +970,10 @@
     }
 
     .schedule-days-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .schedule-shift-options {
         grid-template-columns: 1fr;
     }
 

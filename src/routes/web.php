@@ -67,14 +67,16 @@ Route::middleware(['auth', 'verified', 'role:manager,instructor'])->group(functi
 // ── Treinos ───────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'enrolled', 'role:student,manager,instructor'])->group(function () {
     Route::resource('workouts', WorkoutController::class)->only([
-        'create',
-        'store',
-        'edit',
-        'update',
-        'destroy',
-        'index',
-        'show'
+        'create', 'store', 'edit', 'update', 'destroy', 'index', 'show'
     ]);
+});
+
+// ── Troca de instrutor (ANTES do resource instructors para evitar conflito) ───
+Route::middleware(['auth'])->group(function () {
+    Route::get('/instructors/available', [InstructorChangeController::class, 'availableInstructors'])
+        ->name('instructors.available');
+    Route::post('/instructor/change', [InstructorChangeController::class, 'change'])
+        ->name('instructor.change');
 });
 
 // ── Instrutores ───────────────────────────────────────────────────────────────
@@ -159,8 +161,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
             return response()->json(['video_id' => null]);
         }
 
-        // videoDuration=short = vídeos de até 4 minutos
-        // order=relevance = mais relevante primeiro
         $url = "https://www.googleapis.com/youtube/v3/search"
             . "?part=snippet"
             . "&q={$query}"
@@ -179,34 +179,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // ── Lojinha ───────────────────────────────────────────────────────────────────
-// Listagem — todos autenticados podem ver
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/products', [ShopController::class, 'index'])->name('products.index');
 });
 
-// Compra — alunos matriculados e gerentes
 Route::middleware(['auth', 'verified', 'enrolled', 'role:student'])->group(function () {
     Route::post('/sales', [ShopController::class, 'sale'])->name('sales.store');
     Route::get('/lojinha', [ShopController::class, 'studentView'])->name('shop.index');
 });
 
-// Cadastro e gerenciamento — só gerentes
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
-    // CRUD básico (já existentes)
     Route::post('/products',              [ShopController::class, 'store'])->name('products.store');
     Route::put('/products/{id}',          [ShopController::class, 'update'])->name('products.update');
     Route::delete('/products/{id}',       [ShopController::class, 'destroy'])->name('products.destroy');
     Route::post('/products/{id}/restore', [ShopController::class, 'restore'])->name('products.restore');
     Route::get('/lojinha/manager',        [ShopController::class, 'managerView'])->name('shop.manager');
-
-    // ========== NOVAS ROTAS PARA CONTROLE DE ESTOQUE ==========
-    // Visualizar estoque de todos os produtos
     Route::get('/manager/products/stock', [ShopController::class, 'managerStock'])->name('products.stock');
-    // Atualizar estoque de um produto
     Route::put('/manager/products/{id}/stock', [ShopController::class, 'updateStock'])->name('products.update-stock');
-    // Reposição de estoque (incremento)
     Route::post('/manager/products/{id}/restock', [ShopController::class, 'restock'])->name('products.restock');
-    // Produtos com estoque baixo (alerta)
     Route::get('/manager/products/low-stock', [ShopController::class, 'lowStock'])->name('products.low-stock');
 });
 
@@ -217,7 +207,6 @@ Route::middleware(['auth', 'verified', 'role:student,manager,instructor'])->grou
     Route::get('/reports/physical/evolution/{user_id}',  [EvaluationController::class, 'evolution'])->name('reports.physical.evolution');
 });
 
-// ── Evolução Física — views ───────────────────────────────────────────────────
 Route::middleware(['auth', 'verified', 'enrolled', 'role:student'])->group(function () {
     Route::get('/evolucao', [EvaluationController::class, 'studentPage'])->name('evaluations.page');
 });
@@ -231,7 +220,6 @@ Route::middleware(['auth', 'verified', 'role:manager,instructor'])->group(functi
 });
 
 // ── Manutenção de equipamentos ────────────────────────────────────────────────
-// Listagem — todos autenticados podem ver
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
     Route::get('/maintenance', [MaintenanceController::class, 'view'])->name('maintenance.view');
 });
@@ -241,7 +229,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/api/maintenance', [MaintenanceController::class, 'index'])->name('maintenance.index');
 });
 
-// Registro e resolução — só gerentes
 Route::middleware(['auth', 'verified', 'role:manager'])->group(function () {
     Route::post('/api/equipment',       [MaintenanceController::class, 'storeEquipment'])->name('equipment.store');
     Route::post('/api/maintenance',     [MaintenanceController::class, 'store'])->name('maintenance.store');
@@ -258,7 +245,6 @@ Route::middleware(['auth', 'verified', 'enrolled', 'role:student'])->group(funct
 });
 
 // ── Recepção ──────────────────────────────────────────────────────────────────
-
 Route::middleware(['auth', 'verified', 'role:manager,receptionist'])->group(function () {
     Route::get('/students/pending-enrollment', [ReceptionController::class, 'pendingEnrollment'])->name('reception.pending');
     Route::get('/api/students/pending-enrollment', [ReceptionController::class, 'pendingEnrollmentData'])->name('reception.pending.data');
@@ -274,19 +260,13 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    // Grupos musculares disponíveis (vem da coluna muscle_group)
     Route::get('/muscle-groups', [WorkoutController::class, 'getMuscleGroups']);
-
-    // Filtrar exercícios por grupos musculares
     Route::post('/exercises/filter', [WorkoutController::class, 'filterExercisesByMuscleGroup']);
-
-    // Buscar exercícios por grupos musculares
     Route::post('/exercises/by-muscle-groups', [WorkoutController::class, 'getExercisesByMuscleGroups']);
-
     Route::get('/workouts/student/{studentId}', [WorkoutController::class, 'getStudentWorkouts']);
 });
 
-// Rotas para execução de treino (aluno)
+// ── Execução de treino ────────────────────────────────────────────────────────
 Route::middleware(['auth'])->prefix('treino')->group(function () {
     Route::get('/hoje', fn () => redirect()->route('workouts.index'))->name('workout-sessions.today');
     Route::post('/sessao/{sessionId}/iniciar', [WorkoutSessionController::class, 'start'])->name('workout-sessions.start');
@@ -297,21 +277,24 @@ Route::middleware(['auth'])->prefix('treino')->group(function () {
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    // Frequência - Instrutor
     Route::get('/instructor/attendances', [InstructorAttendanceController::class, 'index']);
     Route::get('/instructor/attendances/absent', [InstructorAttendanceController::class, 'absentStudents']);
     Route::get('/instructor/attendances/student/{studentId}', [InstructorAttendanceController::class, 'show']);
     Route::post('/instructor/attendances/student/{studentId}/mark', [InstructorAttendanceController::class, 'markAttendance']);
 });
+
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/fidelity', [FidelityController::class, 'show']); // para o próprio aluno
+    Route::get('/fidelity', [FidelityController::class, 'show']);
     Route::get('/fidelity/student/{studentId}', [FidelityController::class, 'showForInstructor']);
 });
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/instructor/students', [InstructorController::class, 'myStudents'])->name('instructor.students');
 });
+
 Route::middleware(['auth'])->post('/enrollment/trial', [EnrollmentController::class, 'trial'])->name('enrollment.trial');
-// Instrutor gerencia sua própria agenda
+
+// ── Disponibilidade do instrutor ──────────────────────────────────────────────
 Route::middleware(['auth'])->group(function () {
     Route::get('/instructor/availability', [InstructorAvailabilityController::class, 'index'])->name('instructor.availability');
     Route::post('/instructor/availability', [InstructorAvailabilityController::class, 'store'])->name('instructor.availability.store');
@@ -320,14 +303,11 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/api/instructors/available', [InstructorAvailabilityController::class, 'availableInstructors']);
 });
-Route::middleware(['auth'])->group(function () {
-    Route::get('/instructors/available', [InstructorChangeController::class, 'availableInstructors'])
-        ->name('instructors.available');
-    Route::post('/instructor/change', [InstructorChangeController::class, 'change'])
-        ->name('instructor.change');
-});
+
+// ── Equipamentos ──────────────────────────────────────────────────────────────
 Route::middleware(['auth'])->group(function () {
     Route::resource('equipment', EquipmentController::class);
     Route::get('equipment/active/list', [EquipmentController::class, 'active'])->name('equipment.active');
 });
+
 require __DIR__ . '/auth.php';

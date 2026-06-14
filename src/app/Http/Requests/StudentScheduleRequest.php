@@ -19,6 +19,8 @@ class StudentScheduleRequest extends FormRequest
             'user_id'    => ['nullable', 'integer', 'exists:users,id'],
             'days'       => ['nullable', 'array'],
             'days.*'     => ['string', 'in:monday,tuesday,wednesday,thursday,friday,saturday,sunday'],
+            'shifts'     => ['nullable', 'array'],
+            'shifts.*'   => ['string', 'in:morning,afternoon,evening,full_day'],
         ];
     }
 
@@ -26,6 +28,7 @@ class StudentScheduleRequest extends FormRequest
     {
         return [
             'days.*.in' => 'Dia da semana inválido.',
+            'shifts.*.in' => 'Turno de treino inválido.',
         ];
     }
 }

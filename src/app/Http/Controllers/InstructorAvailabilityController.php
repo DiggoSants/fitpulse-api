@@ -117,14 +117,20 @@ class InstructorAvailabilityController extends Controller
     private function buildAgendaPayload(Instructor $instructor, $availabilities, array $weekDays, array $shifts): array
     {
         $availabilityByDay = $availabilities->groupBy('week_day');
-        $studentsByDay = $this->studentsByDay($instructor, array_keys($weekDays));
+        $studentsBySlot = $this->studentsBySlot($instructor, array_keys($weekDays));
 
-        $days = collect($weekDays)->map(function (string $label, string $dayKey) use ($availabilityByDay, $studentsByDay, $shifts) {
-            $dayStudents = $studentsByDay[$dayKey] ?? [];
+        $days = collect($weekDays)->map(function (string $label, string $dayKey) use ($availabilityByDay, $studentsBySlot, $shifts) {
+            $dayStudentsByShift = $studentsBySlot[$dayKey] ?? [];
+            $dayStudents = collect($dayStudentsByShift)
+                ->flatten(1)
+                ->unique('id')
+                ->values()
+                ->all();
 
             $slots = ($availabilityByDay->get($dayKey) ?? collect())
-                ->map(function (InstructorAvailability $availability) use ($dayKey, $label, $dayStudents, $shifts) {
-                    $isOccupied = $availability->active && count($dayStudents) > 0;
+                ->map(function (InstructorAvailability $availability) use ($dayKey, $label, $dayStudentsByShift, $shifts) {
+                    $slotStudents = $this->studentsForSlot($dayStudentsByShift, $availability->shift);
+                    $isOccupied = $availability->active && count($slotStudents) > 0;
                     $status = !$availability->active ? 'unavailable' : ($isOccupied ? 'occupied' : 'free');
 
                     return [
@@ -141,7 +147,7 @@ class InstructorAvailabilityController extends Controller
                             'free'        => 'Livre',
                             default       => 'Indisponível',
                         },
-                        'students'     => $availability->active ? $dayStudents : [],
+                        'students'     => $availability->active ? $slotStudents : [],
                     ];
                 })
                 ->values()
@@ -176,31 +182,51 @@ class InstructorAvailabilityController extends Controller
         ];
     }
 
-    private function studentsByDay(Instructor $instructor, array $weekDayKeys): array
+    private function studentsBySlot(Instructor $instructor, array $weekDayKeys): array
     {
-        $studentsByDay = array_fill_keys($weekDayKeys, []);
+        $studentsBySlot = array_fill_keys($weekDayKeys, []);
 
         foreach ($instructor->students as $student) {
-            $scheduledDays = $student->user?->schedule
-                ->where('active', true)
-                ->pluck('week_day')
-                ->all() ?? [];
+            $scheduledItems = $student->user?->schedule
+                ->where('active', true) ?? collect();
 
-            foreach ($scheduledDays as $day) {
-                if (!array_key_exists($day, $studentsByDay)) {
+            foreach ($scheduledItems as $schedule) {
+                $day = $schedule->week_day;
+
+                if (!array_key_exists($day, $studentsBySlot)) {
                     continue;
                 }
 
-                $studentsByDay[$day][] = [
+                $shift = $schedule->shift ?: 'full_day';
+                $studentsBySlot[$day][$shift] ??= [];
+                $studentsBySlot[$day][$shift][] = [
                     'id'     => $student->id,
                     'name'   => $student->user?->name,
                     'email'  => $student->user?->email,
                     'status' => $student->is_defaulter ? 'Pendente' : 'Em dia',
+                    'shift'  => $shift,
                 ];
             }
         }
 
-        return $studentsByDay;
+        return $studentsBySlot;
+    }
+
+    private function studentsForSlot(array $studentsByShift, string $shift): array
+    {
+        if ($shift === 'full_day') {
+            return collect($studentsByShift)
+                ->flatten(1)
+                ->unique('id')
+                ->values()
+                ->all();
+        }
+
+        return collect($studentsByShift[$shift] ?? [])
+            ->merge($studentsByShift['full_day'] ?? [])
+            ->unique('id')
+            ->values()
+            ->all();
     }
 
     private function timeLabel(InstructorAvailability $availability, array $shifts): string

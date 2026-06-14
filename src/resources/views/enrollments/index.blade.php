@@ -28,6 +28,9 @@
             @php
                 $checkedScheduleDays = old('days', $selectedScheduleDays ?? []);
                 $checkedScheduleDays = is_array($checkedScheduleDays) ? $checkedScheduleDays : [];
+                $checkedScheduleShifts = old('shifts', $selectedScheduleShifts ?? []);
+                $checkedScheduleShifts = is_array($checkedScheduleShifts) ? $checkedScheduleShifts : [];
+                $availableShiftLabels = $shiftLabels ?? \App\Models\StudentSchedule::shiftLabels();
                 $goalOptions = \App\Models\Student::getGoalOptions();
             @endphp
 
@@ -116,26 +119,59 @@
                     </section>
 
                     <section class="enrollment-step" data-step="1">
-                        <p class="enrollment-section-label">Dias de treino</p>
+                        <p class="enrollment-section-label">Dias e turnos de treino</p>
 
-                        <div class="schedule-days-grid">
+                        <div class="schedule-days-grid schedule-days-grid--detailed">
                             @foreach($weekDays as $dayKey => $dayLabel)
-                                <label class="schedule-day-option">
-                                    <input
-                                        type="checkbox"
-                                        name="days[]"
-                                        value="{{ $dayKey }}"
-                                        @checked(in_array($dayKey, $checkedScheduleDays, true))
-                                    >
-                                    <span>{{ $dayLabel }}</span>
-                                </label>
+                                @php
+                                    $dayIsChecked = in_array($dayKey, $checkedScheduleDays, true);
+                                    $selectedShift = $checkedScheduleShifts[$dayKey] ?? '';
+                                @endphp
+                                <div class="schedule-day-card" data-day-card data-day="{{ $dayKey }}">
+                                    <label class="schedule-day-option">
+                                        <input
+                                            type="checkbox"
+                                            name="days[]"
+                                            value="{{ $dayKey }}"
+                                            @checked($dayIsChecked)
+                                        >
+                                        <span>{{ $dayLabel }}</span>
+                                    </label>
+
+                                    <div class="schedule-shift-options" data-shift-options>
+                                        @foreach($availableShiftLabels as $shiftKey => $shiftLabel)
+                                            <label class="schedule-shift-option" data-shift-option="{{ $shiftKey }}">
+                                                <input
+                                                    type="radio"
+                                                    name="shifts[{{ $dayKey }}]"
+                                                    value="{{ $shiftKey }}"
+                                                    @checked($selectedShift === $shiftKey)
+                                                    @disabled(!$dayIsChecked)
+                                                >
+                                                <span>{{ $shiftLabel }}</span>
+                                            </label>
+                                        @endforeach
+                                    </div>
+
+                                    <p class="schedule-day-note" data-day-note></p>
+                                </div>
                             @endforeach
+                        </div>
+
+                        <div class="enrollment-empty" id="schedule-empty" hidden>
+                            Nenhum horário livre no momento.
                         </div>
 
                         @error('days')
                             <span class="profile-field-error">{{ $message }}</span>
                         @enderror
                         @error('days.*')
+                            <span class="profile-field-error">{{ $message }}</span>
+                        @enderror
+                        @error('shifts')
+                            <span class="profile-field-error">{{ $message }}</span>
+                        @enderror
+                        @error('shifts.*')
                             <span class="profile-field-error">{{ $message }}</span>
                         @enderror
 
@@ -277,6 +313,7 @@
 <script>
 const ENROLLMENT_INSTRUCTORS = @json($instructorOptions);
 const ENROLLMENT_WEEK_DAYS = @json($weekDays);
+const ENROLLMENT_SHIFT_LABELS = @json($availableShiftLabels);
 
 function openPlanModal(id) {
     const modal = document.getElementById(id);
@@ -331,6 +368,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const scheduleFeedback = document.getElementById('schedule-feedback');
     const instructorPanel = document.getElementById('available-instructor-panel');
     const confirmButton = document.getElementById('confirm-enrollment-btn');
+    const dayCards = Array.from(document.querySelectorAll('[data-day-card]'));
+    const scheduleEmpty = document.getElementById('schedule-empty');
+    const shiftOrder = Object.keys(ENROLLMENT_SHIFT_LABELS);
     let currentStep = 0;
     let currentInstructor = null;
 
@@ -345,7 +385,114 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function selectedDays() {
-        return Array.from(form.querySelectorAll('input[name="days[]"]:checked')).map(input => input.value);
+        return dayCards
+            .filter(card => {
+                const checkbox = card.querySelector('input[name="days[]"]');
+                return checkbox && checkbox.checked && !checkbox.disabled && !card.hidden;
+            })
+            .map(card => card.dataset.day);
+    }
+
+    function selectedShiftFor(card) {
+        const input = card.querySelector('[data-shift-option] input:checked');
+        return input && !input.disabled ? input.value : null;
+    }
+
+    function selectedSchedule() {
+        return dayCards
+            .filter(card => {
+                const checkbox = card.querySelector('input[name="days[]"]');
+                return checkbox && checkbox.checked && !checkbox.disabled && !card.hidden;
+            })
+            .map(card => ({
+                day: card.dataset.day,
+                shift: selectedShiftFor(card),
+            }))
+            .filter(item => Boolean(item.shift));
+    }
+
+    function slotIsFree(slot) {
+        return slot && slot.occupied !== true;
+    }
+
+    function freeSlotsForDay(day) {
+        const slotsByShift = new Map();
+
+        ENROLLMENT_INSTRUCTORS.forEach(instructor => {
+            (instructor.availability || []).forEach(slot => {
+                if (slot.week_day === day && slotIsFree(slot) && !slotsByShift.has(slot.shift)) {
+                    slotsByShift.set(slot.shift, slot);
+                }
+            });
+        });
+
+        return Array.from(slotsByShift.values()).sort((a, b) => {
+            const first = shiftOrder.indexOf(a.shift);
+            const second = shiftOrder.indexOf(b.shift);
+            return (first === -1 ? 99 : first) - (second === -1 ? 99 : second);
+        });
+    }
+
+    function syncDayAvailability() {
+        let visibleDays = 0;
+
+        dayCards.forEach(card => {
+            const day = card.dataset.day;
+            const checkbox = card.querySelector('input[name="days[]"]');
+            const note = card.querySelector('[data-day-note]');
+            const freeSlots = freeSlotsForDay(day);
+            const freeShifts = freeSlots.map(slot => slot.shift);
+            const hasFreeSlot = freeSlots.length > 0;
+
+            visibleDays += hasFreeSlot ? 1 : 0;
+            card.hidden = !hasFreeSlot;
+            card.classList.toggle('is-selected', Boolean(checkbox?.checked && hasFreeSlot));
+
+            if (checkbox) {
+                checkbox.disabled = !hasFreeSlot;
+                if (!hasFreeSlot) {
+                    checkbox.checked = false;
+                }
+            }
+
+            let firstAvailableInput = null;
+
+            card.querySelectorAll('[data-shift-option]').forEach(label => {
+                const input = label.querySelector('input');
+                const available = input && freeShifts.includes(input.value);
+
+                label.hidden = !available;
+
+                if (input) {
+                    input.disabled = !checkbox?.checked || !available;
+
+                    if (!available && input.checked) {
+                        input.checked = false;
+                    }
+
+                    if (available && !firstAvailableInput) {
+                        firstAvailableInput = input;
+                    }
+                }
+            });
+
+            if (checkbox?.checked && !selectedShiftFor(card) && firstAvailableInput) {
+                firstAvailableInput.checked = true;
+                firstAvailableInput.disabled = false;
+            }
+
+            if (note) {
+                note.textContent = hasFreeSlot
+                    ? `${freeSlots.length} turno(s) livre(s)`
+                    : '';
+            }
+        });
+
+        if (scheduleEmpty) {
+            scheduleEmpty.hidden = visibleDays > 0;
+        }
+
+        adjustWizardHeight();
     }
 
     function adjustWizardHeight() {
@@ -407,12 +554,16 @@ document.addEventListener('DOMContentLoaded', function() {
         return true;
     }
 
-    function matchingInstructors(days) {
-        if (days.length < minDays) return [];
+    function matchingInstructors(schedule) {
+        if (schedule.length < minDays) return [];
 
         return ENROLLMENT_INSTRUCTORS
-            .filter(instructor => days.every(day => {
-                return (instructor.availability || []).some(slot => slot.week_day === day);
+            .filter(instructor => schedule.every(item => {
+                return (instructor.availability || []).some(slot => {
+                    return slot.week_day === item.day
+                        && slot.shift === item.shift
+                        && slotIsFree(slot);
+                });
             }))
             .sort((a, b) => {
                 const load = Number(a.students_count || 0) - Number(b.students_count || 0);
@@ -420,7 +571,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    function renderInstructor() {
+    function renderInstructorLegacy() {
         const days = selectedDays();
         const dayLabels = days.map(day => ENROLLMENT_WEEK_DAYS[day] || day);
         const matches = matchingInstructors(days);
@@ -472,7 +623,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return true;
     }
 
-    function validateDaysStep() {
+    function validateDaysStepLegacy() {
         const days = selectedDays();
 
         if (days.length < minDays) {
@@ -483,6 +634,94 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (!renderInstructor()) {
             setMessage(1, 'Escolha outros dias para encontrar um instrutor disponível.');
+            return false;
+        }
+
+        setMessage(1, '');
+        return true;
+    }
+
+    function renderInstructor() {
+        const days = selectedDays();
+        const schedule = selectedSchedule();
+        const matches = matchingInstructors(schedule);
+        currentInstructor = matches[0] || null;
+
+        if (days.length < minDays) {
+            instructorPanel.className = 'available-instructor-panel is-empty';
+            instructorPanel.innerHTML = `<strong>Selecione pelo menos ${minDays} dias com turno livre.</strong>`;
+            if (confirmButton) confirmButton.disabled = true;
+            scheduleFeedback.textContent = '';
+            scheduleFeedback.className = 'wizard-inline-feedback';
+            adjustWizardHeight();
+            return false;
+        }
+
+        if (schedule.length !== days.length) {
+            instructorPanel.className = 'available-instructor-panel is-empty';
+            instructorPanel.innerHTML = '<strong>Escolha um turno para cada dia selecionado.</strong>';
+            if (confirmButton) confirmButton.disabled = true;
+            scheduleFeedback.textContent = 'Informe o turno em todos os dias escolhidos.';
+            scheduleFeedback.className = 'wizard-inline-feedback is-error';
+            adjustWizardHeight();
+            return false;
+        }
+
+        if (!currentInstructor) {
+            instructorPanel.className = 'available-instructor-panel is-empty';
+            instructorPanel.innerHTML = '<strong>Nenhum instrutor disponível para esses dias e turnos.</strong>';
+            if (confirmButton) confirmButton.disabled = true;
+            scheduleFeedback.textContent = 'Nenhum instrutor disponível para a combinação escolhida.';
+            scheduleFeedback.className = 'wizard-inline-feedback is-error';
+            adjustWizardHeight();
+            return false;
+        }
+
+        const dayBadges = schedule.map(item => {
+            const dayLabel = ENROLLMENT_WEEK_DAYS[item.day] || item.day;
+            const shiftLabel = ENROLLMENT_SHIFT_LABELS[item.shift] || item.shift;
+            return `<span>${escapeHtml(dayLabel)} - ${escapeHtml(shiftLabel)}</span>`;
+        }).join('');
+
+        const timeLabels = schedule.map(item => {
+            const slot = (currentInstructor.availability || []).find(availability => {
+                return availability.week_day === item.day && availability.shift === item.shift;
+            });
+
+            return slot?.time_label || slot?.shift_label || ENROLLMENT_SHIFT_LABELS[item.shift] || item.shift;
+        });
+
+        instructorPanel.className = 'available-instructor-panel';
+        instructorPanel.innerHTML = `
+            <div class="available-instructor-panel__head">
+                <div>
+                    <strong>${escapeHtml(currentInstructor.name)}</strong>
+                    <small>${escapeHtml(currentInstructor.specialty || 'Instrutor FitPulse')}</small>
+                </div>
+                <span>${Number(currentInstructor.students_count || 0)} alunos</span>
+            </div>
+            <div class="available-instructor-panel__days">${dayBadges}</div>
+            <p>${escapeHtml(Array.from(new Set(timeLabels)).join(' - ') || 'Disponibilidade ativa')}</p>
+        `;
+
+        if (confirmButton) confirmButton.disabled = false;
+        scheduleFeedback.textContent = `${matches.length} instrutor(es) disponível(is).`;
+        scheduleFeedback.className = 'wizard-inline-feedback is-ok';
+        adjustWizardHeight();
+        return true;
+    }
+
+    function validateDaysStep() {
+        const days = selectedDays();
+
+        if (days.length < minDays) {
+            setMessage(1, `Selecione pelo menos ${minDays} dias de treino com turno.`);
+            renderInstructor();
+            return false;
+        }
+
+        if (!renderInstructor()) {
+            setMessage(1, 'Escolha outros dias ou turnos para encontrar um instrutor disponível.');
             return false;
         }
 
@@ -509,7 +748,18 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     form.querySelectorAll('input[name="days[]"]').forEach(input => {
-        input.addEventListener('change', renderInstructor);
+        input.addEventListener('change', function() {
+            syncDayAvailability();
+            setMessage(1, '');
+            renderInstructor();
+        });
+    });
+
+    form.querySelectorAll('[data-shift-option] input').forEach(input => {
+        input.addEventListener('change', function() {
+            setMessage(1, '');
+            renderInstructor();
+        });
     });
 
     goalSelect.addEventListener('change', function() {
@@ -534,9 +784,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     updateCustomGoalVisibility();
+    syncDayAvailability();
     renderInstructor();
 
-    if (selectedPlan() && goalSelect.value && selectedDays().length >= minDays) {
+    if (selectedPlan() && goalSelect.value && selectedSchedule().length >= minDays) {
         setStep(2);
     } else if (selectedPlan() && goalSelect.value) {
         setStep(1);

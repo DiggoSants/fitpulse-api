@@ -10,7 +10,7 @@ class StudentSchedule extends Model
 
     protected $table = 'student_schedules';
     
-    protected $fillable = ['user_id', 'week_day', 'active'];
+    protected $fillable = ['user_id', 'week_day', 'shift', 'active'];
     
     protected $casts = [
         'active' => 'boolean',
@@ -46,6 +46,16 @@ class StudentSchedule extends Model
             'sexta' => 'friday',
             'sabado' => 'saturday',
             'domingo' => 'sunday',
+        ];
+    }
+
+    public static function shiftLabels()
+    {
+        return [
+            'morning'   => 'Manhã (08h às 12h)',
+            'afternoon' => 'Tarde (13h às 18h)',
+            'evening'   => 'Noite (18h às 22h)',
+            'full_day'  => 'Dia inteiro',
         ];
     }
 }

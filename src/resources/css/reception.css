@@ -302,6 +302,53 @@
     color: rgba(0,0,0,0.50);
 }
 
+.rec-mode-toggle {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.rec-mode-option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.04);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: border-color .2s, background .2s, color .2s;
+}
+
+.rec-mode-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.rec-mode-option:has(input:checked) {
+    border-color: rgba(214,21,50,0.48);
+    background: rgba(214,21,50,0.12);
+    color: #f87171;
+}
+
+[data-theme="light"] .rec-mode-option {
+    background: #f5f5f5;
+    border-color: rgba(0,0,0,0.10);
+    color: rgba(0,0,0,0.55);
+}
+
+[data-theme="light"] .rec-mode-option:has(input:checked) {
+    border-color: rgba(196,18,48,0.35);
+    background: rgba(196,18,48,0.08);
+    color: #c41230;
+}
+
 /* Aluno selecionado (display) */
 .rec-student-display {
     display: flex;

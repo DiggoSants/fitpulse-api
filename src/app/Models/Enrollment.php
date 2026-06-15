@@ -10,6 +10,7 @@ class Enrollment extends Model
     protected $fillable = [
         'student_id',
         'plan_id',
+        'receptionist_id',
         'start_date',
         'end_date',
         'status',

@@ -110,7 +110,21 @@
                     </div>
                 </div>
 
-                <div class="rec-field">
+                <div class="rec-field" id="enrollment-mode-field" style="display:none;">
+                    <label class="rec-label">Tipo de matricula</label>
+                    <div class="rec-mode-toggle">
+                        <label class="rec-mode-option">
+                            <input type="radio" name="enrollment_mode" value="paid" checked onchange="updateEnrollmentMode()">
+                            <span>Plano pago</span>
+                        </label>
+                        <label class="rec-mode-option">
+                            <input type="radio" name="enrollment_mode" value="trial" onchange="updateEnrollmentMode()">
+                            <span>Teste gratis</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="rec-field" id="paid-plan-field">
                     <label class="rec-label" for="select-plan">Plano</label>
                     <div class="rec-select-wrap">
                         <select id="select-plan" class="rec-select" onchange="updatePlanPreview()">
@@ -130,7 +144,28 @@
                     </div>
                 </div>
 
-                <div class="rec-field">
+                <div class="rec-field" id="trial-field" style="display:none;">
+                    <label class="rec-label" for="select-trial-option">Duracao do teste gratis</label>
+                    <div class="rec-select-wrap">
+                        <select id="select-trial-option" class="rec-select" onchange="updateTrialPreview()">
+                            <option value="">Selecione uma duracao...</option>
+                        </select>
+                        <svg class="rec-select-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <p id="trial-option-error" class="rec-field-error" style="display:none;">Selecione uma duracao liberada pelo sistema.</p>
+                    <div id="trial-preview" class="rec-plan-preview" style="display:none;">
+                        <div class="rec-plan-preview__row">
+                            <span class="rec-plan-preview__label">Inicio</span>
+                            <span class="rec-plan-preview__value" id="trial-preview-start">-</span>
+                        </div>
+                        <div class="rec-plan-preview__row">
+                            <span class="rec-plan-preview__label">Fim</span>
+                            <span class="rec-plan-preview__value" id="trial-preview-end">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rec-field" id="payment-field">
                     <label class="rec-label" for="select-payment-method">Forma de pagamento</label>
                     <div class="rec-select-wrap">
                         <select id="select-payment-method" class="rec-select">
@@ -142,7 +177,7 @@
                     </div>
                 </div>
 
-                <div class="rec-field">
+                <div class="rec-field" id="instructor-field">
                     <label class="rec-label" for="input-instructor-code">Instrutor</label>
                     <div class="rec-instructor-list" id="instructor-list">
                         <p class="rec-instructor-list__empty">Carregando instrutores...</p>
@@ -202,13 +237,16 @@
         const URL_PENDING     = "{{ route('reception.pending.data', [], false) }}";
         const URL_INSTRUCTORS = "{{ route('reception.instructors', [], false) }}";
         const URL_ENROLL      = "{{ route('reception.enroll', [], false) }}";
+        const URL_TRIAL_ENROLL = "{{ route('reception.enroll.trial', [], false) }}";
         const URL_PLANS       = "{{ route('reception.plans', [], false) }}";  {{-- ✅ rota dedicada --}}
 
         let allStudents    = [];
         let allInstructors = [];
         let allPlans       = [];
+        let allTrialOptions = [];
         let selectedStudentId = null;
         let selectedInstructorId = null;
+        let enrollmentMode = 'paid';
 
         document.addEventListener('DOMContentLoaded', () => {
             loadPendingStudents();
@@ -269,19 +307,44 @@
         async function loadPlans() {
             try {
                 {{-- ✅ Usa rota própria — sem middleware enrolled --}}
-                const res  = await fetch(URL_PLANS, { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                const res  = await fetch(URL_PLANS, { credentials: 'same-origin', cache: 'no-store', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
                 const json = await res.json();
                 allPlans   = json.data ?? [];
+                allTrialOptions = json.trial_options ?? [];
                 const sel  = document.getElementById('select-plan');
+                sel.querySelectorAll('option:not(:first-child)').forEach(option => option.remove());
                 allPlans.forEach(plan => {
                     const opt = document.createElement('option');
                     opt.value = plan.id;
                     opt.textContent = `${plan.name} — R$ ${parseFloat(plan.price).toFixed(2).replace('.', ',')} / ${plan.duration_days} dias`;
                     sel.appendChild(opt);
                 });
+                renderTrialOptions();
+                if (!allPlans.length && allTrialOptions.length) {
+                    enrollmentMode = 'trial';
+                    const trialModeInput = document.querySelector('input[name="enrollment_mode"][value="trial"]');
+                    if (trialModeInput) trialModeInput.checked = true;
+                }
+                updateEnrollmentMode();
             } catch (e) {
                 showToast('Não foi possível carregar os planos agora.', 'error');
             }
+        }
+
+        function renderTrialOptions() {
+            const modeField = document.getElementById('enrollment-mode-field');
+            const sel = document.getElementById('select-trial-option');
+
+            sel.querySelectorAll('option:not(:first-child)').forEach(option => option.remove());
+
+            allTrialOptions.forEach(option => {
+                const opt = document.createElement('option');
+                opt.value = option.id;
+                opt.textContent = `${option.trial_days} dias - ${option.name}`;
+                sel.appendChild(opt);
+            });
+
+            modeField.style.display = allTrialOptions.length ? 'flex' : 'none';
         }
 
         function renderStudentsTable(students) {
@@ -340,13 +403,21 @@
             document.getElementById('modal-student-display-email').textContent = email;
             document.getElementById('modal-student-avatar').textContent       = name.substring(0, 2).toUpperCase();
             document.getElementById('select-plan').value       = '';
+            document.getElementById('select-trial-option').value = '';
             document.getElementById('select-payment-method').value = 'pix';
             document.getElementById('input-instructor-code').value = '';
             document.getElementById('input-instructor-code').classList.remove('rec-code-input--error');
             document.getElementById('instructor-code-error').style.display = 'none';
+            document.getElementById('trial-option-error').style.display = 'none';
             document.getElementById('plan-preview').style.display       = 'none';
+            document.getElementById('trial-preview').style.display      = 'none';
             document.getElementById('instructor-preview').style.display = 'none';
             selectedInstructorId = null;
+            enrollmentMode = allPlans.length ? 'paid' : (allTrialOptions.length ? 'trial' : 'paid');
+            const modeInput = document.querySelector(`input[name="enrollment_mode"][value="${enrollmentMode}"]`);
+            if (modeInput) modeInput.checked = true;
+            updateEnrollmentMode();
+            loadPlans();
             document.getElementById('enroll-modal-overlay').style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
@@ -366,6 +437,66 @@
             document.getElementById('plan-preview-price').textContent    = `R$ ${parseFloat(plan.price).toFixed(2).replace('.', ',')}`;
             document.getElementById('plan-preview-duration').textContent = `${plan.duration_days} dias`;
             prev.style.display = 'flex';
+        }
+
+        function currentEnrollmentMode() {
+            return document.querySelector('input[name="enrollment_mode"]:checked')?.value ?? enrollmentMode;
+        }
+
+        function updateEnrollmentMode() {
+            enrollmentMode = currentEnrollmentMode();
+            const isTrial = enrollmentMode === 'trial';
+
+            document.getElementById('paid-plan-field').style.display = isTrial ? 'none' : 'flex';
+            document.getElementById('payment-field').style.display = isTrial ? 'none' : 'flex';
+            document.getElementById('instructor-field').style.display = isTrial ? 'none' : 'flex';
+            document.getElementById('trial-field').style.display = isTrial ? 'flex' : 'none';
+            document.getElementById('trial-option-error').style.display = 'none';
+
+            if (isTrial) {
+                updateTrialPreview();
+            } else {
+                document.getElementById('trial-preview').style.display = 'none';
+            }
+
+            resetConfirmButton();
+        }
+
+        function selectedTrialOption() {
+            const optionId = parseInt(document.getElementById('select-trial-option').value);
+            return allTrialOptions.find(option => Number(option.id) === optionId) ?? null;
+        }
+
+        function updateTrialPreview() {
+            const option = selectedTrialOption();
+            const preview = document.getElementById('trial-preview');
+            const error = document.getElementById('trial-option-error');
+
+            error.style.display = 'none';
+
+            if (!option) {
+                preview.style.display = 'none';
+                return;
+            }
+
+            document.getElementById('trial-preview-start').textContent = option.start_date_formatted ?? option.start_date ?? '-';
+            document.getElementById('trial-preview-end').textContent = option.end_date_formatted ?? option.end_date ?? '-';
+            preview.style.display = 'flex';
+        }
+
+        function confirmButtonIcon() {
+            return '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;"><polyline points="2,7 6,11 12,3"/></svg>';
+        }
+
+        function resetConfirmButton() {
+            const btn = document.getElementById('btn-confirm-enroll');
+            const label = currentEnrollmentMode() === 'trial' ? 'Aplicar Teste' : 'Confirmar Matricula';
+            btn.innerHTML = `${confirmButtonIcon()} ${label}`;
+        }
+
+        function firstErrorMessage(data, fallback) {
+            const firstError = data?.errors ? Object.values(data.errors).flat()[0] : null;
+            return data?.message ?? firstError ?? fallback;
         }
 
         function updateInstructorPreview() {
@@ -388,6 +519,11 @@
         }
 
         async function confirmEnroll() {
+            if (currentEnrollmentMode() === 'trial') {
+                await confirmTrialEnrollment();
+                return;
+            }
+
             const planId = document.getElementById('select-plan').value;
             const paymentMethod = document.getElementById('select-payment-method').value;
             const instId = selectedInstructorId;
@@ -396,6 +532,7 @@
                 return;
             }
             const btn = document.getElementById('btn-confirm-enroll');
+            const enrolledStudentId = selectedStudentId;
             btn.disabled = true;
             btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="stroke:currentColor;stroke-width:2.5;stroke-linecap:round;" class="rec-spin"><circle cx="12" cy="12" r="10" stroke-dasharray="31.4" stroke-dashoffset="10"/></svg> Processando...`;
             try {
@@ -409,7 +546,7 @@
                 if (res.ok) {
                     closeEnrollModal();
                     showSuccessModal(data);
-                    allStudents = allStudents.filter(s => s.id !== selectedStudentId);
+                    allStudents = allStudents.filter(s => s.id !== enrolledStudentId);
                     renderStudentsTable(allStudents);
                     document.getElementById('stat-pending').textContent = allStudents.length;
                 } else {
@@ -423,8 +560,63 @@
             }
         }
 
+        async function confirmTrialEnrollment() {
+            const option = selectedTrialOption();
+            const error = document.getElementById('trial-option-error');
+
+            if (!selectedStudentId || !option) {
+                error.style.display = 'block';
+                showToast('Selecione uma duracao de teste gratis liberada pelo sistema.', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btn-confirm-enroll');
+            const enrolledStudentId = selectedStudentId;
+            btn.disabled = true;
+            btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="stroke:currentColor;stroke-width:2.5;stroke-linecap:round;" class="rec-spin"><circle cx="12" cy="12" r="10" stroke-dasharray="31.4" stroke-dashoffset="10"/></svg> Aplicando...`;
+
+            try {
+                const res = await fetch(URL_TRIAL_ENROLL, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': CSRF },
+                    body: JSON.stringify({ student_id: selectedStudentId, trial_plan_id: option.id }),
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    closeEnrollModal();
+                    showSuccessModal(data);
+                    allStudents = allStudents.filter(s => s.id !== enrolledStudentId);
+                    renderStudentsTable(allStudents);
+                    document.getElementById('stat-pending').textContent = allStudents.length;
+                } else {
+                    showToast(firstErrorMessage(data, 'Nao foi possivel aplicar o teste gratis.'), 'error');
+                }
+            } catch (e) {
+                showToast('Erro de conexao. Tente novamente.', 'error');
+            } finally {
+                btn.disabled = false;
+                resetConfirmButton();
+            }
+        }
+
         function showSuccessModal(data) {
             const d = data.data ?? {};
+
+            if (d.trial) {
+                document.getElementById('success-msg').textContent = `${d.student ?? 'Aluno'} recebeu teste gratis com sucesso!`;
+                document.getElementById('success-details').innerHTML = `
+                    <div class="rec-success-detail-row"><span class="rec-success-detail-label">Teste</span><span class="rec-success-detail-value">${escHtml(d.plan ?? '-')}</span></div>
+                    <div class="rec-success-detail-row"><span class="rec-success-detail-label">Duracao</span><span class="rec-success-detail-value">${escHtml((d.trial_days ?? '-') + ' dias')}</span></div>
+                    <div class="rec-success-detail-row"><span class="rec-success-detail-label">Inicio</span><span class="rec-success-detail-value">${escHtml(d.start_date ?? '-')}</span></div>
+                    <div class="rec-success-detail-row"><span class="rec-success-detail-label">Fim</span><span class="rec-success-detail-value">${escHtml(d.end_date ?? '-')}</span></div>
+                    <div class="rec-success-detail-row"><span class="rec-success-detail-label">Responsavel</span><span class="rec-success-detail-value">${escHtml(d.receptionist ?? '-')}</span></div>`;
+                document.getElementById('success-modal-overlay').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                return;
+            }
+
             document.getElementById('success-msg').textContent = `${d.student ?? 'Aluno'} foi matriculado com sucesso!`;
             document.getElementById('success-details').innerHTML = `
                 <div class="rec-success-detail-row"><span class="rec-success-detail-label">Plano</span><span class="rec-success-detail-value">${escHtml(d.plan ?? '—')}</span></div>

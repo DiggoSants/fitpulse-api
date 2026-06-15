@@ -250,6 +250,7 @@ Route::middleware(['auth', 'verified', 'role:manager,receptionist'])->group(func
     Route::get('/api/students/pending-enrollment', [ReceptionController::class, 'pendingEnrollmentData'])->name('reception.pending.data');
     Route::get('/reception/instructors/available', [ReceptionController::class, 'availableInstructors'])->name('reception.instructors');
     Route::get('/reception/plans',             [ReceptionController::class, 'activePlans'])->name('reception.plans');
+    Route::post('/enrollments/trial',          [ReceptionController::class, 'enrollTrial'])->name('reception.enroll.trial');
     Route::post('/enrollments',                [ReceptionController::class, 'enroll'])->name('reception.enroll');
 });
 

@@ -65,10 +65,29 @@ class ReceptionController extends Controller
     public function activePlans()
     {
         $plans = Plan::active()
+            ->where(function ($query) {
+                $query->where('is_trial', false)
+                    ->orWhereNull('is_trial');
+            })
             ->orderedByPrice()
             ->get(['id', 'name', 'price', 'duration_days']);
 
-        return response()->json(['data' => $plans]);
+        $startDate = Carbon::today();
+        $trialOptions = Plan::active()
+            ->trials()
+            ->whereNotNull('trial_days')
+            ->where('trial_days', '>', 0)
+            ->orderBy('trial_days')
+            ->orderBy('name')
+            ->get(['id', 'name', 'trial_days'])
+            ->map(fn (Plan $plan) => $this->trialOptionPayload($plan, $startDate))
+            ->values();
+
+        return response()->json([
+            'data' => $plans,
+            'trial_available' => $trialOptions->isNotEmpty(),
+            'trial_options' => $trialOptions,
+        ]);
     }
 
     public function availableInstructors()
@@ -109,6 +128,12 @@ class ReceptionController extends Controller
         $student    = Student::findOrFail($request->student_id);
         $plan       = Plan::where('id', $request->plan_id)->where('status', 'active')->firstOrFail();
         $instructor = Instructor::findOrFail($request->instructor_id);
+
+        if ($plan->isTrial()) {
+            return response()->json([
+                'message' => 'Use a opcao de teste gratis para aplicar esta duracao.',
+            ], 422);
+        }
 
         if (!$student->user || !$student->user->isStudent()) {
             return response()->json([
@@ -169,5 +194,118 @@ class ReceptionController extends Controller
                 'receptionist'   => $receptionist?->user->name ?? 'Gerente',
             ],
         ], 201);
+    }
+
+    public function enrollTrial(Request $request)
+    {
+        $request->validate([
+            'student_id'     => ['required', 'exists:students,id'],
+            'trial_plan_id' => ['required', 'exists:plans,id'],
+        ], [
+            'student_id.required' => 'Selecione o aluno.',
+            'trial_plan_id.required' => 'Selecione uma duracao de teste gratis.',
+            'trial_plan_id.exists' => 'Duracao de teste gratis invalida.',
+        ]);
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $student = Student::with('user')->findOrFail($request->student_id);
+        $trialPlan = $this->availableTrialPlan($request->integer('trial_plan_id'));
+
+        if (!$trialPlan) {
+            return response()->json([
+                'message' => 'Esta duracao de teste gratis nao esta disponivel.',
+            ], 422);
+        }
+
+        if (!$student->user || !$student->user->isStudent()) {
+            return response()->json([
+                'message' => 'Apenas alunos podem receber teste gratis.',
+            ], 422);
+        }
+
+        if ($student->isEnrolled()) {
+            return response()->json([
+                'message' => 'Este aluno ja possui uma matricula ativa.',
+            ], 422);
+        }
+
+        if ($student->hasUsedTrial()) {
+            return response()->json([
+                'message' => 'Este aluno ja utilizou o teste gratis.',
+            ], 422);
+        }
+
+        $receptionist = $user->isReceptionist()
+            ? Receptionist::where('user_id', $user->id)->first()
+            : null;
+
+        $startDate = Carbon::today();
+        $endDate = $startDate->copy()->addDays((int) $trialPlan->trial_days);
+
+        $enrollment = DB::transaction(function () use ($student, $trialPlan, $receptionist, $startDate, $endDate) {
+            $lockedStudent = Student::with('user')->whereKey($student->id)->lockForUpdate()->firstOrFail();
+
+            if ($lockedStudent->isEnrolled()) {
+                abort(response()->json([
+                    'message' => 'Este aluno ja possui uma matricula ativa.',
+                ], 422));
+            }
+
+            if ($lockedStudent->hasUsedTrial()) {
+                abort(response()->json([
+                    'message' => 'Este aluno ja utilizou o teste gratis.',
+                ], 422));
+            }
+
+            return Enrollment::create([
+                'student_id'      => $lockedStudent->id,
+                'plan_id'         => $trialPlan->id,
+                'receptionist_id' => $receptionist?->id,
+                'start_date'      => $startDate,
+                'end_date'        => $endDate,
+                'status'          => 'active',
+            ]);
+        });
+
+        return response()->json([
+            'message' => "Teste gratis ativado por {$trialPlan->trial_days} dias.",
+            'data'    => [
+                'trial'          => true,
+                'enrollment_id'  => $enrollment->id,
+                'student'        => $student->user->name,
+                'plan'           => $trialPlan->name,
+                'trial_days'     => (int) $trialPlan->trial_days,
+                'start_date'     => $enrollment->start_date->format('d/m/Y'),
+                'end_date'       => $enrollment->end_date->format('d/m/Y'),
+                'receptionist'   => $receptionist?->user->name ?? 'Gerente',
+            ],
+        ], 201);
+    }
+
+    private function availableTrialPlan(int $planId): ?Plan
+    {
+        return Plan::active()
+            ->trials()
+            ->whereNotNull('trial_days')
+            ->where('trial_days', '>', 0)
+            ->whereKey($planId)
+            ->first();
+    }
+
+    private function trialOptionPayload(Plan $plan, Carbon $startDate): array
+    {
+        $endDate = $startDate->copy()->addDays((int) $plan->trial_days);
+
+        return [
+            'id' => $plan->id,
+            'name' => $plan->name,
+            'trial_days' => (int) $plan->trial_days,
+            'start_date' => $startDate->toDateString(),
+            'end_date' => $endDate->toDateString(),
+            'start_date_formatted' => $startDate->format('d/m/Y'),
+            'end_date_formatted' => $endDate->format('d/m/Y'),
+        ];
     }
 }

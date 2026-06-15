@@ -19,6 +19,8 @@ class Plan extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
+        'is_trial' => 'boolean',
+        'trial_days' => 'integer',
     ];
 
     public function enrollments()

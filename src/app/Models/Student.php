@@ -69,8 +69,8 @@ class Student extends Model
                 $q->where('status', 'active')
                     ->orWhere('status', 'cancelled');
             })
-            ->where('start_date', '<=', $today)
-            ->where('end_date', '>=', $today)
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today)
             ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
             ->orderByDesc('end_date')
             ->orderByDesc('start_date')
@@ -87,11 +87,11 @@ class Student extends Model
                 $q->where('status', 'active')
                     ->orWhere(function ($q2) {
                         $q2->where('status', 'cancelled')
-                            ->where('end_date', '>=', now()->toDateString());
+                            ->whereDate('end_date', '>=', now()->toDateString());
                     });
             })
-            ->where('start_date', '<=', $today)
-            ->where('end_date', '>=', $today)
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today)
             ->exists();
     }
 
